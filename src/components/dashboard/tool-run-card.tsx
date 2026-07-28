@@ -1,24 +1,39 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Download, Loader2, UploadCloud, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ToolRunCard({
+  id,
   title,
   description,
   credits,
 }: {
+  id: string;
   title: string;
   description: string;
   credits: number;
 }) {
+  const router = useRouter();
   const [status, setStatus] = useState<"idle" | "running" | "done">("idle");
   const [fileName, setFileName] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleRun() {
+  async function handleRun() {
     setStatus("running");
-    window.setTimeout(() => setStatus("done"), 1600);
+    setError(null);
+    try {
+      const res = await fetch(`/api/ai-tools/${id}/run`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "خطا در اجرای ابزار");
+      setStatus("done");
+      router.refresh();
+    } catch (err) {
+      setStatus("idle");
+      setError(err instanceof Error ? err.message : "خطا در اجرای ابزار");
+    }
   }
 
   return (
@@ -60,6 +75,8 @@ export function ToolRunCard({
           </>
         )}
       </Button>
+
+      {error && <p className="mt-3 text-center text-sm text-destructive">{error}</p>}
 
       {status === "done" && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm">

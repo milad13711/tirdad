@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Download } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import {
@@ -9,49 +10,63 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { myInvoices } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import { formatJalali, formatToman, getUserOrders } from "@/lib/queries/dashboard";
+import { orderStatusLabel, orderStatusVariant } from "@/lib/status-labels";
 
-const statusVariant = {
-  "پرداخت‌شده": "success",
-  "بازپرداخت‌شده": "outline",
-} as const;
+export default async function InvoicesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
 
-export default function InvoicesPage() {
+  const orders = await getUserOrders(session.sub);
+
   return (
     <div>
       <PageHeader title="فاکتورها" description="تاریخچه پرداخت‌ها و خریدهای شما" />
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>شماره فاکتور</TableHead>
-            <TableHead>شرح</TableHead>
-            <TableHead>تاریخ</TableHead>
-            <TableHead>مبلغ (تومان)</TableHead>
-            <TableHead>وضعیت</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {myInvoices.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell className="font-medium">{invoice.id}</TableCell>
-              <TableCell className="text-muted-foreground">{invoice.item}</TableCell>
-              <TableCell className="text-muted-foreground">{invoice.date}</TableCell>
-              <TableCell>{invoice.amount}</TableCell>
-              <TableCell>
-                <Badge variant={statusVariant[invoice.status]}>{invoice.status}</Badge>
-              </TableCell>
-              <TableCell>
-                <button className="flex cursor-pointer items-center gap-1 text-sm text-primary hover:underline">
-                  <Download size={14} />
-                  دانلود
-                </button>
-              </TableCell>
+      {orders.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          هنوز هیچ خریدی ثبت نشده است.
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>شماره فاکتور</TableHead>
+              <TableHead>شرح</TableHead>
+              <TableHead>تاریخ</TableHead>
+              <TableHead>مبلغ (تومان)</TableHead>
+              <TableHead>وضعیت</TableHead>
+              <TableHead />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell className="font-medium">
+                  #{order.id.slice(-6).toUpperCase()}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{order.itemLabel}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatJalali(order.createdAt)}
+                </TableCell>
+                <TableCell>{formatToman(order.amount)}</TableCell>
+                <TableCell>
+                  <Badge variant={orderStatusVariant[order.status]}>
+                    {orderStatusLabel[order.status]}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <button className="flex cursor-pointer items-center gap-1 text-sm text-primary hover:underline">
+                    <Download size={14} />
+                    دانلود
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminCourses } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import { formatToman } from "@/lib/queries/dashboard";
+import { getAdminCourses } from "@/lib/queries/admin";
 
-export default function AdminCoursesPage() {
+export default async function AdminCoursesPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const courses = await getAdminCourses();
+
   return (
     <div>
       <PageHeader
@@ -36,14 +44,16 @@ export default function AdminCoursesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {adminCourses.map((course) => (
+          {courses.map((course) => (
             <TableRow key={course.id}>
               <TableCell className="font-medium">{course.title}</TableCell>
-              <TableCell>{course.price}</TableCell>
-              <TableCell className="text-muted-foreground">{course.students}</TableCell>
+              <TableCell>{formatToman(course.price)}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {course._count.enrollments}
+              </TableCell>
               <TableCell>
-                <Badge variant={course.status === "منتشرشده" ? "success" : "outline"}>
-                  {course.status}
+                <Badge variant={course.published ? "success" : "outline"}>
+                  {course.published ? "منتشرشده" : "پیش‌نویس"}
                 </Badge>
               </TableCell>
             </TableRow>

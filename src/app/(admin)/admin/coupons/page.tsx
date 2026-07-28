@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminCoupons } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import { formatJalali } from "@/lib/queries/dashboard";
+import { getAdminCoupons } from "@/lib/queries/admin";
 
-export default function AdminCouponsPage() {
+export default async function AdminCouponsPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const coupons = await getAdminCoupons();
+
   return (
     <div>
       <PageHeader
@@ -37,19 +45,24 @@ export default function AdminCouponsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {adminCoupons.map((coupon) => (
+          {coupons.map((coupon) => (
             <TableRow key={coupon.id}>
               <TableCell dir="ltr" className="text-left font-mono font-medium">
                 {coupon.code}
               </TableCell>
-              <TableCell>{coupon.discount}</TableCell>
-              <TableCell className="text-muted-foreground">{coupon.usage}</TableCell>
+              <TableCell>{coupon.discountPercent}٪</TableCell>
+              <TableCell className="text-muted-foreground">
+                {coupon.usedCount}
+                {coupon.usageLimit ? `/${coupon.usageLimit}` : ""}
+              </TableCell>
               <TableCell>
-                <Badge variant={coupon.status === "فعال" ? "success" : "outline"}>
-                  {coupon.status}
+                <Badge variant={coupon.active ? "success" : "outline"}>
+                  {coupon.active ? "فعال" : "غیرفعال"}
                 </Badge>
               </TableCell>
-              <TableCell className="text-muted-foreground">{coupon.expiresAt}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {coupon.expiresAt ? formatJalali(coupon.expiresAt) : "بدون انقضا"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

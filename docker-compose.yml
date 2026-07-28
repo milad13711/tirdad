@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tirdad
+      POSTGRES_PASSWORD: tirdad
+      POSTGRES_DB: tirdad
+    ports:
+      - "5432:5432"
+    volumes:
+      - tirdad_db_data:/var/lib/postgresql/data
+
+volumes:
+  tirdad_db_data:

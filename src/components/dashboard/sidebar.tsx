@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Sparkles, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,13 @@ export function Sidebar({
   className?: string;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <aside className={cn("flex h-full w-64 flex-col border-l border-border bg-card", className)}>
@@ -69,13 +76,14 @@ export function Sidebar({
       </nav>
 
       <div className="border-t border-border p-3">
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         >
           <LogOut size={17} />
-          خروج به سایت
-        </Link>
+          خروج از حساب
+        </button>
       </div>
     </aside>
   );

@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+enum OrderItemType {
+  COURSE
+  PROMPT_PACKAGE
+  SUBSCRIPTION
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum AiToolType {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum GenerationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum LeadSource {
+  DIRECT
+  COMMENT
+  BIO_LINK
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  OFFERED
+  CONVERTED
+  LOST
+}
+
+enum TicketStatus {
+  OPEN
+  ANSWERED
+  CLOSED
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  phone         String         @unique
+  name          String?
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+  orders        Order[]
+  enrollments   Enrollment[]
+  generations   AiGeneration[]
+  tickets       Ticket[]
+  usageLogs     UsageLog[]
+}
+
+model OtpCode {
+  id         String    @id @default(cuid())
+  phone      String
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([phone])
+}
+
+model SubscriptionPlan {
+  id               String         @id @default(cuid())
+  name             String
+  slug             String         @unique
+  price            Int
+  period           String         @default("monthly")
+  dailyRunLimit    Int?
+  monthlyRunLimit  Int?
+  features         Json
+  createdAt        DateTime       @default(now())
+  subscriptions    Subscription[]
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  userId           String
+  planId           String
+  status           SubscriptionStatus @default(ACTIVE)
+  startedAt        DateTime           @default(now())
+  currentPeriodEnd DateTime
+  createdAt        DateTime           @default(now())
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             SubscriptionPlan   @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+}
+
+model Order {
+  id           String        @id @default(cuid())
+  userId       String
+  itemType     OrderItemType
+  itemLabel    String
+  amount       Int
+  status       OrderStatus   @default(PENDING)
+  couponId     String?
+  createdAt    DateTime      @default(now())
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon       Coupon?       @relation(fields: [couponId], references: [id])
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id        String      @id @default(cuid())
+  orderId   String
+  gateway   String
+  refId     String?
+  status    OrderStatus
+  paidAt    DateTime?
+  createdAt DateTime    @default(now())
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique
+  description String?
+  price       Int
+  level       String?
+  published   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  lessons     Lesson[]
+  enrollments Enrollment[]
+}
+
+model Lesson {
+  id         String  @id @default(cuid())
+  courseId   String
+  title      String
+  order      Int
+  videoUrl   String?
+  isFreeDemo Boolean @default(false)
+  course     Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  progress  Int      @default(0)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model AiTool {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  type          AiToolType
+  creditCost    Int
+  hiddenPrompt  String
+  demoBeforeUrl String?
+  demoAfterUrl  String?
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  generations   AiGeneration[]
+}
+
+model AiGeneration {
+  id          String           @id @default(cuid())
+  userId      String
+  aiToolId    String
+  status      GenerationStatus @default(PENDING)
+  inputUrl    String?
+  outputUrl   String?
+  creditsUsed Int
+  createdAt   DateTime         @default(now())
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiTool      AiTool           @relation(fields: [aiToolId], references: [id])
+
+  @@index([userId])
+}
+
+model PromptPackage {
+  id        String   @id @default(cuid())
+  title     String
+  category  String?
+  price     Int
+  fileUrl   String?
+  createdAt DateTime @default(now())
+}
+
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  excerpt     String?
+  content     String?
+  status      BlogStatus @default(DRAFT)
+  views       Int        @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  phone     String?
+  source    LeadSource
+  topic     String?
+  stage     LeadStage  @default(NEW)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Ticket {
+  id        String          @id @default(cuid())
+  userId    String
+  subject   String
+  status    TicketStatus    @default(OPEN)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  TicketMessage[]
+
+  @@index([userId])
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  sender    String
+  message   String
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  discountPercent Int
+  usageLimit     Int?
+  usedCount      Int       @default(0)
+  active         Boolean   @default(true)
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  orders         Order[]
+}
+
+model UsageLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

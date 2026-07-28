@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ToolRunCard } from "@/components/dashboard/tool-run-card";
 import {
@@ -9,52 +10,84 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { aiTools } from "@/lib/content";
-import { currentUser, myGenerations } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import {
+  formatJalaliDateTime,
+  getActiveAiTools,
+  getUserGenerations,
+  getUserOverview,
+} from "@/lib/queries/dashboard";
+import { generationStatusLabel, generationStatusVariant } from "@/lib/status-labels";
 
-const statusVariant = {
-  "تکمیل‌شده": "success",
-  "در حال پردازش": "warning",
-  "ناموفق": "destructive",
-} as const;
+const FREE_DAILY_LIMIT = 3;
 
-export default function AiToolsPage() {
+export default async function AiToolsPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const [tools, generations, overview] = await Promise.all([
+    getActiveAiTools(),
+    getUserGenerations(session.sub),
+    getUserOverview(session.sub),
+  ]);
+
+  const dailyLimit = overview.subscription?.plan.dailyRunLimit ?? FREE_DAILY_LIMIT;
+  const remaining = Math.max(0, dailyLimit - overview.dailyRunsUsed);
+
   return (
     <div>
       <PageHeader
         title="ابزارهای هوش مصنوعی"
-        description={`${currentUser.dailyRunsLimit - currentUser.dailyRunsUsed} اجرای رایگان از ${currentUser.dailyRunsLimit} مورد امروز باقی مانده است`}
+        description={`${remaining} اجرای رایگان از ${dailyLimit} مورد امروز باقی مانده است`}
       />
 
       <div className="mb-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {aiTools.map((tool) => (
-          <ToolRunCard key={tool.title} {...tool} />
+        {tools.map((tool) => (
+          <ToolRunCard
+            key={tool.id}
+            id={tool.id}
+            title={tool.name}
+            description="خروجی حرفه‌ای در چند ثانیه، بدون نیاز به تخصص."
+            credits={tool.creditCost}
+          />
         ))}
       </div>
 
       <h3 className="mb-4 font-bold">تاریخچه خروجی‌ها</h3>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ابزار</TableHead>
-            <TableHead>تاریخ</TableHead>
-            <TableHead>کردیت مصرفی</TableHead>
-            <TableHead>وضعیت</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {myGenerations.map((gen) => (
-            <TableRow key={gen.id}>
-              <TableCell className="font-medium">{gen.tool}</TableCell>
-              <TableCell className="text-muted-foreground">{gen.date}</TableCell>
-              <TableCell className="text-muted-foreground">{gen.credits} کردیت</TableCell>
-              <TableCell>
-                <Badge variant={statusVariant[gen.status]}>{gen.status}</Badge>
-              </TableCell>
+      {generations.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          هنوز از هیچ ابزاری استفاده نکرده‌اید.
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ابزار</TableHead>
+              <TableHead>تاریخ</TableHead>
+              <TableHead>کردیت مصرفی</TableHead>
+              <TableHead>وضعیت</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {generations.map((gen) => (
+              <TableRow key={gen.id}>
+                <TableCell className="font-medium">{gen.aiTool.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatJalaliDateTime(gen.createdAt)}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {gen.creditsUsed} کردیت
+                </TableCell>
+                <TableCell>
+                  <Badge variant={generationStatusVariant[gen.status]}>
+                    {generationStatusLabel[gen.status]}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }

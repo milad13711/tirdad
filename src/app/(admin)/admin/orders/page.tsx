@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,45 +9,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminOrders } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import { formatJalali, formatToman } from "@/lib/queries/dashboard";
+import { getAdminOrders } from "@/lib/queries/admin";
+import { orderStatusLabel, orderStatusVariant } from "@/lib/status-labels";
 
-const statusVariant = {
-  موفق: "success",
-  "در انتظار": "warning",
-  ناموفق: "destructive",
-} as const;
+export default async function AdminOrdersPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
 
-export default function AdminOrdersPage() {
+  const orders = await getAdminOrders();
+
   return (
     <div>
       <PageHeader title="سفارش‌ها" description="مدیریت سفارش‌ها و تراکنش‌های پلتفرم" />
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>شماره سفارش</TableHead>
-            <TableHead>کاربر</TableHead>
-            <TableHead>مورد</TableHead>
-            <TableHead>مبلغ (تومان)</TableHead>
-            <TableHead>وضعیت</TableHead>
-            <TableHead>تاریخ</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {adminOrders.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell className="font-medium">{order.id}</TableCell>
-              <TableCell>{order.user}</TableCell>
-              <TableCell className="text-muted-foreground">{order.item}</TableCell>
-              <TableCell>{order.amount}</TableCell>
-              <TableCell>
-                <Badge variant={statusVariant[order.status]}>{order.status}</Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">{order.date}</TableCell>
+      {orders.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          هنوز سفارشی ثبت نشده است.
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>شماره سفارش</TableHead>
+              <TableHead>کاربر</TableHead>
+              <TableHead>مورد</TableHead>
+              <TableHead>مبلغ (تومان)</TableHead>
+              <TableHead>وضعیت</TableHead>
+              <TableHead>تاریخ</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell className="font-medium">
+                  #{order.id.slice(-6).toUpperCase()}
+                </TableCell>
+                <TableCell>{order.user.name ?? order.user.phone}</TableCell>
+                <TableCell className="text-muted-foreground">{order.itemLabel}</TableCell>
+                <TableCell>{formatToman(order.amount)}</TableCell>
+                <TableCell>
+                  <Badge variant={orderStatusVariant[order.status]}>
+                    {orderStatusLabel[order.status]}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatJalali(order.createdAt)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +11,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminBlogPosts } from "@/lib/mock-data";
+import { getSession } from "@/lib/auth/session";
+import { formatJalali } from "@/lib/queries/dashboard";
+import { getAdminBlogPosts } from "@/lib/queries/admin";
+import { blogStatusLabel, blogStatusVariant } from "@/lib/status-labels";
 
-export default function AdminBlogPage() {
+export default async function AdminBlogPage() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const posts = await getAdminBlogPosts();
+
   return (
     <div>
       <PageHeader
@@ -36,18 +45,20 @@ export default function AdminBlogPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {adminBlogPosts.map((post) => (
+          {posts.map((post) => (
             <TableRow key={post.id}>
               <TableCell className="font-medium">{post.title}</TableCell>
               <TableCell className="text-muted-foreground">
                 {post.views.toLocaleString("fa-IR")}
               </TableCell>
               <TableCell>
-                <Badge variant={post.status === "منتشرشده" ? "success" : "outline"}>
-                  {post.status}
+                <Badge variant={blogStatusVariant[post.status]}>
+                  {blogStatusLabel[post.status]}
                 </Badge>
               </TableCell>
-              <TableCell className="text-muted-foreground">{post.date}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {post.publishedAt ? formatJalali(post.publishedAt) : "—"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
