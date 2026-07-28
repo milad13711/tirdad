@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0b0d12;
+  --card: #ffffff;
+  --card-foreground: #0b0d12;
+  --primary: #1a7fff;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5fb;
+  --secondary-foreground: #0b0d12;
+  --muted: #f1f5fb;
+  --muted-foreground: #5b6472;
+  --accent: #eaf2ff;
+  --accent-foreground: #0b3d8f;
+  --border: #e6e9ef;
+  --destructive: #ef4444;
+  --ring: #1a7fff;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #050608;
+  --foreground: #f5f8ff;
+  --card: #0a0c10;
+  --card-foreground: #f5f8ff;
+  --primary: #1a7fff;
+  --primary-foreground: #ffffff;
+  --secondary: #12151b;
+  --secondary-foreground: #f5f8ff;
+  --muted: #0d0f14;
+  --muted-foreground: #98a2b8;
+  --accent: rgba(26, 127, 255, 0.12);
+  --accent-foreground: #6fa8ff;
+  --border: rgba(245, 248, 255, 0.08);
+  --destructive: #ef4444;
+  --ring: #1a7fff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --font-sans: var(--font-vazirmatn);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans), sans-serif;
+    font-weight: 400;
+  }
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
