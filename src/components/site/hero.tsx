@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeft, PlayCircle } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -67,13 +68,17 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
         >
-          <Button size="lg">
-            شروع رایگان
-            <ArrowLeft size={18} />
+          <Button size="lg" asChild>
+            <Link href="/login">
+              شروع رایگان
+              <ArrowLeft size={18} />
+            </Link>
           </Button>
-          <Button size="lg" variant="outline">
-            <PlayCircle size={18} />
-            مشاهده دموی ابزارها
+          <Button size="lg" variant="outline" asChild>
+            <a href="#ai-tools">
+              <PlayCircle size={18} />
+              مشاهده دموی ابزارها
+            </a>
           </Button>
         </motion.div>
 

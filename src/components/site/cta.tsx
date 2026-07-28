@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
@@ -21,12 +22,14 @@ export function Cta() {
               استفاده کنید.
             </p>
             <div className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg">
-                شروع رایگان
-                <ArrowLeft size={18} />
+              <Button size="lg" asChild>
+                <Link href="/login">
+                  شروع رایگان
+                  <ArrowLeft size={18} />
+                </Link>
               </Button>
-              <Button size="lg" variant="outline">
-                مشاهده پلن‌ها
+              <Button size="lg" variant="outline" asChild>
+                <a href="#pricing">مشاهده پلن‌ها</a>
               </Button>
             </div>
           </div>

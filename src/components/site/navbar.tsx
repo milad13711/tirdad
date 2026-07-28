@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -57,10 +58,12 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
-          <Button variant="outline" size="sm">
-            ورود
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/login">ورود</Link>
           </Button>
-          <Button size="sm">شروع رایگان</Button>
+          <Button size="sm" asChild>
+            <Link href="/login">شروع رایگان</Link>
+          </Button>
         </div>
 
         <button
@@ -90,11 +93,15 @@ export function Navbar() {
           </nav>
           <div className="mt-6 flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="outline" size="sm" className="flex-1">
-              ورود
+            <Button variant="outline" size="sm" className="flex-1" asChild>
+              <Link href="/login" onClick={() => setOpen(false)}>
+                ورود
+              </Link>
             </Button>
-            <Button size="sm" className="flex-1">
-              شروع رایگان
+            <Button size="sm" className="flex-1" asChild>
+              <Link href="/login" onClick={() => setOpen(false)}>
+                شروع رایگان
+              </Link>
             </Button>
           </div>
         </div>
