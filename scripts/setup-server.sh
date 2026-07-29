@@ -37,26 +37,25 @@ if ! id -u tirdad-app >/dev/null 2>&1; then
   adduser --disabled-password --gecos "" tirdad-app
 fi
 
-echo "== 8. کلون پروژه =="
-# اتصال HTTPS این سرور به گیت‌هاب گاهی موقتاً قطع/تایم‌اوت می‌شه، پس چند بار
-# با فاصله امتحان می‌کنیم؛ shallow clone هم حجم انتقال رو کمتر می‌کنه.
-clone_or_update() {
-  if [ -d /home/tirdad-app/tirdad/.git ]; then
-    su - tirdad-app -c "cd ~/tirdad && git fetch --depth 1 origin && git reset --hard origin/HEAD"
-  else
-    rm -rf /home/tirdad-app/tirdad
-    su - tirdad-app -c "git clone --depth 1 https://github.com/milad13711/tirdad.git ~/tirdad"
-  fi
+echo "== 8. دریافت پروژه =="
+# git clone روی این سرور به‌طور مکرر با SSL connection timeout شکست خورد
+# (به‌احتمال زیاد مشکل مسیریابی IPv6)، در حالی که curl ساده جواب می‌داد.
+# پس به‌جای git clone، تاربال رو مستقیم با curl (با اجبار IPv4) می‌گیریم.
+BRANCH="claude/ui-ux-pro-max-skill-qdlm2j"
+fetch_project() {
+  su - tirdad-app -c "curl -4 -fsSL --connect-timeout 20 --max-time 180 https://github.com/milad13711/tirdad/archive/refs/heads/${BRANCH}.tar.gz -o /tmp/tirdad.tar.gz" || return 1
+  rm -rf /home/tirdad-app/tirdad
+  su - tirdad-app -c "mkdir -p ~/tirdad && tar -xzf /tmp/tirdad.tar.gz -C ~/tirdad --strip-components=1"
 }
 for attempt in 1 2 3 4 5 6 7 8; do
-  if clone_or_update; then
+  if fetch_project; then
     break
   fi
   if [ "$attempt" -eq 8 ]; then
-    echo "کلون پروژه بعد از ۸ تلاش ناموفق بود. اسکریپت رو دوباره اجرا کنید."
+    echo "دریافت پروژه بعد از ۸ تلاش ناموفق بود. اسکریپت رو دوباره اجرا کنید."
     exit 1
   fi
-  echo "تلاش $attempt برای کلون/آپدیت پروژه ناموفق بود، ۱۵ ثانیه صبر و تلاش دوباره..."
+  echo "تلاش $attempt برای دریافت پروژه ناموفق بود، ۱۵ ثانیه صبر و تلاش دوباره..."
   sleep 15
 done
 
