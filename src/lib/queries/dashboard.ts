@@ -2,7 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 
 export async function getUserOverview(userId: string) {
-  const [user, subscription, enrollments, generations, openTicketsCount] = await Promise.all([
+  const [user, subscription, enrollments, openTicketsCount] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     prisma.subscription.findFirst({
       where: { userId, status: "ACTIVE" },
@@ -14,35 +14,10 @@ export async function getUserOverview(userId: string) {
       include: { course: { include: { lessons: true } } },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.aiGeneration.findMany({
-      where: { userId },
-      include: { aiTool: true },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
     prisma.ticket.count({ where: { userId, status: { not: "CLOSED" } } }),
   ]);
 
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-  const dayStart = new Date();
-  dayStart.setHours(0, 0, 0, 0);
-
-  const [monthlyRunsUsed, dailyRunsUsed] = await Promise.all([
-    prisma.aiGeneration.count({ where: { userId, createdAt: { gte: monthStart } } }),
-    prisma.aiGeneration.count({ where: { userId, createdAt: { gte: dayStart } } }),
-  ]);
-
-  return {
-    user,
-    subscription,
-    enrollments,
-    generations,
-    openTicketsCount,
-    monthlyRunsUsed,
-    dailyRunsUsed,
-  };
+  return { user, subscription, enrollments, openTicketsCount };
 }
 
 export async function getUserEnrollments(userId: string) {
@@ -76,16 +51,8 @@ export async function getPurchasableCourses(userId: string) {
   });
 }
 
-export async function getUserGenerations(userId: string) {
-  return prisma.aiGeneration.findMany({
-    where: { userId },
-    include: { aiTool: true },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
-export async function getActiveAiTools() {
-  return prisma.aiTool.findMany({ where: { active: true }, orderBy: { createdAt: "asc" } });
+export async function getActivePrompts() {
+  return prisma.aiTool.findMany({ where: { active: true }, orderBy: { createdAt: "desc" } });
 }
 
 export async function getPlans() {

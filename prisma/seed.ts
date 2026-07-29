@@ -103,7 +103,7 @@ async function main() {
         name: "بازسازی تصویر محصول",
         type: "IMAGE" as const,
         creditCost: 2,
-        hiddenPrompt:
+        promptText:
           "Professional studio product photography, clean background, soft shadows, commercial lighting",
         active: true,
       },
@@ -111,21 +111,21 @@ async function main() {
         name: "تولید تیزر کوتاه از متن",
         type: "VIDEO" as const,
         creditCost: 5,
-        hiddenPrompt: "Short vertical promotional teaser, dynamic cuts, upbeat pacing",
+        promptText: "Short vertical promotional teaser, dynamic cuts, upbeat pacing",
         active: true,
       },
       {
         name: "افکت سینمایی پرتره",
         type: "IMAGE" as const,
         creditCost: 3,
-        hiddenPrompt: "Cinematic portrait lighting, dramatic shadows, film grain, color grade",
+        promptText: "Cinematic portrait lighting, dramatic shadows, film grain, color grade",
         active: true,
       },
       {
         name: "تولید وویس‌اُور هوشمند",
         type: "AUDIO" as const,
         creditCost: 4,
-        hiddenPrompt: "Natural Persian voiceover, warm tone, broadcast quality",
+        promptText: "Natural Persian voiceover, warm tone, broadcast quality",
         active: false,
       },
     ].map((tool) =>

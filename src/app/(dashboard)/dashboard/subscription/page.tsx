@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Check } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { BuyButton } from "@/components/dashboard/buy-button";
 import { CancelSubscriptionButton } from "@/components/dashboard/cancel-subscription-button";
@@ -15,35 +14,25 @@ export default async function SubscriptionPage() {
   if (!session) redirect("/login");
 
   const [plans, overview] = await Promise.all([getPlans(), getUserOverview(session.sub)]);
-  const { subscription, monthlyRunsUsed } = overview;
-  const monthlyLimit = subscription?.plan.monthlyRunLimit ?? null;
+  const { subscription } = overview;
 
   return (
     <div>
       <PageHeader title="اشتراک من" description="مدیریت پلن فعلی و ارتقای اشتراک" />
 
-      <div className="mb-10 rounded-xl border border-primary/30 bg-primary/5 p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">پلن فعلی شما</p>
-            <p className="text-xl font-extrabold text-primary">
-              {subscription?.plan.name ?? "رایگان"}
-            </p>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {subscription
-              ? `تمدید بعدی: ${formatJalaliDateTime(subscription.currentPeriodEnd)}`
-              : "بدون پلن فعال"}
-          </div>
-          {subscription && <CancelSubscriptionButton subscriptionId={subscription.id} />}
+      <div className="mb-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-primary/30 bg-primary/5 p-6">
+        <div>
+          <p className="text-sm text-muted-foreground">پلن فعلی شما</p>
+          <p className="text-xl font-extrabold text-primary">
+            {subscription?.plan.name ?? "رایگان"}
+          </p>
         </div>
-        <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">اجرای ماهانه مصرف‌شده</span>
-          <span>
-            {monthlyRunsUsed} از {monthlyLimit ?? "نامحدود"}
-          </span>
+        <div className="text-sm text-muted-foreground">
+          {subscription
+            ? `تمدید بعدی: ${formatJalaliDateTime(subscription.currentPeriodEnd)}`
+            : "بدون پلن فعال"}
         </div>
-        <Progress value={monthlyLimit ? (monthlyRunsUsed / monthlyLimit) * 100 : 100} />
+        {subscription && <CancelSubscriptionButton subscriptionId={subscription.id} />}
       </div>
 
       <h3 className="mb-5 font-bold">ارتقا یا تغییر پلن</h3>

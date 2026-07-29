@@ -1,0 +1,111 @@
+"use client";
+
+import { useState } from "react";
+import { Check, Copy } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { aiToolTypeLabel } from "@/lib/status-labels";
+
+interface PromptCardProps {
+  name: string;
+  type: "IMAGE" | "VIDEO" | "AUDIO";
+  promptText: string;
+  demoBeforeUrl: string | null;
+  demoAfterUrl: string | null;
+}
+
+export function PromptCard({ name, type, promptText, demoBeforeUrl, demoAfterUrl }: PromptCardProps) {
+  const [copied, setCopied] = useState(false);
+
+  function legacyCopy(text: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      return true;
+    } catch {
+      return false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
+  async function handleCopy() {
+    // navigator.clipboard needs a secure context (HTTPS or localhost) — on a
+    // plain-HTTP deploy (no domain/SSL yet) it's undefined, so fall back to
+    // the older execCommand approach instead of failing silently.
+    let ok = false;
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(promptText);
+        ok = true;
+      } catch {
+        ok = legacyCopy(promptText);
+      }
+    } else {
+      ok = legacyCopy(promptText);
+    }
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  return (
+    <div className="flex flex-col rounded-xl border border-border bg-card p-6">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h3 className="font-bold">{name}</h3>
+        <Badge variant="secondary">{aiToolTypeLabel[type]}</Badge>
+      </div>
+
+      {(demoBeforeUrl || demoAfterUrl) && (
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <div>
+            <p className="mb-1.5 text-center text-xs text-muted-foreground">قبل</p>
+            <div className="aspect-square overflow-hidden rounded-lg border border-border bg-secondary">
+              {demoBeforeUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={demoBeforeUrl} alt={`${name} — قبل`} className="h-full w-full object-cover" />
+              )}
+            </div>
+          </div>
+          <div>
+            <p className="mb-1.5 text-center text-xs text-muted-foreground">بعد</p>
+            <div className="aspect-square overflow-hidden rounded-lg border border-border bg-secondary">
+              {demoAfterUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={demoAfterUrl} alt={`${name} — بعد`} className="h-full w-full object-cover" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <p
+        dir="ltr"
+        className="mb-4 flex-1 rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground"
+      >
+        {promptText}
+      </p>
+
+      <Button variant="outline" onClick={handleCopy}>
+        {copied ? (
+          <>
+            <Check size={15} />
+            کپی شد
+          </>
+        ) : (
+          <>
+            <Copy size={15} />
+            کپی پرامپت
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
