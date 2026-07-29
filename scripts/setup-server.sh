@@ -2,6 +2,8 @@
 # تیرداد — اسکریپت راه‌اندازی سرور پروداکشن روی Ubuntu 24.04
 # اجرا: به‌عنوان root روی سرور تازه اجرا کنید:
 #   bash setup-server.sh
+# ایمن برای اجرای دوباره: اگه SSH وسط کار قطع شد (مثلاً به‌خاطر ری‌استارت
+# خودکار سیستم بعد از آپدیت کرنل)، فقط دوباره همین دستور رو بزنید.
 set -euo pipefail
 
 echo "== 1. آپدیت سیستم =="
@@ -21,9 +23,11 @@ echo "== 4. نصب PostgreSQL 16 =="
 apt install -y postgresql postgresql-contrib
 
 echo "== 5. ساخت کاربر و دیتابیس Postgres =="
+# ایمن برای اجرای دوباره: اگه رول از قبل باشه فقط پسوردش رو رو به مقدار جدید ست می‌کنه
+# (تا با DATABASE_URL که پایین‌تر توی .env نوشته می‌شه هماهنگ بمونه)، و دیتابیس رو فقط اگه نبود می‌سازه.
 DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=')
-su - postgres -c "psql -c \"CREATE USER tirdad WITH PASSWORD '${DB_PASSWORD}';\""
-su - postgres -c "psql -c \"CREATE DATABASE tirdad OWNER tirdad;\""
+su - postgres -c "psql -c \"DO \\\$\\\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'tirdad') THEN CREATE ROLE tirdad LOGIN PASSWORD '${DB_PASSWORD}'; ELSE ALTER ROLE tirdad WITH PASSWORD '${DB_PASSWORD}'; END IF; END \\\$\\\$;\""
+su - postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = 'tirdad'\"" | grep -q 1 || su - postgres -c "psql -c \"CREATE DATABASE tirdad OWNER tirdad;\""
 
 echo "== 6. نصب PM2 (مدیریت پروسه Node) =="
 npm install -g pm2
@@ -34,7 +38,12 @@ if ! id -u tirdad-app >/dev/null 2>&1; then
 fi
 
 echo "== 8. کلون پروژه =="
-su - tirdad-app -c "git clone https://github.com/milad13711/tirdad.git ~/tirdad"
+if [ -d /home/tirdad-app/tirdad/.git ]; then
+  su - tirdad-app -c "cd ~/tirdad && git fetch --all && git reset --hard origin/HEAD"
+else
+  rm -rf /home/tirdad-app/tirdad
+  su - tirdad-app -c "git clone https://github.com/milad13711/tirdad.git ~/tirdad"
+fi
 
 echo "== 9. ساخت فایل .env (باید مقادیر واقعی رو بعداً پر کنید) =="
 JWT_ACCESS=$(openssl rand -base64 48 | tr -d '\n')
@@ -63,6 +72,7 @@ su - tirdad-app -c "cd ~/tirdad && npx prisma migrate deploy"
 su - tirdad-app -c "cd ~/tirdad && npm run build"
 
 echo "== 11. اجرا با PM2 =="
+su - tirdad-app -c "pm2 delete tirdad" 2>/dev/null || true
 su - tirdad-app -c "cd ~/tirdad && pm2 start npm --name tirdad -- start"
 su - tirdad-app -c "pm2 save"
 env PATH=$PATH:/usr/bin pm2 startup systemd -u tirdad-app --hp /home/tirdad-app | tail -1 > /tmp/pm2-startup-cmd.sh
