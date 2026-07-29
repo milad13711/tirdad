@@ -10,22 +10,30 @@ import { Faq } from "@/components/site/faq";
 import { Blog } from "@/components/site/blog";
 import { Cta } from "@/components/site/cta";
 import { Footer } from "@/components/site/footer";
+import { getSiteSettings } from "@/lib/queries/settings";
 
-export default function Home() {
+// Otherwise Next prerenders this page once at build time — an admin toggling
+// subscriptionPlansEnabled from /admin/settings wouldn't take effect on the
+// live site until the next deploy.
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const settings = await getSiteSettings();
+
   return (
     <>
-      <Navbar />
+      <Navbar showPricing={settings.subscriptionPlansEnabled} />
       <main className="flex-1">
         <Hero />
         <Services />
         <Courses />
         <AiShowcase />
-        <Pricing />
+        {settings.subscriptionPlansEnabled && <Pricing />}
         <Testimonials />
         <InstagramCrm />
         <Faq />
         <Blog />
-        <Cta />
+        <Cta showPricing={settings.subscriptionPlansEnabled} />
       </main>
       <Footer />
     </>

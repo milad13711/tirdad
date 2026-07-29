@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 
-export function Cta() {
+export function Cta({ showPricing = true }: { showPricing?: boolean }) {
   return (
     <section className="py-24 md:py-32">
       <Container>
@@ -28,9 +28,11 @@ export function Cta() {
                   <ArrowLeft size={18} />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="#pricing">مشاهده پلن‌ها</a>
-              </Button>
+              {showPricing && (
+                <Button size="lg" variant="outline" asChild>
+                  <a href="#pricing">مشاهده پلن‌ها</a>
+                </Button>
+              )}
             </div>
           </div>
         </Reveal>

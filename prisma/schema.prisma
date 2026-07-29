@@ -83,6 +83,7 @@ model User {
   tickets       Ticket[]
   usageLogs     UsageLog[]
   lessonCompletions LessonCompletion[]
+  serviceRequests   ServiceRequest[]
 }
 
 model OtpCode {
@@ -315,6 +316,42 @@ model UsageLog {
   meta      Json?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Singleton row (always id = 1) for site-wide toggles the super admin
+// controls from /admin/settings — start with subscription-plan visibility,
+// extend with more flags here as needed rather than adding new models.
+model SiteSettings {
+  id                       Int      @id @default(1)
+  subscriptionPlansEnabled Boolean  @default(false)
+  updatedAt                DateTime @updatedAt
+}
+
+enum ServiceRequestType {
+  TEASER
+  IMAGE
+  WEBSITE
+}
+
+enum ServiceRequestStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  DONE
+  CLOSED
+}
+
+model ServiceRequest {
+  id          String                @id @default(cuid())
+  userId      String
+  type        ServiceRequestType
+  description String
+  status      ServiceRequestStatus  @default(NEW)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

@@ -5,14 +5,16 @@ import {
   LifeBuoy,
   Receipt,
   Sparkles,
+  Wand2,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/shell";
 import type { NavItem } from "@/components/dashboard/sidebar";
 
 const items: NavItem[] = [
   { label: "نمای کلی", href: "/dashboard", icon: <LayoutDashboard size={17} /> },
-  { label: "دوره‌های من", href: "/dashboard/courses", icon: <BookOpen size={17} /> },
+  { label: "پکیج‌های آموزشی من", href: "/dashboard/courses", icon: <BookOpen size={17} /> },
   { label: "پرامپت‌های رایگان", href: "/dashboard/prompts", icon: <Sparkles size={17} /> },
+  { label: "درخواست خدمات سفارشی", href: "/dashboard/service-requests", icon: <Wand2 size={17} /> },
   { label: "اشتراک من", href: "/dashboard/subscription", icon: <CreditCard size={17} /> },
   { label: "فاکتورها", href: "/dashboard/invoices", icon: <Receipt size={17} /> },
   { label: "تیکت پشتیبانی", href: "/dashboard/tickets", icon: <LifeBuoy size={17} /> },
