@@ -67,3 +67,25 @@ export const blogStatusVariant = {
   DRAFT: "outline",
   PUBLISHED: "success",
 } as const;
+
+export const serviceRequestTypeLabel = {
+  TEASER: "تیزر",
+  IMAGE: "طراحی تصویر",
+  WEBSITE: "طراحی سایت",
+} as const;
+
+export const serviceRequestStatusLabel = {
+  NEW: "جدید",
+  CONTACTED: "تماس گرفته شد",
+  IN_PROGRESS: "در حال انجام",
+  DONE: "انجام شد",
+  CLOSED: "بسته‌شده",
+} as const;
+
+export const serviceRequestStatusVariant = {
+  NEW: "warning",
+  CONTACTED: "secondary",
+  IN_PROGRESS: "default",
+  DONE: "success",
+  CLOSED: "outline",
+} as const;

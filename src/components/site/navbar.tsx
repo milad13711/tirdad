@@ -9,9 +9,10 @@ import { Container } from "@/components/site/container";
 import { navLinks } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function Navbar() {
+export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const links = showPricing ? navLinks : navLinks.filter((link) => link.href !== "#pricing");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -45,7 +46,7 @@ export function Navbar() {
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
+          {links.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -80,7 +81,7 @@ export function Navbar() {
       {open && (
         <div className="absolute inset-x-0 top-full h-[calc(100vh-100%)] overflow-y-auto border-t border-border bg-background px-6 py-6 md:hidden">
           <nav className="flex flex-col gap-4">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <a
                 key={link.href}
                 href={link.href}

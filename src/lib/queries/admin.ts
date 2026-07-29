@@ -57,6 +57,13 @@ export async function getAdminPrompts() {
   return prisma.aiTool.findMany({ orderBy: { createdAt: "desc" } });
 }
 
+export async function getAdminServiceRequests() {
+  return prisma.serviceRequest.findMany({
+    include: { user: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getAdminLeads() {
   return prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
 }
