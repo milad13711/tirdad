@@ -6,7 +6,8 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
-import { formatJalaliDateTime, getUserOverview } from "@/lib/queries/dashboard";
+import { getUserOverview } from "@/lib/queries/dashboard";
+import { formatJalaliDateTime } from "@/lib/format";
 import { generationStatusLabel, generationStatusVariant } from "@/lib/status-labels";
 
 export default async function DashboardOverviewPage() {

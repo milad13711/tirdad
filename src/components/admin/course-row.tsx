@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { formatToman } from "@/lib/queries/dashboard";
+import { formatToman } from "@/lib/format";
 
 interface CourseRowProps {
   course: {

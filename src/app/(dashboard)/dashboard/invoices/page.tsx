@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
-import { formatJalali, formatToman, getUserOrders } from "@/lib/queries/dashboard";
+import { getUserOrders } from "@/lib/queries/dashboard";
+import { formatJalali, formatToman } from "@/lib/format";
 import { orderStatusLabel, orderStatusVariant } from "@/lib/status-labels";
 
 export default async function InvoicesPage() {

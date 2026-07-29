@@ -11,12 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
-import {
-  formatJalaliDateTime,
-  getActiveAiTools,
-  getUserGenerations,
-  getUserOverview,
-} from "@/lib/queries/dashboard";
+import { getActiveAiTools, getUserGenerations, getUserOverview } from "@/lib/queries/dashboard";
+import { formatJalaliDateTime } from "@/lib/format";
 import { generationStatusLabel, generationStatusVariant } from "@/lib/status-labels";
 
 const FREE_DAILY_LIMIT = 3;

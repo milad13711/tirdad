@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/lib/auth/session";
-import { formatJalali } from "@/lib/queries/dashboard";
+import { formatJalali } from "@/lib/format";
 import { getAdminUsers } from "@/lib/queries/admin";
 
 export default async function AdminUsersPage() {

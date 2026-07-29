@@ -3,7 +3,8 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { NewTicketForm } from "@/components/dashboard/new-ticket-form";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
-import { formatJalali, getUserTickets } from "@/lib/queries/dashboard";
+import { getUserTickets } from "@/lib/queries/dashboard";
+import { formatJalali } from "@/lib/format";
 import { ticketStatusLabel, ticketStatusVariant } from "@/lib/status-labels";
 
 export default async function TicketsPage() {
