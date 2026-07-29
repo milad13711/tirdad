@@ -3,19 +3,13 @@ import type { SmsProvider } from "./provider";
 /**
  * LimoSMS (api.limosms.com) OTP provider.
  *
- * IMPORTANT — UNVERIFIED AGAINST OFFICIAL DOCS:
- * The LimoSMS developer documentation at https://api.limosms.com/ returned
- * HTTP 403 to every automated fetch attempt while this was written, so the
- * endpoint path, parameter names, and auth header below are the best-effort
- * shape based on how similar Iranian "pattern message" SMS panels work
- * (a pre-approved template id + token substitution for OTP codes), NOT a
- * confirmed contract. Before switching SMS_PROVIDER to "limo" in production:
- *   1. Log into the LimoSMS panel -> developer/API docs section.
- *   2. Confirm the endpoint, auth method (header vs query param), and the
- *      exact field names for: api key, pattern/template id, mobile number,
- *      and template tokens.
- *   3. Update the fetch call below to match — this file is the only place
- *      that needs to change.
+ * Request shape (endpoint, ApiKey header, OtpId/ReplaceToken/MobileNumber
+ * body fields) matches LimoSMS's own C#/PHP sample code from
+ * https://api.limosms.com/. Their pattern/template id (OtpId) must be
+ * pre-approved in the LimoSMS panel before use. The success/failure
+ * response body shape isn't documented publicly, so failures are detected
+ * from the HTTP status only — if LimoSMS returns 200 with an in-body error
+ * instead, tighten the check below once that's confirmed against the panel.
  */
 
 const LIMO_SEND_PATTERN_URL = "https://api.limosms.com/api/sendpatternmessage";
