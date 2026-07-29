@@ -49,7 +49,8 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "کد تایید نادرست است");
-      const next = searchParams.get("next") ?? "/dashboard";
+      const defaultDestination = data.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+      const next = searchParams.get("next") ?? defaultDestination;
       router.push(next);
       router.refresh();
     } catch (err) {
