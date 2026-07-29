@@ -6,6 +6,16 @@
 # خودکار سیستم بعد از آپدیت کرنل)، فقط دوباره همین دستور رو بزنید.
 set -euo pipefail
 
+# جلوگیری از اجرای هم‌زمان چند نسخه از این اسکریپت (اگه یه نسخه قبلی هنوز در
+# پس‌زمینه در حال اجراست و شما دوباره nohup زدید) — دو اجرای هم‌زمان می‌تونه
+# باعث ناهماهنگی رمز دیتابیس بین .env و رول واقعی Postgres بشه.
+exec 200>/var/lock/tirdad-setup.lock
+if ! flock -n 200; then
+  echo "یک نسخه دیگه از این اسکریپت همین الان در حال اجراست."
+  echo "صبر کنید تموم بشه، یا با 'pkill -f setup-server.sh' متوقفش کنید و دوباره اجرا کنید."
+  exit 1
+fi
+
 echo "== 1. آپدیت سیستم =="
 apt update && apt upgrade -y
 apt install -y curl git ufw nginx
@@ -23,9 +33,17 @@ echo "== 4. نصب PostgreSQL 16 =="
 apt install -y postgresql postgresql-contrib
 
 echo "== 5. ساخت کاربر و دیتابیس Postgres =="
-# ایمن برای اجرای دوباره: اگه رول از قبل باشه فقط پسوردش رو رو به مقدار جدید ست می‌کنه
-# (تا با DATABASE_URL که پایین‌تر توی .env نوشته می‌شه هماهنگ بمونه)، و دیتابیس رو فقط اگه نبود می‌سازه.
-DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=')
+# رمز دیتابیس رو یک‌بار می‌سازیم و توی یه فایل ذخیره می‌کنیم؛ اجراهای بعدی همون
+# رمز رو دوباره استفاده می‌کنن (نه یه رمز تصادفی جدید) تا رمز داخل .env همیشه
+# دقیقاً با رمز واقعی رول Postgres یکی بمونه، حتی اگه اسکریپت چند بار جزئی اجرا شده باشه.
+DB_PASSWORD_FILE=/root/.tirdad_db_password
+if [ -f "$DB_PASSWORD_FILE" ]; then
+  DB_PASSWORD=$(cat "$DB_PASSWORD_FILE")
+else
+  DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=')
+  echo -n "$DB_PASSWORD" > "$DB_PASSWORD_FILE"
+  chmod 600 "$DB_PASSWORD_FILE"
+fi
 su - postgres -c "psql -c \"DO \\\$\\\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'tirdad') THEN CREATE ROLE tirdad LOGIN PASSWORD '${DB_PASSWORD}'; ELSE ALTER ROLE tirdad WITH PASSWORD '${DB_PASSWORD}'; END IF; END \\\$\\\$;\""
 su - postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = 'tirdad'\"" | grep -q 1 || su - postgres -c "psql -c \"CREATE DATABASE tirdad OWNER tirdad;\""
 
@@ -44,8 +62,16 @@ echo "== 8. دریافت پروژه =="
 BRANCH="claude/ui-ux-pro-max-skill-qdlm2j"
 fetch_project() {
   su - tirdad-app -c "curl -4 -fsSL --connect-timeout 20 --max-time 180 https://github.com/milad13711/tirdad/archive/refs/heads/${BRANCH}.tar.gz -o /tmp/tirdad.tar.gz" || return 1
+  # .env رو (اگه از اجرای قبلی مونده) نگه می‌داریم تا تنظیمات دستی پاک نشه.
+  if [ -f /home/tirdad-app/tirdad/.env ]; then
+    cp /home/tirdad-app/tirdad/.env /tmp/tirdad.env.bak
+  fi
   rm -rf /home/tirdad-app/tirdad
   su - tirdad-app -c "mkdir -p ~/tirdad && tar -xzf /tmp/tirdad.tar.gz -C ~/tirdad --strip-components=1"
+  if [ -f /tmp/tirdad.env.bak ]; then
+    mv /tmp/tirdad.env.bak /home/tirdad-app/tirdad/.env
+    chown tirdad-app:tirdad-app /home/tirdad-app/tirdad/.env
+  fi
 }
 for attempt in 1 2 3 4 5 6 7 8; do
   if fetch_project; then
@@ -59,10 +85,13 @@ for attempt in 1 2 3 4 5 6 7 8; do
   sleep 15
 done
 
-echo "== 9. ساخت فایل .env (باید مقادیر واقعی رو بعداً پر کنید) =="
-JWT_ACCESS=$(openssl rand -base64 48 | tr -d '\n')
-JWT_REFRESH=$(openssl rand -base64 48 | tr -d '\n')
-su - tirdad-app -c "cat > ~/tirdad/.env" <<EOF
+echo "== 9. ساخت فایل .env =="
+if [ -f /home/tirdad-app/tirdad/.env ]; then
+  echo ".env از قبل وجود داره — دست‌نخورده می‌مونه (تا تنظیمات دستی شما مثل ZARINPAL_MERCHANT_ID پاک نشه)."
+else
+  JWT_ACCESS=$(openssl rand -base64 48 | tr -d '\n')
+  JWT_REFRESH=$(openssl rand -base64 48 | tr -d '\n')
+  su - tirdad-app -c "cat > ~/tirdad/.env" <<EOF
 DATABASE_URL="postgresql://tirdad:${DB_PASSWORD}@localhost:5432/tirdad"
 
 JWT_ACCESS_SECRET="${JWT_ACCESS}"
@@ -79,6 +108,7 @@ NEXT_PUBLIC_APP_URL="http://45.94.215.22"
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_ADMIN_CHAT_ID=""
 EOF
+fi
 
 echo "== 10. نصب پکیج‌ها، مایگریشن، ساخت (build) =="
 su - tirdad-app -c "cd ~/tirdad && npm install"
