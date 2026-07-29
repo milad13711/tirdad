@@ -64,6 +64,29 @@ export async function getUserEnrollments(userId: string) {
   });
 }
 
+export async function getEnrollmentForLearning(userId: string, courseId: string) {
+  const [enrollment, completions] = await Promise.all([
+    prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId } },
+      include: { course: { include: { lessons: { orderBy: { order: "asc" } } } } },
+    }),
+    prisma.lessonCompletion.findMany({
+      where: { userId, lesson: { courseId } },
+      select: { lessonId: true },
+    }),
+  ]);
+
+  if (!enrollment) return null;
+  return { enrollment, completedLessonIds: new Set(completions.map((c) => c.lessonId)) };
+}
+
+export async function getPurchasableCourses(userId: string) {
+  return prisma.course.findMany({
+    where: { published: true, enrollments: { none: { userId } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getUserGenerations(userId: string) {
   return prisma.aiGeneration.findMany({
     where: { userId },

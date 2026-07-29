@@ -1,4 +1,5 @@
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Progress } from "@/components/ui/progress";
@@ -18,6 +19,14 @@ export default async function MyCoursesPage() {
       <PageHeader
         title="دوره‌های من"
         description="دوره‌های خریداری‌شده و پیشرفت یادگیری شما"
+        action={
+          <Button asChild size="sm">
+            <Link href="/dashboard/courses/browse">
+              <ShoppingBag size={15} />
+              خرید دوره جدید
+            </Link>
+          </Button>
+        }
       />
 
       {enrollments.length === 0 ? (
@@ -53,9 +62,11 @@ export default async function MyCoursesPage() {
                   <span className="text-xs text-muted-foreground">
                     {completedLessons} از {totalLessons} درس تماشا شده
                   </span>
-                  <Button size="sm">
-                    <PlayCircle size={15} />
-                    ادامه یادگیری
+                  <Button asChild size="sm">
+                    <Link href={`/dashboard/courses/${enrollment.courseId}`}>
+                      <PlayCircle size={15} />
+                      ادامه یادگیری
+                    </Link>
                   </Button>
                 </div>
               </div>

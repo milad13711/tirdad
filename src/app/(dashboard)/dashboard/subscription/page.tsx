@@ -3,6 +3,8 @@ import { Check } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { BuyButton } from "@/components/dashboard/buy-button";
+import { CancelSubscriptionButton } from "@/components/dashboard/cancel-subscription-button";
 import { getSession } from "@/lib/auth/session";
 import { formatJalaliDateTime, formatToman, getPlans, getUserOverview } from "@/lib/queries/dashboard";
 import { cn } from "@/lib/utils";
@@ -32,11 +34,7 @@ export default async function SubscriptionPage() {
               ? `تمدید بعدی: ${formatJalaliDateTime(subscription.currentPeriodEnd)}`
               : "بدون پلن فعال"}
           </div>
-          {subscription && (
-            <Button variant="outline" size="sm">
-              لغو اشتراک
-            </Button>
-          )}
+          {subscription && <CancelSubscriptionButton subscriptionId={subscription.id} />}
         </div>
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">اجرای ماهانه مصرف‌شده</span>
@@ -81,9 +79,15 @@ export default async function SubscriptionPage() {
                   </li>
                 ))}
               </ul>
-              <Button disabled={isCurrent} variant={isCurrent ? "outline" : "default"}>
-                {isCurrent ? "پلن فعلی شما" : "ارتقا به این پلن"}
-              </Button>
+              {isCurrent ? (
+                <Button disabled variant="outline">
+                  پلن فعلی شما
+                </Button>
+              ) : (
+                <BuyButton className="w-full" payload={{ itemType: "SUBSCRIPTION", planId: plan.id }}>
+                  ارتقا به این پلن
+                </BuyButton>
+              )}
             </div>
           );
         })}

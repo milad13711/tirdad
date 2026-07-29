@@ -1,19 +1,16 @@
 import { redirect } from "next/navigation";
-import { Plus } from "lucide-react";
-import { PageHeader } from "@/components/dashboard/page-header";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getSession } from "@/lib/auth/session";
-import { formatToman } from "@/lib/queries/dashboard";
 import { getAdminCourses } from "@/lib/queries/admin";
+import { NewCourseForm } from "@/components/admin/new-course-form";
+import { CourseRow } from "@/components/admin/course-row";
 
 export default async function AdminCoursesPage() {
   const session = await getSession();
@@ -23,43 +20,28 @@ export default async function AdminCoursesPage() {
 
   return (
     <div>
-      <PageHeader
-        title="دوره‌ها"
-        description="مدیریت دوره‌های آموزشی پلتفرم"
-        action={
-          <Button size="sm">
-            <Plus size={15} />
-            افزودن دوره جدید
-          </Button>
-        }
-      />
+      <PageHeader title="دوره‌ها" description="مدیریت دوره‌های آموزشی پلتفرم" />
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>عنوان دوره</TableHead>
-            <TableHead>قیمت (تومان)</TableHead>
-            <TableHead>دانشجویان</TableHead>
-            <TableHead>وضعیت</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {courses.map((course) => (
-            <TableRow key={course.id}>
-              <TableCell className="font-medium">{course.title}</TableCell>
-              <TableCell>{formatToman(course.price)}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {course._count.enrollments}
-              </TableCell>
-              <TableCell>
-                <Badge variant={course.published ? "success" : "outline"}>
-                  {course.published ? "منتشرشده" : "پیش‌نویس"}
-                </Badge>
-              </TableCell>
+      <div className="mb-8">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>عنوان دوره</TableHead>
+              <TableHead>قیمت (تومان)</TableHead>
+              <TableHead>دانشجویان</TableHead>
+              <TableHead>وضعیت</TableHead>
+              <TableHead></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {courses.map((course) => (
+              <CourseRow key={course.id} course={course} />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <NewCourseForm />
     </div>
   );
 }

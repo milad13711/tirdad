@@ -82,6 +82,7 @@ model User {
   generations   AiGeneration[]
   tickets       Ticket[]
   usageLogs     UsageLog[]
+  lessonCompletions LessonCompletion[]
 }
 
 model OtpCode {
@@ -107,6 +108,7 @@ model SubscriptionPlan {
   features         Json
   createdAt        DateTime       @default(now())
   subscriptions    Subscription[]
+  orders           Order[]
 }
 
 model Subscription {
@@ -131,9 +133,13 @@ model Order {
   amount       Int
   status       OrderStatus   @default(PENDING)
   couponId     String?
+  courseId     String?
+  planId       String?
   createdAt    DateTime      @default(now())
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon       Coupon?       @relation(fields: [couponId], references: [id])
+  course       Course?       @relation(fields: [courseId], references: [id])
+  plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   transactions Transaction[]
 
   @@index([userId])
@@ -163,18 +169,31 @@ model Course {
   createdAt   DateTime     @default(now())
   lessons     Lesson[]
   enrollments Enrollment[]
+  orders      Order[]
 }
 
 model Lesson {
-  id         String  @id @default(cuid())
-  courseId   String
-  title      String
-  order      Int
-  videoUrl   String?
-  isFreeDemo Boolean @default(false)
-  course     Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id          String             @id @default(cuid())
+  courseId    String
+  title       String
+  order       Int
+  videoUrl    String?
+  isFreeDemo  Boolean            @default(false)
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  completions LessonCompletion[]
 
   @@index([courseId])
+}
+
+model LessonCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
 }
 
 model Enrollment {
