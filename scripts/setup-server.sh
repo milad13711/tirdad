@@ -38,12 +38,27 @@ if ! id -u tirdad-app >/dev/null 2>&1; then
 fi
 
 echo "== 8. کلون پروژه =="
-if [ -d /home/tirdad-app/tirdad/.git ]; then
-  su - tirdad-app -c "cd ~/tirdad && git fetch --all && git reset --hard origin/HEAD"
-else
-  rm -rf /home/tirdad-app/tirdad
-  su - tirdad-app -c "git clone https://github.com/milad13711/tirdad.git ~/tirdad"
-fi
+# اتصال HTTPS این سرور به گیت‌هاب گاهی موقتاً قطع/تایم‌اوت می‌شه، پس چند بار
+# با فاصله امتحان می‌کنیم؛ shallow clone هم حجم انتقال رو کمتر می‌کنه.
+clone_or_update() {
+  if [ -d /home/tirdad-app/tirdad/.git ]; then
+    su - tirdad-app -c "cd ~/tirdad && git fetch --depth 1 origin && git reset --hard origin/HEAD"
+  else
+    rm -rf /home/tirdad-app/tirdad
+    su - tirdad-app -c "git clone --depth 1 https://github.com/milad13711/tirdad.git ~/tirdad"
+  fi
+}
+for attempt in 1 2 3 4 5 6 7 8; do
+  if clone_or_update; then
+    break
+  fi
+  if [ "$attempt" -eq 8 ]; then
+    echo "کلون پروژه بعد از ۸ تلاش ناموفق بود. اسکریپت رو دوباره اجرا کنید."
+    exit 1
+  fi
+  echo "تلاش $attempt برای کلون/آپدیت پروژه ناموفق بود، ۱۵ ثانیه صبر و تلاش دوباره..."
+  sleep 15
+done
 
 echo "== 9. ساخت فایل .env (باید مقادیر واقعی رو بعداً پر کنید) =="
 JWT_ACCESS=$(openssl rand -base64 48 | tr -d '\n')
