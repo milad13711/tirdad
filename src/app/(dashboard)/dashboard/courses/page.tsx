@@ -62,9 +62,11 @@ export default async function MyCoursesPage() {
                   <span className="text-xs text-muted-foreground">
                     {completedLessons} از {totalLessons} درس تماشا شده
                   </span>
-                  <Button size="sm">
-                    <PlayCircle size={15} />
-                    ادامه یادگیری
+                  <Button asChild size="sm">
+                    <Link href={`/dashboard/courses/${enrollment.courseId}`}>
+                      <PlayCircle size={15} />
+                      ادامه یادگیری
+                    </Link>
                   </Button>
                 </div>
               </div>

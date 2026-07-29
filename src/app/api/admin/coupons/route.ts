@@ -15,12 +15,20 @@ const createSchema = z.object({
 
 const patchSchema = z.object({
   id: z.string().min(1),
-  active: z.boolean(),
+  discountPercent: z.coerce.number().int().min(1).max(100).optional(),
+  usageLimit: z.coerce.number().int().min(1).optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
+  active: z.boolean().optional(),
 });
 
-export async function POST(request: Request) {
+async function requireAdmin() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || session.role !== "ADMIN") return null;
+  return session;
+}
+
+export async function POST(request: Request) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -47,8 +55,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -57,10 +64,28 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "درخواست نامعتبر است" }, { status: 400 });
   }
 
+  const { id, expiresAt, ...rest } = parsed.data;
   const coupon = await prisma.coupon.update({
-    where: { id: parsed.data.id },
-    data: { active: parsed.data.active },
+    where: { id },
+    data: {
+      ...rest,
+      ...(expiresAt === undefined ? {} : { expiresAt: expiresAt ? new Date(expiresAt) : null }),
+    },
   });
 
   return NextResponse.json({ ok: true, coupon });
+}
+
+export async function DELETE(request: Request) {
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "شناسه کد تخفیف الزامی است" }, { status: 400 });
+  }
+
+  await prisma.coupon.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
 }

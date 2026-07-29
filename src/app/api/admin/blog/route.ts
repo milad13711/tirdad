@@ -12,12 +12,20 @@ const createSchema = z.object({
 
 const patchSchema = z.object({
   id: z.string().min(1),
-  published: z.boolean(),
+  title: z.string().min(2).optional(),
+  excerpt: z.string().optional(),
+  content: z.string().optional(),
+  published: z.boolean().optional(),
 });
 
-export async function POST(request: Request) {
+async function requireAdmin() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || session.role !== "ADMIN") return null;
+  return session;
+}
+
+export async function POST(request: Request) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -34,8 +42,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -44,12 +51,32 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "درخواست نامعتبر است" }, { status: 400 });
   }
 
+  const { id, published, ...rest } = parsed.data;
   const post = await prisma.blogPost.update({
-    where: { id: parsed.data.id },
-    data: parsed.data.published
-      ? { status: "PUBLISHED", publishedAt: new Date() }
-      : { status: "DRAFT", publishedAt: null },
+    where: { id },
+    data: {
+      ...rest,
+      ...(published === undefined
+        ? {}
+        : published
+          ? { status: "PUBLISHED", publishedAt: new Date() }
+          : { status: "DRAFT", publishedAt: null }),
+    },
   });
 
   return NextResponse.json({ ok: true, post });
+}
+
+export async function DELETE(request: Request) {
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "شناسه مقاله الزامی است" }, { status: 400 });
+  }
+
+  await prisma.blogPost.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
 }

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { BuyButton } from "@/components/dashboard/buy-button";
+import { CancelSubscriptionButton } from "@/components/dashboard/cancel-subscription-button";
 import { getSession } from "@/lib/auth/session";
 import { formatJalaliDateTime, formatToman, getPlans, getUserOverview } from "@/lib/queries/dashboard";
 import { cn } from "@/lib/utils";
@@ -33,11 +34,7 @@ export default async function SubscriptionPage() {
               ? `تمدید بعدی: ${formatJalaliDateTime(subscription.currentPeriodEnd)}`
               : "بدون پلن فعال"}
           </div>
-          {subscription && (
-            <Button variant="outline" size="sm">
-              لغو اشتراک
-            </Button>
-          )}
+          {subscription && <CancelSubscriptionButton subscriptionId={subscription.id} />}
         </div>
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">اجرای ماهانه مصرف‌شده</span>

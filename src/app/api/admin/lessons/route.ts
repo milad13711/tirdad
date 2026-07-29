@@ -2,22 +2,20 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import { notifyAdmins } from "@/lib/telegram";
-import { leadSourceLabel } from "@/lib/status-labels";
 
 const createSchema = z.object({
-  name: z.string().min(2),
-  phone: z.string().optional(),
-  source: z.enum(["DIRECT", "COMMENT", "BIO_LINK"]),
-  topic: z.string().optional(),
+  courseId: z.string().min(1),
+  title: z.string().min(2),
+  videoUrl: z.string().optional(),
+  isFreeDemo: z.coerce.boolean().optional(),
 });
 
 const patchSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(2).optional(),
-  phone: z.string().optional(),
-  topic: z.string().optional(),
-  stage: z.enum(["NEW", "CONTACTED", "OFFERED", "CONVERTED", "LOST"]).optional(),
+  title: z.string().min(2).optional(),
+  videoUrl: z.string().optional(),
+  isFreeDemo: z.boolean().optional(),
+  order: z.coerce.number().int().optional(),
 });
 
 async function requireAdmin() {
@@ -33,14 +31,28 @@ export async function POST(request: Request) {
 
   const parsed = createSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "اطلاعات لید نامعتبر است" }, { status: 400 });
+    return NextResponse.json({ error: "اطلاعات درس نامعتبر است" }, { status: 400 });
   }
 
-  const lead = await prisma.lead.create({ data: parsed.data });
+  const course = await prisma.course.findUnique({
+    where: { id: parsed.data.courseId },
+    select: { _count: { select: { lessons: true } } },
+  });
+  if (!course) {
+    return NextResponse.json({ error: "دوره یافت نشد" }, { status: 404 });
+  }
 
-  void notifyAdmins(`👤 لید جدید\n${lead.name} — ${leadSourceLabel[lead.source]}`);
+  const lesson = await prisma.lesson.create({
+    data: {
+      courseId: parsed.data.courseId,
+      title: parsed.data.title,
+      videoUrl: parsed.data.videoUrl || null,
+      isFreeDemo: parsed.data.isFreeDemo ?? false,
+      order: course._count.lessons + 1,
+    },
+  });
 
-  return NextResponse.json({ ok: true, lead });
+  return NextResponse.json({ ok: true, lesson });
 }
 
 export async function PATCH(request: Request) {
@@ -54,9 +66,9 @@ export async function PATCH(request: Request) {
   }
 
   const { id, ...data } = parsed.data;
-  const lead = await prisma.lead.update({ where: { id }, data });
+  const lesson = await prisma.lesson.update({ where: { id }, data });
 
-  return NextResponse.json({ ok: true, lead });
+  return NextResponse.json({ ok: true, lesson });
 }
 
 export async function DELETE(request: Request) {
@@ -66,9 +78,9 @@ export async function DELETE(request: Request) {
 
   const id = new URL(request.url).searchParams.get("id");
   if (!id) {
-    return NextResponse.json({ error: "شناسه لید الزامی است" }, { status: 400 });
+    return NextResponse.json({ error: "شناسه درس الزامی است" }, { status: 400 });
   }
 
-  await prisma.lead.delete({ where: { id } });
+  await prisma.lesson.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

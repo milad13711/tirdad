@@ -3,9 +3,9 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
 import { getAdminLeads } from "@/lib/queries/admin";
-import { leadSourceLabel, leadStageLabel } from "@/lib/status-labels";
+import { leadStageLabel } from "@/lib/status-labels";
 import { NewLeadForm } from "@/components/admin/new-lead-form";
-import { LeadStageSelect } from "@/components/admin/lead-stage-select";
+import { LeadCard } from "@/components/admin/lead-card";
 
 const STAGE_ORDER = ["NEW", "CONTACTED", "OFFERED", "CONVERTED", "LOST"] as const;
 
@@ -50,12 +50,7 @@ export default async function AdminCrmPage() {
                   <p className="py-6 text-center text-xs text-muted-foreground">لیدی وجود ندارد</p>
                 )}
                 {stageLeads.map((lead) => (
-                  <div key={lead.id} className="rounded-lg border border-border bg-background p-3">
-                    <div className="mb-1.5 text-sm font-medium">{lead.name}</div>
-                    <div className="mb-2 text-xs text-muted-foreground">{lead.topic}</div>
-                    <Badge variant="secondary">{leadSourceLabel[lead.source]}</Badge>
-                    <LeadStageSelect leadId={lead.id} stage={lead.stage} />
-                  </div>
+                  <LeadCard key={lead.id} lead={lead} />
                 ))}
               </div>
             </div>

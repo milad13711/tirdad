@@ -13,12 +13,21 @@ const createSchema = z.object({
 
 const patchSchema = z.object({
   id: z.string().min(1),
-  published: z.boolean(),
+  title: z.string().min(2).optional(),
+  description: z.string().optional(),
+  price: z.coerce.number().int().min(0).optional(),
+  level: z.string().optional(),
+  published: z.boolean().optional(),
 });
 
-export async function POST(request: Request) {
+async function requireAdmin() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || session.role !== "ADMIN") return null;
+  return session;
+}
+
+export async function POST(request: Request) {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -35,8 +44,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!(await requireAdmin())) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
   }
 
@@ -45,10 +53,22 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "درخواست نامعتبر است" }, { status: 400 });
   }
 
-  const course = await prisma.course.update({
-    where: { id: parsed.data.id },
-    data: { published: parsed.data.published },
-  });
+  const { id, ...data } = parsed.data;
+  const course = await prisma.course.update({ where: { id }, data });
 
   return NextResponse.json({ ok: true, course });
+}
+
+export async function DELETE(request: Request) {
+  if (!(await requireAdmin())) {
+    return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 403 });
+  }
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "شناسه دوره الزامی است" }, { status: 400 });
+  }
+
+  await prisma.course.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
 }
