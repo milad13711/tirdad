@@ -53,12 +53,8 @@ export async function getAdminCourseWithLessons(courseId: string) {
   });
 }
 
-export async function getAdminAiTools() {
-  const tools = await prisma.aiTool.findMany({
-    include: { _count: { select: { generations: true } } },
-    orderBy: { createdAt: "asc" },
-  });
-  return tools;
+export async function getAdminPrompts() {
+  return prisma.aiTool.findMany({ orderBy: { createdAt: "desc" } });
 }
 
 export async function getAdminLeads() {

@@ -208,12 +208,16 @@ model Enrollment {
   @@unique([userId, courseId])
 }
 
+// Free, copyable prompts shown with a before/after example image. Was
+// "AiTool" (a metered AI-generation feature with a hidden prompt); repurposed
+// into a public prompt gallery, so promptText is intentionally readable by
+// any authenticated user — never treat it as a secret.
 model AiTool {
   id            String         @id @default(cuid())
   name          String         @unique
   type          AiToolType
-  creditCost    Int
-  hiddenPrompt  String
+  creditCost    Int            @default(0)
+  promptText    String
   demoBeforeUrl String?
   demoAfterUrl  String?
   active        Boolean        @default(true)

@@ -1,31 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookOpen, LifeBuoy, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, BookOpen, LifeBuoy, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
 import { getUserOverview } from "@/lib/queries/dashboard";
 import { formatJalaliDateTime } from "@/lib/format";
-import { generationStatusLabel, generationStatusVariant } from "@/lib/status-labels";
 
 export default async function DashboardOverviewPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const {
-    user,
-    subscription,
-    enrollments,
-    generations,
-    openTicketsCount,
-    monthlyRunsUsed,
-    dailyRunsUsed,
-  } = await getUserOverview(session.sub);
+  const { user, subscription, enrollments, openTicketsCount } = await getUserOverview(session.sub);
 
-  const dailyLimit = subscription?.plan.dailyRunLimit;
-  const monthlyLimit = subscription?.plan.monthlyRunLimit;
   const inProgressCourses = enrollments.filter((e) => e.progress < 100);
 
   return (
@@ -35,13 +23,8 @@ export default async function DashboardOverviewPage() {
         description="خلاصه‌ای از وضعیت حساب و فعالیت‌های اخیر شما"
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <StatCard label="پلن فعلی" value={subscription?.plan.name ?? "رایگان"} icon={Sparkles} />
-        <StatCard
-          label="اجرای باقی‌مانده امروز"
-          value={dailyLimit ? `${Math.max(0, dailyLimit - dailyRunsUsed)} از ${dailyLimit}` : "نامحدود"}
-          icon={Zap}
-        />
         <StatCard
           label="دوره‌های در حال یادگیری"
           value={`${inProgressCourses.length}`}
@@ -85,13 +68,7 @@ export default async function DashboardOverviewPage() {
 
         <div className="rounded-xl border border-border bg-card p-6">
           <h3 className="mb-5 font-bold">وضعیت اشتراک</h3>
-          <div className="mb-4 flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">اجرای ماهانه</span>
-            <span>
-              {monthlyRunsUsed} از {monthlyLimit ?? "نامحدود"}
-            </span>
-          </div>
-          <Progress value={monthlyLimit ? (monthlyRunsUsed / monthlyLimit) * 100 : 100} />
+          <p className="text-xl font-extrabold text-primary">{subscription?.plan.name ?? "رایگان"}</p>
           <p className="mt-4 text-xs text-muted-foreground">
             {subscription
               ? `تمدید بعدی: ${formatJalaliDateTime(subscription.currentPeriodEnd)}`
@@ -107,39 +84,20 @@ export default async function DashboardOverviewPage() {
       </div>
 
       <div className="mt-6 rounded-xl border border-border bg-card p-6">
-        <div className="mb-5 flex items-center justify-between">
-          <h3 className="font-bold">آخرین خروجی‌های هوش مصنوعی</h3>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-bold">پرامپت‌های رایگان</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              پرامپت‌های آماده با نمونه قبل/بعد — کپی کنید و استفاده کنید
+            </p>
+          </div>
           <Link
-            href="/dashboard/ai-tools"
+            href="/dashboard/prompts"
             className="flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            مشاهده همه <ArrowLeft size={14} />
+            مشاهده گالری <ArrowLeft size={14} />
           </Link>
         </div>
-        {generations.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            هنوز از هیچ ابزاری استفاده نکرده‌اید.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {generations.slice(0, 3).map((gen) => (
-              <div
-                key={gen.id}
-                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
-              >
-                <div>
-                  <div className="text-sm font-medium">{gen.aiTool.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatJalaliDateTime(gen.createdAt)}
-                  </div>
-                </div>
-                <Badge variant={generationStatusVariant[gen.status]}>
-                  {generationStatusLabel[gen.status]}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
