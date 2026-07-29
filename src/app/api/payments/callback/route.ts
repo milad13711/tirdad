@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyPayment } from "@/lib/payment/zarinpal";
 import { notifyAdmins } from "@/lib/telegram";
-import { formatToman } from "@/lib/queries/dashboard";
+import { formatToman } from "@/lib/format";
 
 function appUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

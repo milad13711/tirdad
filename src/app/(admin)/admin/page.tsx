@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/lib/auth/session";
-import { formatJalali, formatToman } from "@/lib/queries/dashboard";
+import { formatJalali, formatToman } from "@/lib/format";
 import { getAdminOrders, getAdminStats } from "@/lib/queries/admin";
 import { orderStatusLabel, orderStatusVariant } from "@/lib/status-labels";
 

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { BuyButton } from "@/components/dashboard/buy-button";
 import { CancelSubscriptionButton } from "@/components/dashboard/cancel-subscription-button";
 import { getSession } from "@/lib/auth/session";
-import { formatJalaliDateTime, formatToman, getPlans, getUserOverview } from "@/lib/queries/dashboard";
+import { getPlans, getUserOverview } from "@/lib/queries/dashboard";
+import { formatJalaliDateTime, formatToman } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export default async function SubscriptionPage() {

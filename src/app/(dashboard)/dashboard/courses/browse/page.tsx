@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { BuyButton } from "@/components/dashboard/buy-button";
 import { getSession } from "@/lib/auth/session";
-import { formatToman, getPurchasableCourses } from "@/lib/queries/dashboard";
+import { getPurchasableCourses } from "@/lib/queries/dashboard";
+import { formatToman } from "@/lib/format";
 
 export default async function BrowseCoursesPage() {
   const session = await getSession();

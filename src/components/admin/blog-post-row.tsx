@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { formatJalali } from "@/lib/queries/dashboard";
+import { formatJalali } from "@/lib/format";
 import { blogStatusLabel, blogStatusVariant } from "@/lib/status-labels";
 
 interface BlogPostRowProps {
