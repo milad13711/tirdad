@@ -64,6 +64,13 @@ export async function getUserEnrollments(userId: string) {
   });
 }
 
+export async function getPurchasableCourses(userId: string) {
+  return prisma.course.findMany({
+    where: { published: true, enrollments: { none: { userId } } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getUserGenerations(userId: string) {
   return prisma.aiGeneration.findMany({
     where: { userId },

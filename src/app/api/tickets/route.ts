@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
+import { notifyAdmins } from "@/lib/telegram";
 
 const bodySchema = z.object({
   subject: z.string().min(3),
@@ -28,6 +29,8 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  void notifyAdmins(`🎫 تیکت جدید\nموضوع: ${ticket.subject}`);
 
   return NextResponse.json({ ok: true, ticket });
 }

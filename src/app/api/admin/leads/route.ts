@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
+import { notifyAdmins } from "@/lib/telegram";
+import { leadSourceLabel } from "@/lib/status-labels";
 
 const createSchema = z.object({
   name: z.string().min(2),
@@ -27,6 +29,8 @@ export async function POST(request: Request) {
   }
 
   const lead = await prisma.lead.create({ data: parsed.data });
+
+  void notifyAdmins(`👤 لید جدید\n${lead.name} — ${leadSourceLabel[lead.source]}`);
 
   return NextResponse.json({ ok: true, lead });
 }
