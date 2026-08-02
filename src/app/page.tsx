@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/site/navbar";
+import { ScrollStory } from "@/components/site/scroll-story";
 import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
@@ -24,6 +25,7 @@ export default async function Home() {
     <>
       <Navbar showPricing={settings.subscriptionPlansEnabled} />
       <main className="flex-1">
+        <ScrollStory />
         <Hero />
         <Services />
         <Courses />
