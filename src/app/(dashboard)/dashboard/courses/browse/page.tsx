@@ -13,11 +13,11 @@ export default async function BrowseCoursesPage() {
 
   return (
     <div>
-      <PageHeader title="خرید دوره جدید" description="دوره‌های منتشرشده‌ای که هنوز خریداری نکرده‌اید" />
+      <PageHeader title="خرید پکیج جدید" description="پکیج‌های منتشرشده‌ای که هنوز خریداری نکرده‌اید" />
 
       {courses.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-          در حال حاضر دوره جدیدی برای خرید موجود نیست.
+          در حال حاضر پکیج جدیدی برای خرید موجود نیست.
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2">
@@ -34,7 +34,7 @@ export default async function BrowseCoursesPage() {
                 <span className="font-bold text-primary">{formatToman(course.price)} تومان</span>
               </div>
               <BuyButton payload={{ itemType: "COURSE", courseId: course.id }}>
-                خرید دوره
+                خرید پکیج
               </BuyButton>
             </div>
           ))}

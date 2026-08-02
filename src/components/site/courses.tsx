@@ -14,7 +14,7 @@ export function Courses() {
     <section id="courses" className="py-24 md:py-32">
       <Container className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
         <Reveal>
-          <SectionLabel>دوره‌های آموزشی</SectionLabel>
+          <SectionLabel>پکیج‌های آموزشی</SectionLabel>
           <SectionTitle>
             یادگیری گام‌به‌گام
             <br /> با پشتیبانی کامل
@@ -22,7 +22,7 @@ export function Courses() {
         </Reveal>
         <Reveal delay={0.15}>
           <Button variant="outline">
-            مشاهده همه دوره‌ها
+            مشاهده همه پکیج‌ها
             <ArrowLeft size={16} />
           </Button>
         </Reveal>

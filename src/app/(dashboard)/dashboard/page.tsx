@@ -26,7 +26,7 @@ export default async function DashboardOverviewPage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <StatCard label="پلن فعلی" value={subscription?.plan.name ?? "رایگان"} icon={Sparkles} />
         <StatCard
-          label="دوره‌های در حال یادگیری"
+          label="پکیج‌های در حال یادگیری"
           value={`${inProgressCourses.length}`}
           icon={BookOpen}
         />
@@ -36,7 +36,7 @@ export default async function DashboardOverviewPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-card p-6 lg:col-span-2">
           <div className="mb-5 flex items-center justify-between">
-            <h3 className="font-bold">دوره‌های در حال یادگیری</h3>
+            <h3 className="font-bold">پکیج‌های در حال یادگیری</h3>
             <Link
               href="/dashboard/courses"
               className="flex items-center gap-1 text-sm text-primary hover:underline"
@@ -46,7 +46,7 @@ export default async function DashboardOverviewPage() {
           </div>
           {enrollments.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              هنوز در دوره‌ای ثبت‌نام نکرده‌اید.
+              هنوز در پکیجی ثبت‌نام نکرده‌اید.
             </p>
           ) : (
             <div className="space-y-5">

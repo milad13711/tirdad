@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
 
 const stats = [
-  { value: "+۵۰", label: "دوره و ابزار" },
+  { value: "+۵۰", label: "پکیج و ابزار" },
   { value: "+۱۲هزار", label: "کاربر فعال" },
   { value: "+۹۸٪", label: "رضایت مشتریان" },
 ];
@@ -58,8 +58,8 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="mt-6 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg"
         >
-          دوره‌های آموزشی تخصصی، ابزارهای تولید محتوا با هوش مصنوعی و بسته‌های پرامپت
-          حرفه‌ای — همه‌چیز برای رشد سریع کسب‌وکار شما در یک پلتفرم.
+          پرامپت‌های رایگان تولید عکس و فیلم با هوش مصنوعی، پکیج‌های آموزشی تخصصی و
+          خدمات طراحی سفارشی — همه‌چیز برای رشد سریع کسب‌وکار شما در یک پلتفرم.
         </motion.p>
 
         <motion.div

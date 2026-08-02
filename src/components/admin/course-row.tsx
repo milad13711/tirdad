@@ -114,7 +114,7 @@ export function CourseRow({ course }: CourseRowProps) {
           <DeleteButton
             endpoint="/api/admin/courses"
             id={course.id}
-            confirmMessage={`دوره «${course.title}» حذف شود؟`}
+            confirmMessage={`پکیج «${course.title}» حذف شود؟`}
           />
         </div>
       </TableCell>

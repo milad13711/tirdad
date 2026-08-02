@@ -17,13 +17,13 @@ export default async function MyCoursesPage() {
   return (
     <div>
       <PageHeader
-        title="دوره‌های من"
-        description="دوره‌های خریداری‌شده و پیشرفت یادگیری شما"
+        title="پکیج‌های آموزشی من"
+        description="پکیج‌های خریداری‌شده و پیشرفت یادگیری شما"
         action={
           <Button asChild size="sm">
             <Link href="/dashboard/courses/browse">
               <ShoppingBag size={15} />
-              خرید دوره جدید
+              خرید پکیج جدید
             </Link>
           </Button>
         }

@@ -32,11 +32,11 @@ export function NewCourseForm() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "خطا در ذخیره دوره");
+      if (!res.ok) throw new Error(data.error ?? "خطا در ذخیره پکیج");
       form.reset();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در ذخیره دوره");
+      setError(err instanceof Error ? err.message : "خطا در ذخیره پکیج");
     } finally {
       setLoading(false);
     }
@@ -46,12 +46,12 @@ export function NewCourseForm() {
     <form className="rounded-xl border border-border bg-card p-6" onSubmit={handleSubmit}>
       <div className="mb-5 flex items-center gap-2">
         <Plus size={16} className="text-primary" />
-        <h3 className="font-bold">افزودن دوره جدید</h3>
+        <h3 className="font-bold">افزودن پکیج آموزشی جدید</h3>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
-          <Label htmlFor="course-title">عنوان دوره</Label>
-          <Input id="course-title" name="title" placeholder="مثال: دوره تدوین ویدیو" required />
+          <Label htmlFor="course-title">عنوان پکیج</Label>
+          <Input id="course-title" name="title" placeholder="مثال: پکیج تدوین ویدیو" required />
         </div>
         <div>
           <Label htmlFor="course-price">قیمت (تومان)</Label>
@@ -61,7 +61,7 @@ export function NewCourseForm() {
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
           <Label htmlFor="course-description">توضیحات</Label>
-          <Textarea id="course-description" name="description" placeholder="توضیح کوتاه دوره..." />
+          <Textarea id="course-description" name="description" placeholder="توضیح کوتاه پکیج..." />
         </div>
         <div>
           <Label htmlFor="course-level">سطح</Label>
@@ -70,7 +70,7 @@ export function NewCourseForm() {
       </div>
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
       <Button className="mt-5" type="submit" disabled={loading}>
-        {loading ? "در حال ذخیره..." : "ذخیره دوره"}
+        {loading ? "در حال ذخیره..." : "ذخیره پکیج"}
       </Button>
     </form>
   );

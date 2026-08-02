@@ -20,13 +20,13 @@ export default async function AdminCoursesPage() {
 
   return (
     <div>
-      <PageHeader title="دوره‌ها" description="مدیریت دوره‌های آموزشی پلتفرم" />
+      <PageHeader title="پکیج‌های آموزشی" description="مدیریت پکیج‌های آموزشی پلتفرم" />
 
       <div className="mb-8">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>عنوان دوره</TableHead>
+              <TableHead>عنوان پکیج</TableHead>
               <TableHead>قیمت (تومان)</TableHead>
               <TableHead>دانشجویان</TableHead>
               <TableHead>وضعیت</TableHead>
