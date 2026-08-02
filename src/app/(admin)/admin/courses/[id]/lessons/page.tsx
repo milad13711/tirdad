@@ -26,12 +26,12 @@ export default async function AdminCourseLessonsPage({
 
   return (
     <div>
-      <PageHeader title={`دروس دوره: ${course.title}`} description="مدیریت جلسات و ویدیوهای دوره" />
+      <PageHeader title={`دروس پکیج: ${course.title}`} description="مدیریت جلسات و ویدیوهای پکیج" />
 
       <div className="mb-8">
         {course.lessons.length === 0 ? (
           <div className="mb-8 rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            هنوز درسی برای این دوره ثبت نشده است.
+            هنوز درسی برای این پکیج ثبت نشده است.
           </div>
         ) : (
           <Table>
