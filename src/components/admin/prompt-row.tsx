@@ -55,6 +55,7 @@ export function PromptRow({ prompt }: PromptRowProps) {
       setUrl(await uploadImage(file));
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      event.target.value = "";
     } finally {
       setUploading(false);
     }

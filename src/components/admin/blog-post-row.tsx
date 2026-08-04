@@ -48,6 +48,7 @@ export function BlogPostRow({ post }: BlogPostRowProps) {
       setCoverImage(data.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      event.target.value = "";
     } finally {
       setUploading(false);
     }

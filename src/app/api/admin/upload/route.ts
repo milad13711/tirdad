@@ -40,7 +40,17 @@ export async function POST(request: Request) {
 
   const ext = ALLOWED_TYPES[file.type];
   if (!ext) {
-    return NextResponse.json({ error: "فرمت تصویر مجاز نیست (jpg/png/webp/gif)" }, { status: 400 });
+    // The common real-world trigger: photos straight from an iPhone camera
+    // roll are HEIC by default, which isn't decodable in most browsers
+    // (Safari/iOS being the exception) — so even if we accepted the file
+    // here, it would silently fail to render for everyone else.
+    const hint = file.type === "image/heic" || file.type === "image/heif" || /\.heic$|\.heif$/i.test(file.name)
+      ? " — عکس‌های HEIC آیفون پشتیبانی نمی‌شوند، از تنظیمات دوربین فرمت را روی «سازگارترین» بگذارید یا عکس را به JPG تبدیل کنید."
+      : "";
+    return NextResponse.json(
+      { error: `فرمت «${file.type || file.name}» پشتیبانی نمی‌شود؛ فقط JPG، PNG، WEBP یا GIF مجاز است.${hint}` },
+      { status: 400 },
+    );
   }
   if (file.size > MAX_BYTES) {
     return NextResponse.json({ error: "حجم تصویر باید کمتر از ۵ مگابایت باشد" }, { status: 400 });

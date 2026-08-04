@@ -14,6 +14,7 @@ export function NewBlogPostForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [coverImageError, setCoverImageError] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState("");
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -24,7 +25,7 @@ export function NewBlogPostForm() {
   async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    setError(null);
+    setCoverImageError(null);
     setUploading(true);
     try {
       const formData = new FormData();
@@ -34,7 +35,11 @@ export function NewBlogPostForm() {
       if (!res.ok) throw new Error(data.error ?? "خطا در آپلود تصویر");
       setCoverImage(data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      // Shown right under the field — a generic banner near the submit
+      // button, several fields down, is too easy to miss and leaves a
+      // failed upload looking identical to "saved with no image".
+      setCoverImageError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      event.target.value = "";
     } finally {
       setUploading(false);
     }
@@ -90,6 +95,7 @@ export function NewBlogPostForm() {
             <Label htmlFor="post-cover">تصویر شاخص</Label>
             <Input id="post-cover" type="file" accept="image/*" onChange={handleImageChange} />
             {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+            {coverImageError && <p className="mt-1 text-xs text-destructive">{coverImageError}</p>}
             {coverImage && (
               // eslint-disable-next-line @next/next/no-img-element
               <img

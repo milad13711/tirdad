@@ -32,20 +32,28 @@ export function NewPromptForm() {
   const [uploadingAfter, setUploadingAfter] = useState(false);
   const [demoBeforeUrl, setDemoBeforeUrl] = useState("");
   const [demoAfterUrl, setDemoAfterUrl] = useState("");
+  const [beforeError, setBeforeError] = useState<string | null>(null);
+  const [afterError, setAfterError] = useState<string | null>(null);
 
   async function handleImageChange(
     event: ChangeEvent<HTMLInputElement>,
     setUrl: (url: string) => void,
     setUploading: (v: boolean) => void,
+    setFieldError: (msg: string | null) => void,
   ) {
     const file = event.target.files?.[0];
     if (!file) return;
-    setError(null);
+    setFieldError(null);
     setUploading(true);
     try {
       setUrl(await uploadImage(file));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      // Shown directly under the field that failed — a generic error
+      // banner near the submit button is too easy to miss, and a failed
+      // upload (e.g. an iPhone HEIC photo, which isn't in the allowed
+      // list) otherwise looks identical to "saved with no image".
+      setFieldError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      event.target.value = "";
     } finally {
       setUploading(false);
     }
@@ -136,9 +144,10 @@ export function NewPromptForm() {
             id="prompt-before"
             type="file"
             accept="image/*"
-            onChange={(e) => handleImageChange(e, setDemoBeforeUrl, setUploadingBefore)}
+            onChange={(e) => handleImageChange(e, setDemoBeforeUrl, setUploadingBefore, setBeforeError)}
           />
           {uploadingBefore && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+          {beforeError && <p className="mt-1 text-xs text-destructive">{beforeError}</p>}
           {demoBeforeUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={demoBeforeUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
@@ -150,9 +159,10 @@ export function NewPromptForm() {
             id="prompt-after"
             type="file"
             accept="image/*"
-            onChange={(e) => handleImageChange(e, setDemoAfterUrl, setUploadingAfter)}
+            onChange={(e) => handleImageChange(e, setDemoAfterUrl, setUploadingAfter, setAfterError)}
           />
           {uploadingAfter && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+          {afterError && <p className="mt-1 text-xs text-destructive">{afterError}</p>}
           {demoAfterUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={demoAfterUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
