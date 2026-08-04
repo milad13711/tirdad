@@ -105,6 +105,8 @@ async function main() {
         creditCost: 2,
         promptText:
           "Professional studio product photography, clean background, soft shadows, commercial lighting",
+        tags: ["محصول", "استودیویی"],
+        featured: true,
         active: true,
       },
       {
@@ -112,6 +114,8 @@ async function main() {
         type: "VIDEO" as const,
         creditCost: 5,
         promptText: "Short vertical promotional teaser, dynamic cuts, upbeat pacing",
+        tags: ["تیزر", "ریلز"],
+        featured: true,
         active: true,
       },
       {
@@ -119,6 +123,8 @@ async function main() {
         type: "IMAGE" as const,
         creditCost: 3,
         promptText: "Cinematic portrait lighting, dramatic shadows, film grain, color grade",
+        tags: ["پرتره", "سینمایی"],
+        featured: true,
         active: true,
       },
       {
@@ -126,6 +132,7 @@ async function main() {
         type: "AUDIO" as const,
         creditCost: 4,
         promptText: "Natural Persian voiceover, warm tone, broadcast quality",
+        tags: ["صدا"],
         active: false,
       },
     ].map((tool) =>

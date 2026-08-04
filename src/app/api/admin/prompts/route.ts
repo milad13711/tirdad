@@ -9,6 +9,8 @@ const createSchema = z.object({
   promptText: z.string().min(3),
   demoBeforeUrl: z.string().optional(),
   demoAfterUrl: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  featured: z.boolean().optional(),
 });
 
 const patchSchema = z.object({
@@ -17,6 +19,8 @@ const patchSchema = z.object({
   promptText: z.string().min(3).optional(),
   demoBeforeUrl: z.string().optional(),
   demoAfterUrl: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  featured: z.boolean().optional(),
   active: z.boolean().optional(),
 });
 

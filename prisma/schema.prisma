@@ -222,6 +222,10 @@ model AiTool {
   promptText    String
   demoBeforeUrl String?
   demoAfterUrl  String?
+  tags          String[]       @default([])
+  // Shows this prompt as one of the 3 landing-page highlights. The full
+  // gallery at /prompts always lists every active prompt regardless.
+  featured      Boolean        @default(false)
   active        Boolean        @default(true)
   createdAt     DateTime       @default(now())
   generations   AiGeneration[]

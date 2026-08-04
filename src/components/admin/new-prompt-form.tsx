@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,10 +14,42 @@ const typeOptions = [
   { value: "AUDIO", label: "صدا" },
 ];
 
+async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", "prompts");
+  const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "خطا در آپلود تصویر");
+  return data.url as string;
+}
+
 export function NewPromptForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingBefore, setUploadingBefore] = useState(false);
+  const [uploadingAfter, setUploadingAfter] = useState(false);
+  const [demoBeforeUrl, setDemoBeforeUrl] = useState("");
+  const [demoAfterUrl, setDemoAfterUrl] = useState("");
+
+  async function handleImageChange(
+    event: ChangeEvent<HTMLInputElement>,
+    setUrl: (url: string) => void,
+    setUploading: (v: boolean) => void,
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    setUploading(true);
+    try {
+      setUrl(await uploadImage(file));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,6 +57,10 @@ export function NewPromptForm() {
     setLoading(true);
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const tags = String(formData.get("tags") ?? "")
+      .split(/[,،]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     try {
       const res = await fetch("/api/admin/prompts", {
@@ -34,13 +70,17 @@ export function NewPromptForm() {
           name: formData.get("name"),
           type: formData.get("type"),
           promptText: formData.get("promptText"),
-          demoBeforeUrl: formData.get("demoBeforeUrl") || undefined,
-          demoAfterUrl: formData.get("demoAfterUrl") || undefined,
+          demoBeforeUrl: demoBeforeUrl || undefined,
+          demoAfterUrl: demoAfterUrl || undefined,
+          tags,
+          featured: formData.get("featured") === "on",
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "خطا در ذخیره پرامپت");
       form.reset();
+      setDemoBeforeUrl("");
+      setDemoAfterUrl("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پرامپت");
@@ -85,18 +125,46 @@ export function NewPromptForm() {
           required
         />
       </div>
+      <div className="mt-4">
+        <Label htmlFor="prompt-tags">تگ‌ها (با کاما جدا کنید)</Label>
+        <Input id="prompt-tags" name="tags" placeholder="پرتره، محصول، انیمه" />
+      </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label htmlFor="prompt-before">لینک عکس قبل (اختیاری)</Label>
-          <Input id="prompt-before" name="demoBeforeUrl" dir="ltr" placeholder="https://..." />
+          <Label htmlFor="prompt-before">عکس قبل</Label>
+          <Input
+            id="prompt-before"
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageChange(e, setDemoBeforeUrl, setUploadingBefore)}
+          />
+          {uploadingBefore && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+          {demoBeforeUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={demoBeforeUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
+          )}
         </div>
         <div>
-          <Label htmlFor="prompt-after">لینک عکس بعد (اختیاری)</Label>
-          <Input id="prompt-after" name="demoAfterUrl" dir="ltr" placeholder="https://..." />
+          <Label htmlFor="prompt-after">عکس بعد</Label>
+          <Input
+            id="prompt-after"
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageChange(e, setDemoAfterUrl, setUploadingAfter)}
+          />
+          {uploadingAfter && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+          {demoAfterUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={demoAfterUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
+          )}
         </div>
       </div>
+      <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+        <input type="checkbox" name="featured" className="h-4 w-4 rounded border-border" />
+        نمایش در ۳ پرامپت ویژه صفحه اصلی
+      </label>
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <Button className="mt-5" type="submit" disabled={loading}>
+      <Button className="mt-5" type="submit" disabled={loading || uploadingBefore || uploadingAfter}>
         {loading ? "در حال ذخیره..." : "ذخیره پرامپت"}
       </Button>
     </form>
