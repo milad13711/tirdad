@@ -72,6 +72,10 @@ export async function getInstagramConnection() {
   return prisma.instagramConnection.findUnique({ where: { id: 1 } });
 }
 
+export async function getAdminTeaserSamples() {
+  return prisma.teaserSample.findMany({ orderBy: { createdAt: "desc" } });
+}
+
 export async function getAdminBlogPosts() {
   return prisma.blogPost.findMany({ orderBy: { createdAt: "desc" } });
 }

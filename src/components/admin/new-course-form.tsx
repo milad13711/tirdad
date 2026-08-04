@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,30 @@ export function NewCourseForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [coverImageError, setCoverImageError] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState("");
+
+  async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setCoverImageError(null);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "courses");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "خطا در آپلود تصویر");
+      setCoverImage(data.url);
+    } catch (err) {
+      setCoverImageError(err instanceof Error ? err.message : "خطا در آپلود تصویر");
+      event.target.value = "";
+    } finally {
+      setUploading(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -27,6 +51,8 @@ export function NewCourseForm() {
         body: JSON.stringify({
           title: formData.get("title"),
           description: formData.get("description"),
+          durationLabel: formData.get("durationLabel"),
+          coverImage: coverImage || undefined,
           price: formData.get("price"),
           level: formData.get("level"),
         }),
@@ -34,6 +60,7 @@ export function NewCourseForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "خطا در ذخیره پکیج");
       form.reset();
+      setCoverImage("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پکیج");
@@ -68,8 +95,24 @@ export function NewCourseForm() {
           <Input id="course-level" name="level" placeholder="مثال: مقدماتی" />
         </div>
       </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div>
+          <Label htmlFor="course-duration">مدت زمان آموزش</Label>
+          <Input id="course-duration" name="durationLabel" placeholder="مثال: ۱۸ ساعت" />
+        </div>
+        <div className="md:col-span-2">
+          <Label htmlFor="course-cover">تصویر پکیج</Label>
+          <Input id="course-cover" type="file" accept="image/*" onChange={handleImageChange} />
+          {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+          {coverImageError && <p className="mt-1 text-xs text-destructive">{coverImageError}</p>}
+          {coverImage && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={coverImage} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
+          )}
+        </div>
+      </div>
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <Button className="mt-5" type="submit" disabled={loading}>
+      <Button className="mt-5" type="submit" disabled={loading || uploading}>
         {loading ? "در حال ذخیره..." : "ذخیره پکیج"}
       </Button>
     </form>

@@ -9,6 +9,24 @@ export async function getFeaturedPrompts(limit = 3) {
   });
 }
 
+// Landing showcase toggle: top featured prompts split by type so visitors
+// can switch between "photo" and "video" prompts without a page navigation.
+export async function getFeaturedPromptsByType(limit = 3) {
+  const [image, video] = await Promise.all([
+    prisma.aiTool.findMany({
+      where: { active: true, featured: true, type: "IMAGE" },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    }),
+    prisma.aiTool.findMany({
+      where: { active: true, featured: true, type: "VIDEO" },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    }),
+  ]);
+  return { image, video };
+}
+
 const GALLERY_PAGE_SIZE = 12;
 
 export async function getPromptsGalleryFirstPage() {

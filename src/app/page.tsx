@@ -4,6 +4,7 @@ import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
 import { AiShowcase } from "@/components/site/ai-showcase";
+import { ContentProduction } from "@/components/site/content-production";
 import { Pricing } from "@/components/site/pricing";
 import { Testimonials } from "@/components/site/testimonials";
 import { InstagramCrm } from "@/components/site/instagram";
@@ -36,6 +37,7 @@ export default async function Home() {
         <Services />
         <Courses />
         <AiShowcase />
+        <ContentProduction />
         {settings.subscriptionPlansEnabled && <Pricing />}
         <Testimonials />
         <InstagramCrm content={content} />

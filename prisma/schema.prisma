@@ -161,17 +161,19 @@ model Transaction {
 }
 
 model Course {
-  id          String       @id @default(cuid())
-  title       String
-  slug        String       @unique
-  description String?
-  price       Int
-  level       String?
-  published   Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  lessons     Lesson[]
-  enrollments Enrollment[]
-  orders      Order[]
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  description   String?
+  coverImage    String?
+  durationLabel String?
+  price         Int
+  level         String?
+  published     Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  lessons       Lesson[]
+  enrollments   Enrollment[]
+  orders        Order[]
 }
 
 model Lesson {
@@ -382,4 +384,16 @@ model ServiceRequest {
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Portfolio samples of finished custom teaser/content work, shown in the
+// landing page's "تولید محتوا" section — distinct from the AiTool prompt
+// gallery, which showcases prompts visitors can use themselves.
+model TeaserSample {
+  id         String   @id @default(cuid())
+  title      String
+  coverImage String?
+  videoUrl   String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
