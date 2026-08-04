@@ -1,0 +1,52 @@
+name: Deploy to production server
+
+on:
+  push:
+    branches:
+      - claude/ui-ux-pro-max-skill-qdlm2j
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: root
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          script_stop: true
+          script: |
+            set -e
+            BRANCH="claude/ui-ux-pro-max-skill-qdlm2j"
+            APP_DIR="/home/tirdad-app/tirdad"
+
+            echo "== Fetching latest ${BRANCH} =="
+            su - tirdad-app -c "curl -4 -fsSL --connect-timeout 20 --max-time 180 https://github.com/milad13711/tirdad/archive/refs/heads/${BRANCH}.tar.gz -o /tmp/tirdad.tar.gz"
+
+            if [ -f "${APP_DIR}/.env" ]; then
+              cp "${APP_DIR}/.env" /tmp/tirdad.env.bak
+            fi
+
+            rm -rf "${APP_DIR}"
+            su - tirdad-app -c "mkdir -p ~/tirdad && tar -xzf /tmp/tirdad.tar.gz -C ~/tirdad --strip-components=1"
+
+            if [ -f /tmp/tirdad.env.bak ]; then
+              mv /tmp/tirdad.env.bak "${APP_DIR}/.env"
+              chown tirdad-app:tirdad-app "${APP_DIR}/.env"
+            fi
+
+            echo "== Installing dependencies =="
+            su - tirdad-app -c "cd ~/tirdad && npm install"
+
+            echo "== Running migrations =="
+            su - tirdad-app -c "cd ~/tirdad && npx prisma migrate deploy"
+
+            echo "== Building =="
+            su - tirdad-app -c "cd ~/tirdad && npm run build"
+
+            echo "== Restarting app =="
+            su - tirdad-app -c "pm2 restart tirdad"
+
+            echo "Deploy complete."
