@@ -1,9 +1,8 @@
-import Link from "next/link";
-import { Clapperboard, MessageCircle, TrendingUp, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MessageCircle, TrendingUp, Users } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { InstagramLeadForm } from "@/components/site/instagram-lead-form";
+import { InstagramCrmPricing } from "@/components/site/instagram-crm-pricing";
 import type { SiteContent } from "@/lib/site-content";
 
 const highlights = [
@@ -30,7 +29,7 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
               )}
             </SectionTitle>
             <p className="mb-8 leading-8 text-muted-foreground">{content.instagramDescription}</p>
-            <div className="mb-8 space-y-4">
+            <div className="space-y-4">
               {highlights.map((item) => (
                 <div key={item.label} className="flex items-center gap-3">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -40,12 +39,6 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
                 </div>
               ))}
             </div>
-            <Button asChild>
-              <Link href={content.teaserCtaHref}>
-                <Clapperboard size={16} />
-                {content.teaserCtaLabel}
-              </Link>
-            </Button>
           </Reveal>
 
           <Reveal from="left" className="space-y-6">
@@ -78,6 +71,8 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
             <InstagramLeadForm />
           </Reveal>
         </div>
+
+        <InstagramCrmPricing />
       </Container>
     </section>
   );

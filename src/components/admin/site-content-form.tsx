@@ -14,8 +14,6 @@ const FIELDS: { key: keyof SiteContent; label: string; multiline?: boolean }[] =
   { key: "heroSubtitle", label: "توضیح زیر عنوان اصلی", multiline: true },
   { key: "instagramTitle", label: "عنوان بخش CRM اینستاگرام (هر خط با Enter جدا شود)", multiline: true },
   { key: "instagramDescription", label: "توضیح بخش CRM اینستاگرام", multiline: true },
-  { key: "teaserCtaLabel", label: "متن دکمه دریافت پروژه تیزر" },
-  { key: "teaserCtaHref", label: "لینک دکمه دریافت پروژه تیزر" },
 ];
 
 export function SiteContentForm({ content }: { content: SiteContent }) {

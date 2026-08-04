@@ -12,11 +12,9 @@ export const SITE_CONTENT_DEFAULTS = {
   heroTitleHighlight: "محتوای هوشمند",
   heroSubtitle:
     "پرامپت‌های رایگان تولید عکس و فیلم با هوش مصنوعی، پکیج‌های آموزشی تخصصی و خدمات طراحی سفارشی — همه‌چیز برای رشد سریع کسب‌وکار شما در یک پلتفرم.",
-  instagramTitle: "لیدهای اینستاگرام را\nهدر ندهید",
+  instagramTitle: "مینی CRM مدیریت\nمشتریان اینستاگرامی",
   instagramDescription:
-    "هر پیام دایرکت و کامنت را به یک لید ثبت‌شده در قیف فروش تبدیل کنید و وضعیت پیگیری تا تبدیل نهایی را در یک داشبورد ساده دنبال کنید.",
-  teaserCtaLabel: "دریافت پروژه تیزر تبلیغاتی",
-  teaserCtaHref: "/login?next=/dashboard/service-requests",
+    "هر دایرکت می‌تواند به یک خرید منتهی شود، اگر این ابزار را نصب کنی! هر پیام دایرکت و کامنت را به یک لید ثبت‌شده در قیف فروش تبدیل کن و وضعیت پیگیری تا تبدیل نهایی را در یک داشبورد ساده دنبال کن.",
 } as const;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

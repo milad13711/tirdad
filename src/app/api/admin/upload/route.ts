@@ -66,24 +66,30 @@ export async function POST(request: Request) {
   let bytes = Buffer.from(await file.arrayBuffer());
 
   if (!ext) {
+    if (!isHeic(file)) {
+      return NextResponse.json(
+        {
+          error: `فرمت «${file.type || file.name}» پشتیبانی نمی‌شود؛ فقط JPG، PNG، WEBP، GIF یا عکس HEIC آیفون مجاز است.`,
+        },
+        { status: 400 },
+      );
+    }
     try {
-      if (isHeic(file)) {
-        // heic-convert is a pure-JS/WASM HEVC decoder — sharp's bundled
-        // libheif can't decode real iPhone photos (HEVC decode support is
-        // left out of prebuilt libheif binaries for licensing reasons),
-        // so this is the one that actually works for the common case.
-        const convert = (await import("heic-convert")).default;
-        bytes = Buffer.from(await convert({ buffer: bytes, format: "JPEG", quality: 0.9 }));
-      } else {
-        // Anything else a browser can't natively render (bmp, tiff, avif,
-        // ...) — let sharp transcode it to a plain JPEG.
-        const sharp = (await import("sharp")).default;
-        bytes = await sharp(bytes).jpeg({ quality: 90 }).toBuffer();
-      }
+      // heic-convert is a pure-JS/WASM HEVC decoder with no native binary
+      // to fetch at install time — deliberately not using sharp here: its
+      // ~20 platform-specific optional packages are a much heavier,
+      // network-dependent install, and this production server's outbound
+      // network has already proven flaky (see the git-clone-over-tarball
+      // workaround in deploy.yml). `npm install` can report success even
+      // when one of those optional downloads silently failed, leaving
+      // sharp broken at runtime — exactly the kind of failure that's hard
+      // to diagnose without direct server access.
+      const convert = (await import("heic-convert")).default;
+      bytes = Buffer.from(await convert({ buffer: bytes, format: "JPEG", quality: 0.9 }));
       ext = "jpg";
     } catch {
       return NextResponse.json(
-        { error: `فرمت «${file.type || file.name}» قابل پردازش نیست؛ لطفاً JPG، PNG، WEBP یا GIF آپلود کنید.` },
+        { error: "پردازش این عکس HEIC ناموفق بود؛ لطفاً آن را به JPG تبدیل کرده و دوباره تلاش کنید." },
         { status: 400 },
       );
     }
