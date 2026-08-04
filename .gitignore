@@ -43,3 +43,7 @@ next-env.d.ts
 
 # prisma generated client
 /src/generated/prisma
+
+# admin-uploaded content (persisted across deploys separately, see
+# .github/workflows/deploy.yml — not meant to live in git)
+/uploads

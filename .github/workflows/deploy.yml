@@ -29,12 +29,29 @@ jobs:
               cp "${APP_DIR}/.env" /tmp/tirdad.env.bak
             fi
 
+            # Admin-uploaded blog images live on local disk under uploads/
+            # (see /api/admin/upload — kept outside public/ on purpose,
+            # served via /api/uploads/blog/[filename] instead, since Next's
+            # production server snapshots public/'s listing at boot and
+            # won't see files written there after startup). Not in git, so
+            # they'd be wiped by the rm -rf below unless carried over.
+            if [ -d "${APP_DIR}/uploads" ]; then
+              rm -rf /tmp/tirdad.uploads.bak
+              cp -r "${APP_DIR}/uploads" /tmp/tirdad.uploads.bak
+            fi
+
             rm -rf "${APP_DIR}"
             su - tirdad-app -c "mkdir -p ~/tirdad && tar -xzf /tmp/tirdad.tar.gz -C ~/tirdad --strip-components=1"
 
             if [ -f /tmp/tirdad.env.bak ]; then
               mv /tmp/tirdad.env.bak "${APP_DIR}/.env"
               chown tirdad-app:tirdad-app "${APP_DIR}/.env"
+            fi
+
+            if [ -d /tmp/tirdad.uploads.bak ]; then
+              rm -rf "${APP_DIR}/uploads"
+              mv /tmp/tirdad.uploads.bak "${APP_DIR}/uploads"
+              chown -R tirdad-app:tirdad-app "${APP_DIR}/uploads"
             fi
 
             echo "== Installing dependencies =="

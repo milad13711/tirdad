@@ -8,6 +8,9 @@ const createSchema = z.object({
   title: z.string().min(2),
   excerpt: z.string().optional(),
   content: z.string().optional(),
+  coverImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
 });
 
 const patchSchema = z.object({
@@ -15,6 +18,9 @@ const patchSchema = z.object({
   title: z.string().min(2).optional(),
   excerpt: z.string().optional(),
   content: z.string().optional(),
+  coverImage: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
   published: z.boolean().optional(),
 });
 

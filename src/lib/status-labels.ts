@@ -42,6 +42,7 @@ export const leadSourceLabel = {
   DIRECT: "دایرکت",
   COMMENT: "کامنت",
   BIO_LINK: "لینک بایو",
+  WEBSITE: "فرم سایت",
 } as const;
 
 export const leadStageLabel = {

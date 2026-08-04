@@ -5,6 +5,7 @@ import { ArrowLeft, PlayCircle } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
+import type { SiteContent } from "@/lib/site-content";
 
 const stats = [
   { value: "+۵۰", label: "پکیج و ابزار" },
@@ -12,7 +13,7 @@ const stats = [
   { value: "+۹۸٪", label: "رضایت مشتریان" },
 ];
 
-export function Hero() {
+export function Hero({ content }: { content: SiteContent }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -46,9 +47,9 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.1 }}
           className="max-w-4xl text-balance text-4xl font-extrabold leading-[1.15] tracking-tight [text-shadow:0_2px_20px_var(--color-background)] sm:text-5xl md:text-6xl lg:text-7xl"
         >
-          یک قدم جلوتر با{" "}
+          {content.heroTitle}{" "}
           <span className="bg-gradient-to-l from-primary to-primary/60 bg-clip-text text-transparent">
-            محتوای هوشمند
+            {content.heroTitleHighlight}
           </span>
         </motion.h1>
 
@@ -58,8 +59,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="mt-6 max-w-2xl text-balance text-base text-muted-foreground [text-shadow:0_2px_16px_var(--color-background)] sm:text-lg"
         >
-          پرامپت‌های رایگان تولید عکس و فیلم با هوش مصنوعی، پکیج‌های آموزشی تخصصی و
-          خدمات طراحی سفارشی — همه‌چیز برای رشد سریع کسب‌وکار شما در یک پلتفرم.
+          {content.heroSubtitle}
         </motion.p>
 
         <motion.div

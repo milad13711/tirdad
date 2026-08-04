@@ -12,6 +12,8 @@ import { Blog } from "@/components/site/blog";
 import { Cta } from "@/components/site/cta";
 import { Footer } from "@/components/site/footer";
 import { getSiteSettings } from "@/lib/queries/settings";
+import { getSiteContent } from "@/lib/site-content";
+import { getPublishedBlogPosts } from "@/lib/queries/blog";
 
 // Otherwise Next prerenders this page once at build time — an admin toggling
 // subscriptionPlansEnabled from /admin/settings wouldn't take effect on the
@@ -19,22 +21,26 @@ import { getSiteSettings } from "@/lib/queries/settings";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const settings = await getSiteSettings();
+  const [settings, content, posts] = await Promise.all([
+    getSiteSettings(),
+    getSiteContent(),
+    getPublishedBlogPosts(3),
+  ]);
 
   return (
     <>
       <BackgroundVideo />
       <Navbar showPricing={settings.subscriptionPlansEnabled} />
       <main className="flex-1">
-        <Hero />
+        <Hero content={content} />
         <Services />
         <Courses />
         <AiShowcase />
         {settings.subscriptionPlansEnabled && <Pricing />}
         <Testimonials />
-        <InstagramCrm />
+        <InstagramCrm content={content} />
         <Faq />
-        <Blog />
+        <Blog posts={posts} />
         <Cta showPricing={settings.subscriptionPlansEnabled} />
       </main>
       <Footer />

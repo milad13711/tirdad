@@ -48,6 +48,7 @@ enum LeadSource {
   DIRECT
   COMMENT
   BIO_LINK
+  WEBSITE
 }
 
 enum LeadStage {
@@ -251,15 +252,18 @@ model PromptPackage {
 }
 
 model BlogPost {
-  id          String     @id @default(cuid())
-  title       String
-  slug        String     @unique
-  excerpt     String?
-  content     String?
-  status      BlogStatus @default(DRAFT)
-  views       Int        @default(0)
-  publishedAt DateTime?
-  createdAt   DateTime   @default(now())
+  id              String     @id @default(cuid())
+  title           String
+  slug            String     @unique
+  excerpt         String?
+  content         String?
+  coverImage      String?
+  metaTitle       String?
+  metaDescription String?
+  status          BlogStatus @default(DRAFT)
+  views           Int        @default(0)
+  publishedAt     DateTime?
+  createdAt       DateTime   @default(now())
 }
 
 model Lead {
@@ -268,6 +272,7 @@ model Lead {
   phone     String?
   source    LeadSource
   topic     String?
+  message   String?
   stage     LeadStage  @default(NEW)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -323,10 +328,29 @@ model UsageLog {
 // Singleton row (always id = 1) for site-wide toggles the super admin
 // controls from /admin/settings — start with subscription-plan visibility,
 // extend with more flags here as needed rather than adding new models.
+// `content` holds free-text landing copy overrides (hero title, section
+// blurbs, CTA labels) keyed by a fixed set of known keys — see
+// src/lib/site-content.ts for the shape and defaults.
 model SiteSettings {
   id                       Int      @id @default(1)
   subscriptionPlansEnabled Boolean  @default(false)
+  content                  Json     @default("{}")
   updatedAt                DateTime @updatedAt
+}
+
+// Singleton row (always id = 1) storing the admin's linked Instagram
+// business account credentials for the CRM sync. A real Meta Graph API
+// integration also requires an approved Meta app + webhook subscription
+// for live DM push; this stores what's needed to call the Graph API for a
+// manual/periodic pull once that app-level setup is done outside this repo.
+model InstagramConnection {
+  id                Int       @id @default(1)
+  accessToken       String?
+  businessAccountId String?
+  connectedAt       DateTime?
+  lastSyncAt        DateTime?
+  lastSyncError     String?
+  updatedAt         DateTime  @updatedAt
 }
 
 enum ServiceRequestType {

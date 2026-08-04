@@ -10,7 +10,7 @@ interface LeadCardProps {
     id: string;
     name: string;
     topic: string | null;
-    source: "DIRECT" | "COMMENT" | "BIO_LINK";
+    source: "DIRECT" | "COMMENT" | "BIO_LINK" | "WEBSITE";
     stage: "NEW" | "CONTACTED" | "OFFERED" | "CONVERTED" | "LOST";
   };
 }

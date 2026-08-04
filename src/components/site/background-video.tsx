@@ -7,15 +7,15 @@ const VIDEO_SRC = "/videos/majidtirdad-story.mp4";
 const VIDEO_POSTER = "/videos/majidtirdad-story-poster.jpg";
 
 /**
- * Fixed, full-viewport video sitting behind the entire homepage. Its
- * currentTime is driven by whole-page scroll progress (0 at the top of the
- * document, the clip's full length at the bottom) instead of playing on its
- * own timeline — scrolling the page *is* scrubbing the footage.
+ * Small fixed video card in the corner of the viewport — not a full-page
+ * background. Its currentTime is driven by whole-page scroll progress (0 at
+ * the top of the document, the clip's full length at the bottom) instead of
+ * playing on its own timeline, so scrolling the page scrubs the footage.
  *
- * The dimming overlay uses `bg-background` (the theme token, not a fixed
- * black/white) so it automatically inverts with dark/light mode: a near-black
- * veil in dark mode, a pale white veil in light mode — same video, correct
- * contrast either way, with no separate light/dark branching needed here.
+ * Kept small and off to the side (rather than covering the page) so it
+ * illustrates the brand story without competing with the actual content for
+ * attention. Sized down further on small screens and pinned low enough that
+ * it never sits under a heading or button.
  */
 export function BackgroundVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,7 +51,10 @@ export function BackgroundVideo() {
   }, [reduceMotion]);
 
   return (
-    <div className="fixed inset-0 -z-10" aria-hidden>
+    <div
+      className="pointer-events-none fixed bottom-6 start-6 z-40 hidden overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg sm:block sm:h-44 sm:w-28 md:h-56 md:w-36 lg:h-64 lg:w-44"
+      aria-hidden
+    >
       {reduceMotion ? (
         <div
           className="h-full w-full bg-cover bg-center"
@@ -62,20 +65,13 @@ export function BackgroundVideo() {
           ref={videoRef}
           src={VIDEO_SRC}
           poster={VIDEO_POSTER}
-          className="h-full w-full scale-105 object-cover blur-md"
+          className="h-full w-full object-cover"
           muted
           playsInline
           preload="auto"
         />
       )}
-      {/* Blurring the footage smooths out locally-bright frames (e.g. the
-          well-lit studio shots) so no single scroll position can wash out
-          text sitting on top of it. The scrim stays light enough that the
-          video actually reads as present — text contrast is instead
-          guaranteed by the background-colored text-shadow glow on headings
-          (see container.tsx / hero.tsx), not by drowning the footage. */}
-      <div className="absolute inset-0 bg-background/55" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-transparent to-background/90" />
+      <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
     </div>
   );
 }

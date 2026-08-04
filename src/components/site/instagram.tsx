@@ -1,7 +1,10 @@
-import { AtSign, MessageCircle, TrendingUp, Users } from "lucide-react";
+import Link from "next/link";
+import { Clapperboard, MessageCircle, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
+import { InstagramLeadForm } from "@/components/site/instagram-lead-form";
+import type { SiteContent } from "@/lib/site-content";
 
 const highlights = [
   { icon: MessageCircle, label: "مدیریت لیدهای دایرکت و کامنت" },
@@ -9,7 +12,9 @@ const highlights = [
   { icon: Users, label: "گزارش‌گیری کامل از عملکرد تیم" },
 ];
 
-export function InstagramCrm() {
+export function InstagramCrm({ content }: { content: SiteContent }) {
+  const [titleLine1, titleLine2] = content.instagramTitle.split("\n");
+
   return (
     <section className="py-24 md:py-32">
       <Container>
@@ -17,13 +22,14 @@ export function InstagramCrm() {
           <Reveal>
             <SectionLabel>CRM اینستاگرام</SectionLabel>
             <SectionTitle className="mb-6">
-              لیدهای اینستاگرام را
-              <br /> هدر ندهید
+              {titleLine1}
+              {titleLine2 && (
+                <>
+                  <br /> {titleLine2}
+                </>
+              )}
             </SectionTitle>
-            <p className="mb-8 leading-8 text-muted-foreground">
-              هر پیام دایرکت و کامنت را به یک لید ثبت‌شده در قیف فروش تبدیل کنید و وضعیت
-              پیگیری تا تبدیل نهایی را در یک داشبورد ساده دنبال کنید.
-            </p>
+            <p className="mb-8 leading-8 text-muted-foreground">{content.instagramDescription}</p>
             <div className="mb-8 space-y-4">
               {highlights.map((item) => (
                 <div key={item.label} className="flex items-center gap-3">
@@ -34,13 +40,15 @@ export function InstagramCrm() {
                 </div>
               ))}
             </div>
-            <Button>
-              <AtSign size={16} />
-              اتصال به اینستاگرام
+            <Button asChild>
+              <Link href={content.teaserCtaHref}>
+                <Clapperboard size={16} />
+                {content.teaserCtaLabel}
+              </Link>
             </Button>
           </Reveal>
 
-          <Reveal from="left">
+          <Reveal from="left" className="space-y-6">
             <div className="rounded-2xl border border-border bg-background p-6">
               <div className="mb-4 flex items-center justify-between text-sm text-muted-foreground">
                 <span>قیف فروش این هفته</span>
@@ -66,6 +74,8 @@ export function InstagramCrm() {
                 </div>
               ))}
             </div>
+
+            <InstagramLeadForm />
           </Reveal>
         </div>
       </Container>
