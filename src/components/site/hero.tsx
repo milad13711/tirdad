@@ -44,7 +44,7 @@ export function Hero() {
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="max-w-4xl text-balance text-4xl font-extrabold leading-[1.15] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+          className="max-w-4xl text-balance text-4xl font-extrabold leading-[1.15] tracking-tight [text-shadow:0_2px_20px_var(--color-background)] sm:text-5xl md:text-6xl lg:text-7xl"
         >
           یک قدم جلوتر با{" "}
           <span className="bg-gradient-to-l from-primary to-primary/60 bg-clip-text text-transparent">
@@ -56,7 +56,7 @@ export function Hero() {
           initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="mt-6 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg"
+          className="mt-6 max-w-2xl text-balance text-base text-muted-foreground [text-shadow:0_2px_16px_var(--color-background)] sm:text-lg"
         >
           پرامپت‌های رایگان تولید عکس و فیلم با هوش مصنوعی، پکیج‌های آموزشی تخصصی و
           خدمات طراحی سفارشی — همه‌چیز برای رشد سریع کسب‌وکار شما در یک پلتفرم.

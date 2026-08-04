@@ -17,7 +17,7 @@ export function Container({
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="mb-3 flex items-center gap-3 text-sm font-semibold tracking-wide text-primary">
+    <p className="mb-3 flex items-center gap-3 text-sm font-semibold tracking-wide text-primary [text-shadow:0_2px_12px_var(--color-background)]">
       <span className="h-px w-8 bg-primary" />
       {children}
     </p>
@@ -35,6 +35,7 @@ export function SectionTitle({
     <h2
       className={cn(
         "text-balance text-3xl font-extrabold leading-tight tracking-tight md:text-5xl",
+        "[text-shadow:0_2px_16px_var(--color-background)]",
         className,
       )}
     >
