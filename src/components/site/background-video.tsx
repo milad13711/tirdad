@@ -38,6 +38,18 @@ export function BackgroundVideo() {
     video.currentTime = progress * video.duration;
   });
 
+  useEffect(() => {
+    if (reduceMotion) return;
+    const video = videoRef.current;
+    if (!video) return;
+    // Some browsers (Safari in particular, and some Chromium builds) never
+    // decode a single frame of a <video> that hasn't actually played —
+    // setting currentTime alone renders nothing. Kick off a muted
+    // play/pause once so the decoder is primed, then hand control back to
+    // the scroll handler above.
+    video.play()?.then(() => video.pause()).catch(() => {});
+  }, [reduceMotion]);
+
   return (
     <div className="fixed inset-0 -z-10" aria-hidden>
       {reduceMotion ? (
@@ -58,11 +70,12 @@ export function BackgroundVideo() {
       )}
       {/* Blurring the footage smooths out locally-bright frames (e.g. the
           well-lit studio shots) so no single scroll position can wash out
-          text sitting on top of it. The scrim below is the second line of
-          defense: strong enough that even the brightest frame stays legible
-          in both themes, without ever going fully opaque. */}
-      <div className="absolute inset-0 bg-background/90" />
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
+          text sitting on top of it. The scrim stays light enough that the
+          video actually reads as present — text contrast is instead
+          guaranteed by the background-colored text-shadow glow on headings
+          (see container.tsx / hero.tsx), not by drowning the footage. */}
+      <div className="absolute inset-0 bg-background/55" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-transparent to-background/90" />
     </div>
   );
 }
