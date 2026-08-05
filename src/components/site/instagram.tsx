@@ -15,7 +15,7 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
   const [titleLine1, titleLine2] = content.instagramTitle.split("\n");
 
   return (
-    <section className="py-24 md:py-32">
+    <section id="instagram-crm" className="py-24 md:py-32">
       <Container>
         <div className="grid items-center gap-16 rounded-3xl border border-border bg-card p-8 md:p-16 lg:grid-cols-2">
           <Reveal>
