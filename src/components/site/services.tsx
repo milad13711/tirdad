@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clapperboard, GraduationCap, Sparkles } from "lucide-react";
+import { Clapperboard, GraduationCap, Sparkles, Users } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 
@@ -22,6 +22,12 @@ const pillars = [
     icon: Clapperboard,
     href: "#content-production",
   },
+  {
+    title: "مینی CRM مدیریت مشتریان اینستاگرامی",
+    description: "پیگیری لیدهای دایرکت و کامنت اینستاگرام تا مرحله تبدیل، در یک پنل ساده.",
+    icon: Users,
+    href: "#instagram-crm",
+  },
 ] as const;
 
 export function Services() {
@@ -36,7 +42,7 @@ export function Services() {
           </SectionTitle>
         </Reveal>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {pillars.map((pillar, index) => (
             <Reveal key={pillar.title} delay={index * 0.1}>
               <Link
