@@ -19,7 +19,7 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
       <Container>
         <div className="grid items-center gap-16 rounded-3xl border border-border bg-card p-8 md:p-16 lg:grid-cols-2">
           <Reveal>
-            <SectionLabel>CRM اینستاگرام</SectionLabel>
+            <SectionLabel>قدم چهارم: CRM اینستاگرام</SectionLabel>
             <SectionTitle className="mb-6">
               {titleLine1}
               {titleLine2 && (

@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, PlayCircle } from "lucide-react";
+import { GraduationCap, Sparkles as SparklesIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
@@ -69,15 +68,15 @@ export function Hero({ content }: { content: SiteContent }) {
           className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
         >
           <Button size="lg" asChild>
-            <Link href="/login">
-              شروع رایگان
-              <ArrowLeft size={18} />
-            </Link>
+            <a href="#ai-tools">
+              <SparklesIcon size={18} />
+              پرامپت‌های رایگان
+            </a>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <a href="#ai-tools">
-              <PlayCircle size={18} />
-              مشاهده دموی ابزارها
+            <a href="#courses">
+              <GraduationCap size={18} />
+              دوره‌های آموزشی
             </a>
           </Button>
         </motion.div>

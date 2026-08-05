@@ -84,9 +84,9 @@ export const faqs = [
 
 export const navLinks = [
   { label: "خانه", href: "#home" },
+  { label: "ابزار هوش مصنوعی", href: "#ai-tools" },
   { label: "خدمات", href: "#services" },
   { label: "دوره‌ها", href: "#courses" },
-  { label: "ابزار هوش مصنوعی", href: "#ai-tools" },
   { label: "پلن‌ها", href: "#pricing" },
   { label: "بلاگ", href: "#blog" },
 ] as const;
