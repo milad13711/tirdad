@@ -14,14 +14,14 @@ export async function AiShowcase() {
       <Container>
         <Reveal className="mb-16 text-center">
           <div className="flex flex-col items-center">
-            <SectionLabel>ابزارهای هوش مصنوعی</SectionLabel>
+            <SectionLabel>قدم اول: رایگان امتحان کن</SectionLabel>
             <SectionTitle>
               پرامپت‌های رایگان
               <br /> آماده استفاده
             </SectionTitle>
             <p className="mt-6 max-w-2xl leading-8 text-muted-foreground">
-              نمونه‌ای از ده‌ها پرامپت حرفه‌ای تصویر و ویدیو که همین حالا می‌توانید
-              استفاده کنید — رایگان و بدون نیاز به دانش فنی.
+              ده‌ها پرامپت حرفه‌ای تصویر و ویدیو که همین حالا، بدون ثبت‌نام و بدون
+              نیاز به دانش فنی، می‌توانید استفاده کنید.
             </p>
           </div>
         </Reveal>

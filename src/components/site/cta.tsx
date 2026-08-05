@@ -15,11 +15,11 @@ export function Cta({ showPricing = true }: { showPricing?: boolean }) {
               className="pointer-events-none absolute -bottom-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-primary/25 blur-[100px]"
             />
             <h2 className="relative z-10 text-balance text-3xl font-extrabold leading-tight md:text-5xl">
-              همین امروز یک قدم جلوتر باشید
+              آماده‌ای یک قدم جلوتر باشی؟
             </h2>
             <p className="relative z-10 mx-auto mt-5 max-w-xl text-balance text-muted-foreground">
-              همین حالا ثبت‌نام کنید و به رایگان از ابزارهای هوش مصنوعی و محتوای آموزشی
-              استفاده کنید.
+              همین حالا رایگان ثبت‌نام کن، یا مستقیم برای تیزر تبلیغاتی اختصاصی یا CRM
+              اینستاگرام درخواست بده.
             </p>
             <div className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild>
@@ -27,6 +27,9 @@ export function Cta({ showPricing = true }: { showPricing?: boolean }) {
                   شروع رایگان
                   <ArrowLeft size={18} />
                 </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <a href="#content-production">درخواست تیزر تبلیغاتی</a>
               </Button>
               {showPricing && (
                 <Button size="lg" variant="outline" asChild>

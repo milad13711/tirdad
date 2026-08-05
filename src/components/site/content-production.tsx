@@ -12,14 +12,14 @@ export async function ContentProduction() {
       <Container>
         <Reveal className="mb-16 text-center">
           <div className="flex flex-col items-center">
-            <SectionLabel>تولید محتوا</SectionLabel>
+            <SectionLabel>قدم سوم: تیزر تبلیغاتی اختصاصی</SectionLabel>
             <SectionTitle>
-              تیزر و محتوای حرفه‌ای
-              <br /> سفارشی برای برند شما
+              وقتی آماده بودی، یک تیزر
+              <br /> حرفه‌ای برای برندت بساز
             </SectionTitle>
             <p className="mt-6 max-w-2xl leading-8 text-muted-foreground">
-              نمونه‌ای از تیزرهایی که برای کسب‌وکارها تولید کرده‌ایم — پروژه بعدی می‌تواند
-              مال شما باشد.
+              تیم مجید تیرداد، تیزر و محتوای اختصاصی متناسب با برند شما را می‌سازد — از
+              همین نمونه‌کارها شروع کن، بعد فرم کنار همین بخش را پر کن تا با تو تماس بگیریم.
             </p>
           </div>
         </Reveal>

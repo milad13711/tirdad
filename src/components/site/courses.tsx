@@ -14,11 +14,14 @@ export async function Courses() {
     <section id="courses" className="py-24 md:py-32">
       <Container className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
         <Reveal>
-          <SectionLabel>پکیج‌های آموزشی</SectionLabel>
+          <SectionLabel>قدم دوم: پکیج‌های آموزشی</SectionLabel>
           <SectionTitle>
-            یادگیری گام‌به‌گام
-            <br /> با پشتیبانی کامل
+            وقتی پرامپت‌های رایگان را
+            <br /> امتحان کردی، عمیق‌تر یاد بگیر
           </SectionTitle>
+          <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
+            دوره‌های گام‌به‌گام تولید محتوا و رشد کسب‌وکار با هوش مصنوعی، با پشتیبانی کامل.
+          </p>
         </Reveal>
         <Reveal delay={0.15}>
           <Button variant="outline" asChild>

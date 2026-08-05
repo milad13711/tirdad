@@ -3,28 +3,36 @@ import { Clapperboard, GraduationCap, Sparkles, Users } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 
+// Ordered as a journey, not a random feature list: try something free →
+// go deeper with a paid course → get a professional teaser made for you →
+// manage the customers that teaser brings in. Step numbers make that
+// progression explicit instead of leaving visitors to infer it.
 const pillars = [
   {
-    title: "پکیج آموزش تولید محتوا با هوش مصنوعی",
-    description: "دوره‌های گام‌به‌گام تولید محتوا و رشد کسب‌وکار با هوش مصنوعی.",
-    icon: GraduationCap,
-    href: "#courses",
-  },
-  {
+    step: "۱",
     title: "پرامپت‌های رایگان",
-    description: "ده‌ها پرامپت آماده تصویر و ویدیو، رایگان و بدون نیاز به دانش فنی.",
+    description: "همین حالا و بدون ثبت‌نام، ده‌ها پرامپت آماده تصویر و ویدیو را امتحان کن.",
     icon: Sparkles,
     href: "#ai-tools",
   },
   {
-    title: "تولید محتوا یا تیزرهای حرفه‌ای سفارشی",
-    description: "تیم ما تیزر و محتوای اختصاصی متناسب با برند شما تولید می‌کند.",
+    step: "۲",
+    title: "پکیج‌های آموزشی",
+    description: "با دوره‌های گام‌به‌گام تولید محتوا با هوش مصنوعی، مهارتت را حرفه‌ای کن.",
+    icon: GraduationCap,
+    href: "#courses",
+  },
+  {
+    step: "۳",
+    title: "تیزر تبلیغاتی اختصاصی",
+    description: "وقتی آماده بودی، تیم ما یک تیزر حرفه‌ای متناسب با برند تو می‌سازد.",
     icon: Clapperboard,
     href: "#content-production",
   },
   {
-    title: "مینی CRM مدیریت مشتریان اینستاگرامی",
-    description: "پیگیری لیدهای دایرکت و کامنت اینستاگرام تا مرحله تبدیل، در یک پنل ساده.",
+    step: "۴",
+    title: "CRM مدیریت مشتریان اینستاگرام",
+    description: "لیدهایی که تیزرت جذب می‌کند را تا مرحله فروش نهایی پیگیری کن.",
     icon: Users,
     href: "#instagram-crm",
   },
@@ -35,10 +43,10 @@ export function Services() {
     <section id="services" className="py-24 md:py-32">
       <Container>
         <Reveal>
-          <SectionLabel>خدمات ما</SectionLabel>
+          <SectionLabel>مسیر رشد شما</SectionLabel>
           <SectionTitle className="mb-16">
-            هر آنچه برای رشد دیجیتال
-            <br /> نیاز دارید
+            از امتحان رایگان تا
+            <br /> مشتری‌های واقعی
           </SectionTitle>
         </Reveal>
 
@@ -49,8 +57,11 @@ export function Services() {
                 href={pillar.href}
                 className="group block h-full rounded-xl border border-border bg-card p-8 transition-colors duration-300 hover:border-primary/40"
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-                  <pillar.icon size={22} />
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                    <pillar.icon size={22} />
+                  </div>
+                  <span className="text-sm font-bold text-muted-foreground/50">{pillar.step}</span>
                 </div>
                 <h3 className="mb-3 text-xl font-bold">{pillar.title}</h3>
                 <p className="leading-7 text-muted-foreground">{pillar.description}</p>
