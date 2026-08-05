@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/site/navbar";
 import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
+import { HashScroll } from "@/components/site/hash-scroll";
 import { ScrollDecor } from "@/components/site/scroll-decor";
 import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
@@ -31,6 +32,7 @@ export default async function Home() {
 
   return (
     <>
+      <HashScroll />
       <Navbar showPricing={settings.subscriptionPlansEnabled} />
       {/*
         Section order follows the sales funnel, not just visual variety:
