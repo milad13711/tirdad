@@ -37,7 +37,7 @@ export function Hero({ content }: { content: SiteContent }) {
           className="mb-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-medium text-muted-foreground"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          پلتفرم آموزش، هوش مصنوعی و رشد اینستاگرام
+          هر روز که می‌گذرد، رقبای تو دارند از هوش مصنوعی جلو می‌افتند
         </motion.div>
 
         <motion.h1
@@ -70,13 +70,13 @@ export function Hero({ content }: { content: SiteContent }) {
           <Button size="lg" asChild>
             <a href="#ai-tools">
               <SparklesIcon size={18} />
-              پرامپت‌های رایگان
+              پرامپت‌های رایگان را امتحان کن
             </a>
           </Button>
           <Button size="lg" variant="outline" asChild>
             <a href="#courses">
               <GraduationCap size={18} />
-              دوره‌های آموزشی
+              با دوره‌ها از بقیه جلو بیفت
             </a>
           </Button>
         </motion.div>
