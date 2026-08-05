@@ -96,10 +96,20 @@ export async function POST(request: Request) {
   }
 
   const dir = path.join(process.cwd(), "uploads", folder);
-  await mkdir(dir, { recursive: true });
-
   const filename = `${randomUUID()}.${ext}`;
-  await writeFile(path.join(dir, filename), bytes);
+
+  try {
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, filename), bytes);
+  } catch (err) {
+    // An unhandled throw here means Next returns its generic HTML error
+    // page instead of JSON, which the client-side fetch then fails to
+    // parse ("Unexpected token '<'") — surfacing no useful message. Catch
+    // it so a disk/permission problem on the server is at least reported
+    // back as a readable error instead of a cryptic parse failure.
+    console.error(`upload failed for folder "${folder}"`, err);
+    return NextResponse.json({ error: "ذخیره فایل روی سرور ناموفق بود" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true, url: `/api/uploads/${folder}/${filename}` });
 }
