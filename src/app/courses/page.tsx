@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/site/navbar";
+import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
 import { Footer } from "@/components/site/footer";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { PublicCourseCard } from "@/components/site/public-course-card";
@@ -39,6 +40,7 @@ export default async function CoursesArchivePage() {
         </Container>
       </main>
       <Footer />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
     </>
   );
 }

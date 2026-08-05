@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Container } from "@/components/site/container";
 import { navLinks } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
+// Mobile navigation lives in <MobileBottomNav> (fixed bottom bar) instead of
+// a hamburger dropdown here — this header only handles desktop nav on md+,
+// plus the logo and theme toggle on every screen size.
 export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
-  const links = showPricing ? navLinks : navLinks.filter((link) => link.href !== "#pricing");
+  const links = showPricing ? navLinks : navLinks.filter((link) => link.href !== "/#pricing");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -20,13 +22,6 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
 
   return (
     <header
@@ -38,22 +33,22 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
       )}
     >
       <Container className="flex items-center justify-between py-4">
-        <a href="#home" className="flex items-center gap-2 text-lg font-extrabold">
+        <Link href="/" className="flex items-center gap-2 text-lg font-extrabold">
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Sparkles size={16} />
           </span>
           تیرداد
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -67,46 +62,10 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
           </Button>
         </div>
 
-        <button
-          type="button"
-          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="باز کردن منو"
-          aria-expanded={open}
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
-      </Container>
-
-      {open && (
-        <div className="absolute inset-x-0 top-full h-[calc(100vh-100%)] overflow-y-auto border-t border-border bg-background px-6 py-6 md:hidden">
-          <nav className="flex flex-col gap-4">
-            {links.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
-          <div className="mt-6 flex items-center gap-3">
-            <ThemeToggle />
-            <Button variant="outline" size="sm" className="flex-1" asChild>
-              <Link href="/login" onClick={() => setOpen(false)}>
-                ورود
-              </Link>
-            </Button>
-            <Button size="sm" className="flex-1" asChild>
-              <Link href="/login" onClick={() => setOpen(false)}>
-                شروع رایگان
-              </Link>
-            </Button>
-          </div>
+        <div className="md:hidden">
+          <ThemeToggle />
         </div>
-      )}
+      </Container>
     </header>
   );
 }

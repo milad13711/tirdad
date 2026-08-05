@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/site/navbar";
+import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
 import { ScrollDecor } from "@/components/site/scroll-decor";
 import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
@@ -62,6 +63,7 @@ export default async function Home() {
         <Cta showPricing={settings.subscriptionPlansEnabled} />
       </main>
       <Footer />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
     </>
   );
 }
