@@ -5,6 +5,7 @@ import { Check, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { aiToolTypeLabel } from "@/lib/status-labels";
+import { PromptDemo } from "@/components/site/prompt-demo";
 
 interface PromptCardProps {
   name: string;
@@ -63,28 +64,7 @@ export function PromptCard({ name, type, promptText, demoBeforeUrl, demoAfterUrl
         <Badge variant="secondary">{aiToolTypeLabel[type]}</Badge>
       </div>
 
-      {(demoBeforeUrl || demoAfterUrl) && (
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          <div>
-            <p className="mb-1.5 text-center text-xs text-muted-foreground">قبل</p>
-            <div className="aspect-square overflow-hidden rounded-lg border border-border bg-secondary">
-              {demoBeforeUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={demoBeforeUrl} alt={`${name} — قبل`} className="h-full w-full object-cover" />
-              )}
-            </div>
-          </div>
-          <div>
-            <p className="mb-1.5 text-center text-xs text-muted-foreground">بعد</p>
-            <div className="aspect-square overflow-hidden rounded-lg border border-border bg-secondary">
-              {demoAfterUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={demoAfterUrl} alt={`${name} — بعد`} className="h-full w-full object-cover" />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <PromptDemo type={type} name={name} demoBeforeUrl={demoBeforeUrl} demoAfterUrl={demoAfterUrl} />
 
       <p
         dir="ltr"

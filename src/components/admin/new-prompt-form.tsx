@@ -28,6 +28,7 @@ export function NewPromptForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [type, setType] = useState<"IMAGE" | "VIDEO" | "AUDIO">("IMAGE");
   const [uploadingBefore, setUploadingBefore] = useState(false);
   const [uploadingAfter, setUploadingAfter] = useState(false);
   const [demoBeforeUrl, setDemoBeforeUrl] = useState("");
@@ -114,7 +115,12 @@ export function NewPromptForm() {
             id="prompt-type"
             name="type"
             className="h-11 w-full rounded-md border border-border bg-card px-4 text-sm text-foreground outline-none focus:border-primary"
-            defaultValue="IMAGE"
+            value={type}
+            onChange={(e) => {
+              setType(e.target.value as "IMAGE" | "VIDEO" | "AUDIO");
+              setDemoAfterUrl("");
+              setAfterError(null);
+            }}
           >
             {typeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -139,7 +145,7 @@ export function NewPromptForm() {
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>
-          <Label htmlFor="prompt-before">عکس قبل</Label>
+          <Label htmlFor="prompt-before">{type === "IMAGE" ? "عکس قبل" : "عکس (کاور)"}</Label>
           <Input
             id="prompt-before"
             type="file"
@@ -153,21 +159,35 @@ export function NewPromptForm() {
             <img src={demoBeforeUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
           )}
         </div>
-        <div>
-          <Label htmlFor="prompt-after">عکس بعد</Label>
-          <Input
-            id="prompt-after"
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, setDemoAfterUrl, setUploadingAfter, setAfterError)}
-          />
-          {uploadingAfter && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
-          {afterError && <p className="mt-1 text-xs text-destructive">{afterError}</p>}
-          {demoAfterUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={demoAfterUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
-          )}
-        </div>
+        {type === "IMAGE" ? (
+          <div>
+            <Label htmlFor="prompt-after">عکس بعد</Label>
+            <Input
+              id="prompt-after"
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, setDemoAfterUrl, setUploadingAfter, setAfterError)}
+            />
+            {uploadingAfter && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+            {afterError && <p className="mt-1 text-xs text-destructive">{afterError}</p>}
+            {demoAfterUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={demoAfterUrl} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
+            )}
+          </div>
+        ) : (
+          <div>
+            <Label htmlFor="prompt-after">{type === "VIDEO" ? "لینک ویدئوی دمو" : "لینک صوت دمو"}</Label>
+            <Input
+              id="prompt-after"
+              type="url"
+              dir="ltr"
+              placeholder="https://..."
+              value={demoAfterUrl}
+              onChange={(e) => setDemoAfterUrl(e.target.value)}
+            />
+          </div>
+        )}
       </div>
       <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
         <input type="checkbox" name="featured" className="h-4 w-4 rounded border-border" />

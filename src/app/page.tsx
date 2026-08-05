@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/site/navbar";
-import { BackgroundVideo } from "@/components/site/background-video";
+import { ScrollDecor } from "@/components/site/scroll-decor";
 import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
@@ -30,9 +30,9 @@ export default async function Home() {
 
   return (
     <>
-      <BackgroundVideo />
       <Navbar showPricing={settings.subscriptionPlansEnabled} />
-      <main className="flex-1">
+      <main className="relative flex-1">
+        <ScrollDecor />
         <Hero content={content} />
         <Services />
         <Courses />
