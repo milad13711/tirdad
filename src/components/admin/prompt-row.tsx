@@ -123,13 +123,31 @@ export function PromptRow({ prompt }: PromptRowProps) {
             <Textarea name="promptText" defaultValue={prompt.promptText} required />
             <div className="flex flex-wrap items-center gap-3">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">عکس قبل</label>
+                <label className="mb-1 block text-xs text-muted-foreground">
+                  {prompt.type === "IMAGE" ? "عکس قبل" : "عکس (کاور)"}
+                </label>
                 <Input type="file" accept="image/*" onChange={(e) => handleImageChange(e, setDemoBeforeUrl)} className="max-w-48" />
               </div>
-              <div>
-                <label className="mb-1 block text-xs text-muted-foreground">عکس بعد</label>
-                <Input type="file" accept="image/*" onChange={(e) => handleImageChange(e, setDemoAfterUrl)} className="max-w-48" />
-              </div>
+              {prompt.type === "IMAGE" ? (
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">عکس بعد</label>
+                  <Input type="file" accept="image/*" onChange={(e) => handleImageChange(e, setDemoAfterUrl)} className="max-w-48" />
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">
+                    {prompt.type === "VIDEO" ? "لینک ویدئوی دمو" : "لینک صوت دمو"}
+                  </label>
+                  <Input
+                    type="url"
+                    dir="ltr"
+                    placeholder="https://..."
+                    value={demoAfterUrl}
+                    onChange={(e) => setDemoAfterUrl(e.target.value)}
+                    className="max-w-64"
+                  />
+                </div>
+              )}
               {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
             </div>
             <div className="flex items-center gap-2">

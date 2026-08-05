@@ -229,6 +229,12 @@ model AiTool {
   // gallery at /prompts always lists every active prompt regardless.
   featured      Boolean        @default(false)
   active        Boolean        @default(true)
+  // Public gallery is unauthenticated, so these are simple counters (not
+  // tied to a user) bumped by /api/prompts/[id]/view and /like — the client
+  // dedupes repeat views/likes per browser via localStorage rather than
+  // enforcing it server-side.
+  viewCount     Int            @default(0)
+  likeCount     Int            @default(0)
   createdAt     DateTime       @default(now())
   generations   AiGeneration[]
 }
