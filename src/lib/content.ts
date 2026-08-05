@@ -82,11 +82,16 @@ export const faqs = [
   },
 ] as const;
 
+// Root-relative (leading "/") rather than bare "#anchor" — Navbar is also
+// rendered on /courses, /prompts, and /blog/[slug], which don't have these
+// section ids on the page, so a bare hash link would silently do nothing
+// there. "/#ai-tools" always resolves to the homepage section from any page.
 export const navLinks = [
-  { label: "خانه", href: "#home" },
-  { label: "ابزار هوش مصنوعی", href: "#ai-tools" },
-  { label: "خدمات", href: "#services" },
-  { label: "دوره‌ها", href: "#courses" },
-  { label: "پلن‌ها", href: "#pricing" },
-  { label: "بلاگ", href: "#blog" },
+  { label: "خانه", href: "/" },
+  { label: "پرامپت رایگان", href: "/#ai-tools" },
+  { label: "دوره‌ها", href: "/#courses" },
+  { label: "تیزر تبلیغاتی", href: "/#content-production" },
+  { label: "CRM اینستاگرام", href: "/#instagram-crm" },
+  { label: "پلن‌ها", href: "/#pricing" },
+  { label: "بلاگ", href: "/#blog" },
 ] as const;

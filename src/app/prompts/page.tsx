@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/site/navbar";
+import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
 import { Footer } from "@/components/site/footer";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { PromptGallery } from "@/components/site/prompt-gallery";
@@ -32,6 +33,7 @@ export default async function PromptsGalleryPage() {
         </Container>
       </main>
       <Footer />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
     </>
   );
 }

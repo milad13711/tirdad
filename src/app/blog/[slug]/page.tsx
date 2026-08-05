@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/site/navbar";
+import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
 import { Footer } from "@/components/site/footer";
 import { Container } from "@/components/site/container";
 import { getPublishedBlogPostBySlug } from "@/lib/queries/blog";
@@ -65,6 +66,7 @@ export default async function BlogPostPage({
         </Container>
       </main>
       <Footer />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
     </>
   );
 }
