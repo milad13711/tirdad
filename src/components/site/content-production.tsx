@@ -14,8 +14,8 @@ export async function ContentProduction() {
           <div className="flex flex-col items-center">
             <SectionLabel>قدم سوم: تیزر تبلیغاتی اختصاصی</SectionLabel>
             <SectionTitle>
-              وقتی آماده بودی، یک تیزر
-              <br /> حرفه‌ای برای برندت بساز
+              بذار برند تو هم مثل
+              <br /> بقیه حرفه‌ای دیده شود
             </SectionTitle>
             <p className="mt-6 max-w-2xl leading-8 text-muted-foreground">
               تیم مجید تیرداد، تیزر و محتوای اختصاصی متناسب با برند شما را می‌سازد — از

@@ -11,28 +11,28 @@ const pillars = [
   {
     step: "۱",
     title: "پرامپت‌های رایگان",
-    description: "همین حالا و بدون ثبت‌نام، ده‌ها پرامپت آماده تصویر و ویدیو را امتحان کن.",
+    description: "قبل از رقیبات، همین حالا و بدون ثبت‌نام، هوش مصنوعی را رایگان امتحان کن.",
     icon: Sparkles,
     href: "#ai-tools",
   },
   {
     step: "۲",
     title: "پکیج‌های آموزشی",
-    description: "با دوره‌های گام‌به‌گام تولید محتوا با هوش مصنوعی، مهارتت را حرفه‌ای کن.",
+    description: "یاد بگیر و از بقیه جلو بیفت — گام‌به‌گام، بدون پیچیدگی و بدون نیاز به دانش فنی.",
     icon: GraduationCap,
     href: "#courses",
   },
   {
     step: "۳",
     title: "تیزر تبلیغاتی اختصاصی",
-    description: "وقتی آماده بودی، تیم ما یک تیزر حرفه‌ای متناسب با برند تو می‌سازد.",
+    description: "دیگر بس است رقبات حرفه‌ای‌تر دیده شوند؛ تیم ما یک تیزر اختصاصی برای برندت می‌سازد.",
     icon: Clapperboard,
     href: "#content-production",
   },
   {
     step: "۴",
     title: "CRM مدیریت مشتریان اینستاگرام",
-    description: "لیدهایی که تیزرت جذب می‌کند را تا مرحله فروش نهایی پیگیری کن.",
+    description: "دیگر هیچ لید و مشتری بالقوه‌ای را از دست نده، تا مرحله فروش نهایی پیگیری کن.",
     icon: Users,
     href: "#instagram-crm",
   },
@@ -43,7 +43,7 @@ export function Services() {
     <section id="services" className="py-24 md:py-32">
       <Container>
         <Reveal>
-          <SectionLabel>مسیر رشد شما</SectionLabel>
+          <SectionLabel>مسیری که رقبات دارند طی می‌کنند</SectionLabel>
           <SectionTitle className="mb-16">
             از امتحان رایگان تا
             <br /> مشتری‌های واقعی
