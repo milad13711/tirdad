@@ -1,7 +1,7 @@
-import { PlayCircle } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { TeaserRequestForm } from "@/components/site/teaser-request-form";
+import { TeaserSampleCard } from "@/components/site/teaser-sample-card";
 import { getActiveTeaserSamples } from "@/lib/queries/teasers";
 
 export async function ContentProduction() {
@@ -31,35 +31,11 @@ export async function ContentProduction() {
             <div className="grid gap-4 sm:grid-cols-2">
               {samples.map((sample, index) => (
                 <Reveal key={sample.id} delay={index * 0.07}>
-                  {sample.videoUrl ? (
-                    <a
-                      href={sample.videoUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group relative block aspect-video overflow-hidden rounded-xl border border-border bg-secondary"
-                    >
-                      {sample.coverImage && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={sample.coverImage} alt={sample.title} className="h-full w-full object-cover" />
-                      )}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity group-hover:opacity-100">
-                        <PlayCircle size={36} className="text-white" />
-                      </div>
-                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-sm font-medium text-white">
-                        {sample.title}
-                      </span>
-                    </a>
-                  ) : (
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-secondary">
-                      {sample.coverImage && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={sample.coverImage} alt={sample.title} className="h-full w-full object-cover" />
-                      )}
-                      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-sm font-medium text-white">
-                        {sample.title}
-                      </span>
-                    </div>
-                  )}
+                  <TeaserSampleCard
+                    title={sample.title}
+                    videoUrl={sample.videoUrl}
+                    coverImage={sample.coverImage}
+                  />
                 </Reveal>
               ))}
             </div>
