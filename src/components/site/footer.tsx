@@ -1,5 +1,7 @@
-import { AtSign, Send, Sparkles, PlaySquare } from "lucide-react";
+import Link from "next/link";
+import { AtSign, Send, PlaySquare } from "lucide-react";
 import { Container } from "@/components/site/container";
+import { SiteLogo } from "@/components/site/site-logo";
 import { navLinks } from "@/lib/content";
 
 const socials = [
@@ -8,18 +10,21 @@ const socials = [
   { icon: PlaySquare, href: "https://youtube.com", label: "یوتیوب" },
 ];
 
-export function Footer() {
+export function Footer({
+  siteTitle = "تیرداد",
+  logoUrl = "",
+}: {
+  siteTitle?: string;
+  logoUrl?: string;
+}) {
   return (
     <footer className="border-t border-border py-16">
       <Container>
         <div className="grid gap-12 md:grid-cols-3">
           <div>
-            <a href="#home" className="flex w-fit items-center gap-2 text-lg font-extrabold">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                <Sparkles size={16} />
-              </span>
-              تیرداد
-            </a>
+            <Link href="/" className="flex w-fit items-center gap-2 text-lg font-extrabold">
+              <SiteLogo logoUrl={logoUrl} siteTitle={siteTitle} />
+            </Link>
             <p className="mt-4 max-w-xs leading-7 text-muted-foreground">
               پلتفرم آموزش، ابزارهای هوش مصنوعی و رشد کسب‌وکار در اینستاگرام.
             </p>
@@ -30,12 +35,12 @@ export function Footer() {
             <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -6,6 +6,7 @@ import { Container, SectionLabel, SectionTitle } from "@/components/site/contain
 import { PublicCourseCard } from "@/components/site/public-course-card";
 import { getAllPublishedCourses } from "@/lib/queries/courses-public";
 import { getSiteSettings } from "@/lib/queries/settings";
+import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
@@ -15,11 +16,19 @@ export const metadata: Metadata = {
 };
 
 export default async function CoursesArchivePage() {
-  const [courses, settings] = await Promise.all([getAllPublishedCourses(), getSiteSettings()]);
+  const [courses, settings, content] = await Promise.all([
+    getAllPublishedCourses(),
+    getSiteSettings(),
+    getSiteContent(),
+  ]);
 
   return (
     <>
-      <Navbar showPricing={settings.subscriptionPlansEnabled} />
+      <Navbar
+        showPricing={settings.subscriptionPlansEnabled}
+        siteTitle={content.siteTitle}
+        logoUrl={content.logoUrl}
+      />
       <main className="flex-1 py-24 md:py-32">
         <Container>
           <div className="mb-12 text-center">
@@ -39,8 +48,8 @@ export default async function CoursesArchivePage() {
           )}
         </Container>
       </main>
-      <Footer />
-      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
+      <Footer siteTitle={content.siteTitle} logoUrl={content.logoUrl} />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} siteTitle={content.siteTitle} />
     </>
   );
 }

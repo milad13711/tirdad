@@ -6,6 +6,7 @@ import { Container, SectionLabel, SectionTitle } from "@/components/site/contain
 import { PromptGallery } from "@/components/site/prompt-gallery";
 import { getPromptsGalleryFirstPage } from "@/lib/queries/prompts";
 import { getSiteSettings } from "@/lib/queries/settings";
+import { getSiteContent } from "@/lib/site-content";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,19 @@ export const metadata: Metadata = {
 };
 
 export default async function PromptsGalleryPage() {
-  const [firstPage, settings] = await Promise.all([getPromptsGalleryFirstPage(), getSiteSettings()]);
+  const [firstPage, settings, content] = await Promise.all([
+    getPromptsGalleryFirstPage(),
+    getSiteSettings(),
+    getSiteContent(),
+  ]);
 
   return (
     <>
-      <Navbar showPricing={settings.subscriptionPlansEnabled} />
+      <Navbar
+        showPricing={settings.subscriptionPlansEnabled}
+        siteTitle={content.siteTitle}
+        logoUrl={content.logoUrl}
+      />
       <main className="flex-1 py-24 md:py-32">
         <Container>
           <div className="mb-12 text-center">
@@ -32,8 +41,8 @@ export default async function PromptsGalleryPage() {
           <PromptGallery initial={firstPage} />
         </Container>
       </main>
-      <Footer />
-      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
+      <Footer siteTitle={content.siteTitle} logoUrl={content.logoUrl} />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} siteTitle={content.siteTitle} />
     </>
   );
 }

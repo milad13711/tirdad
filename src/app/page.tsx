@@ -33,7 +33,11 @@ export default async function Home() {
   return (
     <>
       <HashScroll />
-      <Navbar showPricing={settings.subscriptionPlansEnabled} />
+      <Navbar
+        showPricing={settings.subscriptionPlansEnabled}
+        siteTitle={content.siteTitle}
+        logoUrl={content.logoUrl}
+      />
       {/*
         Section order follows the sales funnel, not just visual variety:
         1. Hero — the hook.
@@ -64,8 +68,8 @@ export default async function Home() {
         <Blog posts={posts} />
         <Cta showPricing={settings.subscriptionPlansEnabled} />
       </main>
-      <Footer />
-      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
+      <Footer siteTitle={content.siteTitle} logoUrl={content.logoUrl} />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} siteTitle={content.siteTitle} />
     </>
   );
 }

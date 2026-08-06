@@ -27,6 +27,14 @@
 - **اعلان تلگرام**: پرداخت موفق، تیکت جدید و لید جدید به ادمین از طریق ربات
   تلگرام (`src/lib/telegram.ts`) ارسال می‌شود — در صورت نبود
   `TELEGRAM_BOT_TOKEN`/`TELEGRAM_ADMIN_CHAT_ID` بی‌صدا نادیده گرفته می‌شود.
+- **لوگو و نام سایت**: از `/admin/settings` قابل تغییرند (بدون نیاز به دیپلوی) —
+  در هدر، فوتر، منوی موبایل، فاوآیکون و آیکون اپلیکیشن هنگام نصب استفاده می‌شوند.
+- **نصب به‌عنوان اپ (PWA)**: سایت قابل‌نصب روی صفحه اصلی گوشی (اندروید/iOS) است
+  — مانیفست پویا در `src/app/manifest.ts`، سرویس‌ورکر در `public/sw.js`.
+- **اعلان Push روی گوشی**: هر بازدیدکننده می‌تواند با دکمه زنگوله در هدر سایت
+  اعلان‌ها را فعال کند (نیازی به ثبت‌نام نیست)؛ ادمین از `/admin/settings` به همه
+  کاربران فعال اعلان ارسال می‌کند. نیاز به `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`
+  دارد — بخش متغیرهای محیطی را ببینید.
 
 ## استک فنی
 
@@ -35,6 +43,7 @@
 - PostgreSQL + Prisma ORM 7 (`@prisma/adapter-pg`)
 - JWT (کتابخانه `jose`) برای نشست کاربر، `bcryptjs` برای هش کد OTP
 - `next-themes` برای حالت تاریک/روشن، `framer-motion` برای انیمیشن اسکرول
+- `web-push` برای اعلان Push + سرویس‌ورکر سفارشی (`public/sw.js`) برای PWA
 - فونت Vazirmatn برای پشتیبانی کامل فارسی/RTL
 
 ## راه‌اندازی محیط توسعه
@@ -70,6 +79,18 @@ cp .env.example .env
 به‌عنوان merchant id کار می‌کند. برای اعلان تلگرام، از @BotFather یک بات بسازید
 و `TELEGRAM_BOT_TOKEN` را ست کنید؛ `TELEGRAM_ADMIN_CHAT_ID` را با پیام دادن به
 بات و گرفتن chat id از @userinfobot (یا از گروه ادمین) پیدا کنید.
+
+برای اعلان‌های Push، یک جفت کلید VAPID بسازید:
+
+```bash
+npx web-push generate-vapid-keys
+```
+
+و مقدار `publicKey` را در `VAPID_PUBLIC_KEY` **و** `NEXT_PUBLIC_VAPID_PUBLIC_KEY`
+(هر دو یکی هستند، یکی برای سرور و یکی برای کلاینت) و `privateKey` را در
+`VAPID_PRIVATE_KEY` بگذارید. بدون `NEXT_PUBLIC_VAPID_PUBLIC_KEY`، دکمه زنگوله
+در سایت بی‌اثر می‌ماند؛ بدون `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`، دکمه
+«ارسال به همه» در `/admin/settings` خطای واضح نشان می‌دهد.
 
 ### ۳. نصب، مایگریشن و seed
 

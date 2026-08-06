@@ -2,17 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Container } from "@/components/site/container";
+import { SiteLogo } from "@/components/site/site-logo";
+import { NotificationBell } from "@/components/site/notification-bell";
 import { navLinks } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 // Mobile navigation lives in <MobileBottomNav> (fixed bottom bar) instead of
 // a hamburger dropdown here — this header only handles desktop nav on md+,
 // plus the logo and theme toggle on every screen size.
-export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
+export function Navbar({
+  showPricing = true,
+  siteTitle = "تیرداد",
+  logoUrl = "",
+}: {
+  showPricing?: boolean;
+  siteTitle?: string;
+  logoUrl?: string;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const links = showPricing ? navLinks : navLinks.filter((link) => link.href !== "/#pricing");
 
@@ -34,10 +43,7 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
     >
       <Container className="flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-2 text-lg font-extrabold">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Sparkles size={16} />
-          </span>
-          تیرداد
+          <SiteLogo logoUrl={logoUrl} siteTitle={siteTitle} />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -53,6 +59,7 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <NotificationBell />
           <ThemeToggle />
           <Button variant="outline" size="sm" asChild>
             <Link href="/login">ورود</Link>
@@ -62,7 +69,8 @@ export function Navbar({ showPricing = true }: { showPricing?: boolean }) {
           </Button>
         </div>
 
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
+          <NotificationBell />
           <ThemeToggle />
         </div>
       </Container>
