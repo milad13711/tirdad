@@ -18,7 +18,7 @@ export function Cta({ showPricing = true }: { showPricing?: boolean }) {
               رقبات منتظر تو نمی‌مانند
             </h2>
             <p className="relative z-10 mx-auto mt-5 max-w-xl text-balance text-muted-foreground">
-              همین حالا رایگان ثبت‌نام کن، یا مستقیم برای تیزر تبلیغاتی اختصاصی یا CRM
+              همین حالا رایگان ثبت‌نام کن، یا مستقیم برای آنالیز رایگان پیجت یا CRM
               اینستاگرام درخواست بده — دیر کردن هزینه دارد.
             </p>
             <div className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -29,7 +29,7 @@ export function Cta({ showPricing = true }: { showPricing?: boolean }) {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <a href="#content-production">درخواست تیزر تبلیغاتی</a>
+                <a href="#page-analysis">آنالیز رایگان پیج</a>
               </Button>
               {showPricing && (
                 <Button size="lg" variant="outline" asChild>

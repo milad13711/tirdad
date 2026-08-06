@@ -12,7 +12,13 @@ interface PromptsResponse {
   tags?: string[];
 }
 
-export function PromptGallery({ initial }: { initial: PromptsResponse }) {
+export function PromptGallery({
+  initial,
+  highlightId,
+}: {
+  initial: PromptsResponse;
+  highlightId?: string;
+}) {
   const [prompts, setPrompts] = useState(initial.items);
   const [cursor, setCursor] = useState(initial.nextCursor);
   const [tags] = useState(initial.tags ?? []);
@@ -77,7 +83,9 @@ export function PromptGallery({ initial }: { initial: PromptsResponse }) {
           />
         </div>
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">دسته‌بندی کسب‌وکار</p>
+            <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setActiveTag(null)}
@@ -105,6 +113,7 @@ export function PromptGallery({ initial }: { initial: PromptsResponse }) {
                 {tag}
               </button>
             ))}
+            </div>
           </div>
         )}
       </div>
@@ -114,7 +123,7 @@ export function PromptGallery({ initial }: { initial: PromptsResponse }) {
       ) : (
         <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
           {prompts.map((prompt) => (
-            <PublicPromptCard key={prompt.id} prompt={prompt} />
+            <PublicPromptCard key={prompt.id} prompt={prompt} autoReveal={prompt.id === highlightId} />
           ))}
         </div>
       )}

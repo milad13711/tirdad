@@ -3,10 +3,13 @@ import { ArrowLeft } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { PromptTypeToggle } from "@/components/site/prompt-type-toggle";
-import { getFeaturedPromptsByType } from "@/lib/queries/prompts";
+import { getFeaturedPromptsByType, getPurchasedPromptIds } from "@/lib/queries/prompts";
+import { getSession } from "@/lib/auth/session";
 
 export async function AiShowcase() {
-  const { image, video } = await getFeaturedPromptsByType(3);
+  const session = await getSession();
+  const purchasedIds = await getPurchasedPromptIds(session?.sub ?? null);
+  const { image, video } = await getFeaturedPromptsByType(3, purchasedIds);
   if (image.length === 0 && video.length === 0) return null;
 
   return (

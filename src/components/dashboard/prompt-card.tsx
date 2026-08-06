@@ -11,11 +11,21 @@ interface PromptCardProps {
   name: string;
   type: "IMAGE" | "VIDEO" | "AUDIO";
   promptText: string;
+  usageInstructions?: string | null;
+  price?: number;
   demoBeforeUrl: string | null;
   demoAfterUrl: string | null;
 }
 
-export function PromptCard({ name, type, promptText, demoBeforeUrl, demoAfterUrl }: PromptCardProps) {
+export function PromptCard({
+  name,
+  type,
+  promptText,
+  usageInstructions,
+  price = 0,
+  demoBeforeUrl,
+  demoAfterUrl,
+}: PromptCardProps) {
   const [copied, setCopied] = useState(false);
 
   function legacyCopy(text: string) {
@@ -61,17 +71,27 @@ export function PromptCard({ name, type, promptText, demoBeforeUrl, demoAfterUrl
     <div className="flex flex-col rounded-xl border border-border bg-card p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <h3 className="font-bold">{name}</h3>
-        <Badge variant="secondary">{aiToolTypeLabel[type]}</Badge>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <Badge variant="secondary">{aiToolTypeLabel[type]}</Badge>
+          <Badge variant="success">{price > 0 ? "پریمیوم" : "رایگان"}</Badge>
+        </div>
       </div>
 
       <PromptDemo type={type} name={name} demoBeforeUrl={demoBeforeUrl} demoAfterUrl={demoAfterUrl} />
 
       <p
         dir="ltr"
-        className="mb-4 flex-1 rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground"
+        className="mb-3 flex-1 rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground"
       >
         {promptText}
       </p>
+
+      {usageInstructions && (
+        <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-6 text-foreground">
+          <p className="mb-1 font-bold text-primary">نحوه استفاده صحیح</p>
+          {usageInstructions}
+        </div>
+      )}
 
       <Button variant="outline" onClick={handleCopy}>
         {copied ? (

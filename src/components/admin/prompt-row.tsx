@@ -6,11 +6,14 @@ import { Pencil, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { BusinessCategoryPicker } from "@/components/admin/business-category-picker";
 import { aiToolTypeLabel } from "@/lib/status-labels";
+import { formatToman } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface PromptRowProps {
@@ -19,6 +22,8 @@ interface PromptRowProps {
     name: string;
     type: "IMAGE" | "VIDEO" | "AUDIO";
     promptText: string;
+    usageInstructions: string | null;
+    price: number;
     demoBeforeUrl: string | null;
     demoAfterUrl: string | null;
     tags: string[];
@@ -45,6 +50,8 @@ export function PromptRow({ prompt }: PromptRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [demoBeforeUrl, setDemoBeforeUrl] = useState(prompt.demoBeforeUrl ?? "");
   const [demoAfterUrl, setDemoAfterUrl] = useState(prompt.demoAfterUrl ?? "");
+  const [categories, setCategories] = useState<string[]>(prompt.tags);
+  const [isPremium, setIsPremium] = useState(prompt.price > 0);
 
   async function handleImageChange(event: ChangeEvent<HTMLInputElement>, setUrl: (u: string) => void) {
     const file = event.target.files?.[0];
@@ -83,10 +90,7 @@ export function PromptRow({ prompt }: PromptRowProps) {
     setError(null);
     setLoading(true);
     const formData = new FormData(event.currentTarget);
-    const tags = String(formData.get("tags") ?? "")
-      .split(/[,،]/)
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const price = isPremium ? Number(formData.get("price") ?? 0) : 0;
     try {
       const res = await fetch("/api/admin/prompts", {
         method: "PATCH",
@@ -95,9 +99,11 @@ export function PromptRow({ prompt }: PromptRowProps) {
           id: prompt.id,
           name: formData.get("name"),
           promptText: formData.get("promptText"),
+          usageInstructions: formData.get("usageInstructions") || undefined,
+          price,
           demoBeforeUrl,
           demoAfterUrl,
-          tags,
+          tags: categories,
         }),
       });
       const data = await res.json();
@@ -114,13 +120,27 @@ export function PromptRow({ prompt }: PromptRowProps) {
   if (editing) {
     return (
       <TableRow>
-        <TableCell colSpan={4}>
-          <form onSubmit={handleSave} className="space-y-2 py-2">
+        <TableCell colSpan={5}>
+          <form onSubmit={handleSave} className="space-y-3 py-2">
             <div className="flex flex-wrap items-center gap-2">
               <Input name="name" defaultValue={prompt.name} className="min-w-40 flex-1" required />
-              <Input name="tags" defaultValue={prompt.tags.join(", ")} placeholder="تگ‌ها" className="min-w-40 flex-1" />
             </div>
             <Textarea name="promptText" defaultValue={prompt.promptText} required />
+            <div>
+              <Label htmlFor={`usage-${prompt.id}`} className="text-xs">
+                توضیحات آموزشی نحوه استفاده
+              </Label>
+              <Textarea
+                id={`usage-${prompt.id}`}
+                name="usageInstructions"
+                defaultValue={prompt.usageInstructions ?? ""}
+                rows={2}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">دسته‌بندی کسب‌وکار</Label>
+              <BusinessCategoryPicker selected={categories} onChange={setCategories} />
+            </div>
             <div className="flex flex-wrap items-center gap-3">
               <div>
                 <label className="mb-1 block text-xs text-muted-foreground">
@@ -150,6 +170,30 @@ export function PromptRow({ prompt }: PromptRowProps) {
               )}
               {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
             </div>
+            <div className="rounded-lg border border-border p-3">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={isPremium}
+                  onChange={(e) => setIsPremium(e.target.checked)}
+                  className="h-4 w-4 rounded border-border"
+                />
+                پریمیوم (پولی)
+              </label>
+              {isPremium && (
+                <div className="mt-2 max-w-40">
+                  <Input
+                    name="price"
+                    type="number"
+                    min={1000}
+                    step={1000}
+                    defaultValue={prompt.price > 0 ? prompt.price : ""}
+                    placeholder="قیمت (تومان)"
+                    required
+                  />
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Button type="submit" size="sm" disabled={loading || uploading}>
                 {loading ? "..." : "ذخیره"}
@@ -177,6 +221,9 @@ export function PromptRow({ prompt }: PromptRowProps) {
         </div>
       </TableCell>
       <TableCell className="text-muted-foreground">{aiToolTypeLabel[prompt.type]}</TableCell>
+      <TableCell className="text-muted-foreground">
+        {prompt.price > 0 ? `${formatToman(prompt.price)} تومان` : "رایگان"}
+      </TableCell>
       <TableCell>
         <Badge variant={prompt.active ? "success" : "outline"}>
           {prompt.active ? "فعال" : "غیرفعال"}

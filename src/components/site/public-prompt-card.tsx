@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Copy, Eye, EyeOff, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, Copy, CreditCard, Eye, EyeOff, Heart, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { aiToolTypeLabel } from "@/lib/status-labels";
+import { formatToman } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { PromptDemo } from "@/components/site/prompt-demo";
 
@@ -13,6 +15,9 @@ export interface PublicPrompt {
   name: string;
   type: "IMAGE" | "VIDEO" | "AUDIO";
   promptText: string;
+  usageInstructions: string | null;
+  price: number;
+  owned: boolean;
   demoBeforeUrl: string | null;
   demoAfterUrl: string | null;
   tags: string[];
@@ -50,12 +55,15 @@ function legacyCopy(text: string) {
   }
 }
 
-export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
-  const [revealed, setRevealed] = useState(false);
+export function PublicPromptCard({ prompt, autoReveal = false }: { prompt: PublicPrompt; autoReveal?: boolean }) {
+  const router = useRouter();
+  const [revealed, setRevealed] = useState(autoReveal && prompt.owned);
   const [copied, setCopied] = useState(false);
   const [viewCount, setViewCount] = useState(prompt.viewCount);
   const [likeCount, setLikeCount] = useState(prompt.likeCount);
   const [liked, setLiked] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,6 +73,11 @@ export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLiked(readIds(LIKED_KEY).includes(prompt.id));
   }, [prompt.id]);
+
+  useEffect(() => {
+    if (!autoReveal || !cardRef.current) return;
+    cardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [autoReveal]);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -130,8 +143,38 @@ export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
     }
   }
 
+  async function handlePurchase() {
+    setPurchaseError(null);
+    setPurchasing(true);
+    try {
+      const res = await fetch("/api/payments/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemType: "PROMPT", aiToolId: prompt.id }),
+      });
+      if (res.status === 401) {
+        router.push(`/login?next=${encodeURIComponent("/prompts")}`);
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "خطا در اتصال به درگاه پرداخت");
+      window.location.href = data.paymentUrl;
+    } catch (err) {
+      setPurchaseError(err instanceof Error ? err.message : "خطا در اتصال به درگاه پرداخت");
+      setPurchasing(false);
+    }
+  }
+
+  const isLocked = prompt.price > 0 && !prompt.owned;
+
   return (
-    <div ref={cardRef} className="mb-6 break-inside-avoid rounded-2xl border border-border bg-card p-5">
+    <div
+      ref={cardRef}
+      className={cn(
+        "mb-6 break-inside-avoid rounded-2xl border bg-card p-5 ring-primary/30 transition-shadow",
+        autoReveal ? "border-primary ring-4" : "border-border",
+      )}
+    >
       <PromptDemo
         type={prompt.type}
         name={prompt.name}
@@ -141,7 +184,16 @@ export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
 
       <div className="mb-3 flex items-start justify-between gap-3">
         <h3 className="font-bold">{prompt.name}</h3>
-        <Badge variant="secondary">{aiToolTypeLabel[prompt.type]}</Badge>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <Badge variant="secondary">{aiToolTypeLabel[prompt.type]}</Badge>
+          {prompt.price === 0 ? (
+            <Badge variant="success">رایگان</Badge>
+          ) : (
+            <Badge variant={prompt.owned ? "success" : "warning"}>
+              {prompt.owned ? "پریمیوم • خریداری‌شده" : "پریمیوم"}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {prompt.tags.length > 0 && (
@@ -154,23 +206,41 @@ export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
         </div>
       )}
 
-      {revealed && (
-        <p dir="ltr" className="mb-3 rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground">
-          {prompt.promptText}
-        </p>
+      {revealed && !isLocked && (
+        <div className="mb-3 space-y-2">
+          <p dir="ltr" className="rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground">
+            {prompt.promptText}
+          </p>
+          {prompt.usageInstructions && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-6 text-foreground">
+              <p className="mb-1 font-bold text-primary">نحوه استفاده صحیح</p>
+              {prompt.usageInstructions}
+            </div>
+          )}
+        </div>
       )}
 
-      <div className="flex gap-2">
-        <Button variant="outline" className="flex-1" onClick={() => setRevealed((v) => !v)}>
-          {revealed ? <EyeOff size={15} /> : <Eye size={15} />}
-          {revealed ? "پنهان کردن پرامپت" : "نمایش پرامپت"}
-        </Button>
-        {revealed && (
-          <Button variant="outline" size="icon" aria-label="کپی پرامپت" onClick={handleCopy}>
-            {copied ? <Check size={15} /> : <Copy size={15} />}
+      {isLocked ? (
+        <div className="space-y-2">
+          <Button className="w-full" onClick={handlePurchase} disabled={purchasing}>
+            <CreditCard size={15} />
+            {purchasing ? "در حال اتصال به درگاه..." : `خرید و مشاهده — ${formatToman(prompt.price)} تومان`}
           </Button>
-        )}
-      </div>
+          {purchaseError && <p className="text-xs text-destructive">{purchaseError}</p>}
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1" onClick={() => setRevealed((v) => !v)}>
+            {revealed ? <EyeOff size={15} /> : <Eye size={15} />}
+            {revealed ? "پنهان کردن پرامپت" : "نمایش پرامپت"}
+          </Button>
+          {revealed && (
+            <Button variant="outline" size="icon" aria-label="کپی پرامپت" onClick={handleCopy}>
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+            </Button>
+          )}
+        </div>
+      )}
 
       <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
@@ -190,6 +260,12 @@ export function PublicPromptCard({ prompt }: { prompt: PublicPrompt }) {
           <Heart size={13} fill={liked ? "currentColor" : "none"} />
           {likeCount.toLocaleString("fa-IR")} پسند
         </button>
+        {isLocked && (
+          <span className="mr-auto flex items-center gap-1.5">
+            <Lock size={12} />
+            قفل
+          </span>
+        )}
       </div>
     </div>
   );

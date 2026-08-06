@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import type { Order } from "@/generated/prisma/client";
 import { verifyPayment } from "@/lib/payment/zarinpal";
 import { notifyAdmins } from "@/lib/telegram";
 import { formatToman } from "@/lib/format";
@@ -13,6 +14,19 @@ function resultRedirect(ok: boolean, message: string) {
   url.searchParams.set("ok", ok ? "1" : "0");
   url.searchParams.set("message", message);
   return NextResponse.redirect(url);
+}
+
+// Prompt purchases return to the gallery with the just-bought prompt
+// highlighted and auto-revealed, instead of the generic result page — the
+// user asked to land back on "همون صفحه و پرامپت", with its usage
+// instructions visible.
+function successRedirect(order: Order, message: string) {
+  if (order.itemType === "PROMPT" && order.aiToolId) {
+    const url = new URL("/prompts", appUrl());
+    url.searchParams.set("purchased", order.aiToolId);
+    return NextResponse.redirect(url);
+  }
+  return resultRedirect(true, message);
 }
 
 export async function GET(request: Request) {
@@ -30,7 +44,7 @@ export async function GET(request: Request) {
     return resultRedirect(false, "سفارش یافت نشد");
   }
   if (order.status === "PAID") {
-    return resultRedirect(true, "این سفارش قبلاً پرداخت شده است");
+    return successRedirect(order, "این سفارش قبلاً پرداخت شده است");
   }
 
   if (status !== "OK" || !authority) {
@@ -86,11 +100,19 @@ export async function GET(request: Request) {
         },
       });
     }
+
+    if (order.itemType === "PROMPT" && order.aiToolId) {
+      await tx.promptPurchase.upsert({
+        where: { userId_aiToolId: { userId: order.userId, aiToolId: order.aiToolId } },
+        create: { userId: order.userId, aiToolId: order.aiToolId },
+        update: {},
+      });
+    }
   });
 
   void notifyAdmins(
     `💳 پرداخت موفق\n${order.itemLabel}\nمبلغ: ${formatToman(order.amount)} تومان\nشماره سفارش: ${order.id}`,
   );
 
-  return resultRedirect(true, "پرداخت با موفقیت انجام شد");
+  return successRedirect(order, "پرداخت با موفقیت انجام شد");
 }
