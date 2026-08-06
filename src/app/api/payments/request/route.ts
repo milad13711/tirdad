@@ -7,6 +7,7 @@ import { requestPayment } from "@/lib/payment/zarinpal";
 const bodySchema = z.union([
   z.object({ itemType: z.literal("COURSE"), courseId: z.string().min(1) }),
   z.object({ itemType: z.literal("SUBSCRIPTION"), planId: z.string().min(1) }),
+  z.object({ itemType: z.literal("PROMPT"), aiToolId: z.string().min(1) }),
 ]);
 
 function appUrl() {
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
 
   let amount: number;
   let itemLabel: string;
+  let orderData: { courseId?: string; planId?: string; aiToolId?: string } = {};
 
   if (parsed.data.itemType === "COURSE") {
     const course = await prisma.course.findUnique({ where: { id: parsed.data.courseId } });
@@ -42,13 +44,29 @@ export async function POST(request: Request) {
     }
     amount = course.price;
     itemLabel = course.title;
-  } else {
+    orderData = { courseId: parsed.data.courseId };
+  } else if (parsed.data.itemType === "SUBSCRIPTION") {
     const plan = await prisma.subscriptionPlan.findUnique({ where: { id: parsed.data.planId } });
     if (!plan) {
       return NextResponse.json({ error: "پلن اشتراک یافت نشد" }, { status: 404 });
     }
     amount = plan.price;
     itemLabel = `اشتراک ${plan.name}`;
+    orderData = { planId: parsed.data.planId };
+  } else {
+    const prompt = await prisma.aiTool.findUnique({ where: { id: parsed.data.aiToolId } });
+    if (!prompt || !prompt.active || prompt.price <= 0) {
+      return NextResponse.json({ error: "پرامپت مورد نظر یافت نشد" }, { status: 404 });
+    }
+    const alreadyOwned = await prisma.promptPurchase.findUnique({
+      where: { userId_aiToolId: { userId: user.id, aiToolId: prompt.id } },
+    });
+    if (alreadyOwned) {
+      return NextResponse.json({ error: "شما قبلاً این پرامپت را خریداری کرده‌اید" }, { status: 409 });
+    }
+    amount = prompt.price;
+    itemLabel = prompt.name;
+    orderData = { aiToolId: parsed.data.aiToolId };
   }
 
   if (amount < 1000) {
@@ -58,13 +76,11 @@ export async function POST(request: Request) {
   const order = await prisma.order.create({
     data: {
       userId: user.id,
-      itemType: parsed.data.itemType === "COURSE" ? "COURSE" : "SUBSCRIPTION",
+      itemType: parsed.data.itemType,
       itemLabel,
       amount,
       status: "PENDING",
-      ...(parsed.data.itemType === "COURSE"
-        ? { courseId: parsed.data.courseId }
-        : { planId: parsed.data.planId }),
+      ...orderData,
     },
   });
 

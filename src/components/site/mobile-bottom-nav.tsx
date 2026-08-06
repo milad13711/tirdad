@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Clapperboard,
   GraduationCap,
   Home,
   LogIn,
   MoreHorizontal,
+  ScanSearch,
   Sparkles,
   Users,
   X,
@@ -22,7 +22,7 @@ const primaryTabs = [
   { label: "خانه", href: "/", icon: Home },
   { label: "پرامپت رایگان", href: "/#ai-tools", icon: Sparkles },
   { label: "دوره‌ها", href: "/#courses", icon: GraduationCap },
-  { label: "تیزر", href: "/#content-production", icon: Clapperboard },
+  { label: "آنالیز پیج", href: "/#page-analysis", icon: ScanSearch },
   { label: "CRM", href: "/#instagram-crm", icon: Users },
 ] as const;
 

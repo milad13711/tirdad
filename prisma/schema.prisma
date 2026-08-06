@@ -22,6 +22,7 @@ enum OrderItemType {
   COURSE
   PROMPT_PACKAGE
   SUBSCRIPTION
+  PROMPT
 }
 
 enum OrderStatus {
@@ -86,6 +87,7 @@ model User {
   lessonCompletions LessonCompletion[]
   serviceRequests   ServiceRequest[]
   pushSubscriptions PushSubscription[]
+  promptPurchases   PromptPurchase[]
 }
 
 model OtpCode {
@@ -138,11 +140,13 @@ model Order {
   couponId     String?
   courseId     String?
   planId       String?
+  aiToolId     String?
   createdAt    DateTime      @default(now())
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon       Coupon?       @relation(fields: [couponId], references: [id])
   course       Course?       @relation(fields: [courseId], references: [id])
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
+  aiTool       AiTool?       @relation(fields: [aiToolId], references: [id])
   transactions Transaction[]
 
   @@index([userId])
@@ -213,31 +217,54 @@ model Enrollment {
   @@unique([userId, courseId])
 }
 
-// Free, copyable prompts shown with a before/after example image. Was
-// "AiTool" (a metered AI-generation feature with a hidden prompt); repurposed
-// into a public prompt gallery, so promptText is intentionally readable by
-// any authenticated user — never treat it as a secret.
+// Copyable prompts shown with a before/after example image. Was "AiTool" (a
+// metered AI-generation feature with a hidden prompt); repurposed into a
+// public prompt gallery. price = 0 means free — promptText/usageInstructions
+// are readable by anyone. price > 0 is a paid unlock (PromptPurchase): the
+// API must redact promptText/usageInstructions for anyone who hasn't paid,
+// see src/lib/queries/prompts.ts.
 model AiTool {
-  id            String         @id @default(cuid())
-  name          String         @unique
-  type          AiToolType
-  creditCost    Int            @default(0)
-  promptText    String
-  demoBeforeUrl String?
-  demoAfterUrl  String?
-  tags          String[]       @default([])
+  id                String         @id @default(cuid())
+  name              String         @unique
+  type              AiToolType
+  creditCost        Int            @default(0)
+  promptText        String
+  // Shown only once the prompt is unlocked (free, or purchased) — how to
+  // actually use it correctly in the target AI tool.
+  usageInstructions String?
+  // Toman. 0 = free.
+  price             Int            @default(0)
+  demoBeforeUrl     String?
+  demoAfterUrl      String?
+  tags              String[]       @default([])
   // Shows this prompt as one of the 3 landing-page highlights. The full
   // gallery at /prompts always lists every active prompt regardless.
-  featured      Boolean        @default(false)
-  active        Boolean        @default(true)
+  featured          Boolean        @default(false)
+  active            Boolean        @default(true)
   // Public gallery is unauthenticated, so these are simple counters (not
   // tied to a user) bumped by /api/prompts/[id]/view and /like — the client
   // dedupes repeat views/likes per browser via localStorage rather than
   // enforcing it server-side.
-  viewCount     Int            @default(0)
-  likeCount     Int            @default(0)
-  createdAt     DateTime       @default(now())
-  generations   AiGeneration[]
+  viewCount         Int            @default(0)
+  likeCount         Int            @default(0)
+  createdAt         DateTime       @default(now())
+  generations       AiGeneration[]
+  orders            Order[]
+  purchases         PromptPurchase[]
+}
+
+// One row per (user, purchased premium prompt) — grants permanent access
+// and is what shows up in /dashboard/prompts. Created by the payment
+// callback once a PROMPT order is verified paid.
+model PromptPurchase {
+  id        String   @id @default(cuid())
+  userId    String
+  aiToolId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiTool    AiTool   @relation(fields: [aiToolId], references: [id])
+
+  @@unique([userId, aiToolId])
 }
 
 model AiGeneration {
@@ -280,15 +307,20 @@ model BlogPost {
 }
 
 model Lead {
-  id        String     @id @default(cuid())
-  name      String
-  phone     String?
-  source    LeadSource
-  topic     String?
-  message   String?
-  stage     LeadStage  @default(NEW)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id            String     @id @default(cuid())
+  name          String
+  phone         String?
+  source        LeadSource
+  topic         String?
+  message       String?
+  // Instagram page-analysis requests (landing page): the page being
+  // requested and a screenshot of its bio, uploaded via
+  // /api/leads/upload. Both null for other lead sources.
+  pageUrl       String?
+  attachmentUrl String?
+  stage         LeadStage  @default(NEW)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Ticket {

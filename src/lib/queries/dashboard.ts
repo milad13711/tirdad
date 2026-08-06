@@ -51,8 +51,14 @@ export async function getPurchasableCourses(userId: string) {
   });
 }
 
-export async function getActivePrompts() {
-  return prisma.aiTool.findMany({ where: { active: true }, orderBy: { createdAt: "desc" } });
+// Only prompts the user can actually read: free ones, plus premium ones
+// they've purchased. Locked premium prompts belong in the public gallery
+// (/prompts), where they're the thing being sold — not in "your prompts".
+export async function getActivePrompts(userId: string) {
+  return prisma.aiTool.findMany({
+    where: { active: true, OR: [{ price: 0 }, { purchases: { some: { userId } } }] },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export async function getPlans() {

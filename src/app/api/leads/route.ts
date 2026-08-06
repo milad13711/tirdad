@@ -8,6 +8,8 @@ const bodySchema = z.object({
   name: z.string().trim().min(2).max(80),
   phone: z.string().trim().min(8).max(20),
   message: z.string().trim().max(1000).optional(),
+  pageUrl: z.string().trim().max(200).optional(),
+  attachmentUrl: z.string().trim().max(500).optional(),
 });
 
 // Public, unauthenticated endpoint: the landing page's "leave your contact
@@ -30,11 +32,16 @@ export async function POST(request: Request) {
       phone: parsed.data.phone,
       message: parsed.data.message,
       topic: parsed.data.message,
+      pageUrl: parsed.data.pageUrl,
+      attachmentUrl: parsed.data.attachmentUrl,
       source: "WEBSITE",
     },
   });
 
-  void notifyAdmins(`📩 لید جدید از فرم سایت\nنام: ${lead.name}\nموبایل: ${lead.phone}`);
+  void notifyAdmins(
+    `📩 لید جدید از فرم سایت\nنام: ${lead.name}\nموبایل: ${lead.phone}` +
+      (lead.pageUrl ? `\nپیج: ${lead.pageUrl}` : ""),
+  );
 
   return NextResponse.json({ ok: true });
 }

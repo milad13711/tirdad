@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clapperboard, GraduationCap, Sparkles, Users } from "lucide-react";
+import { GraduationCap, ScanSearch, Sparkles, Users } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 
@@ -24,10 +24,10 @@ const pillars = [
   },
   {
     step: "۳",
-    title: "تیزر تبلیغاتی اختصاصی",
-    description: "دیگر بس است رقبات حرفه‌ای‌تر دیده شوند؛ تیم ما یک تیزر اختصاصی برای برندت می‌سازد.",
-    icon: Clapperboard,
-    href: "#content-production",
+    title: "آنالیز رایگان پیج اینستاگرام",
+    description: "قبل از هر هزینه‌ای، بذار رایگان بررسی کنیم پیجت دقیقاً از کجا عقب مانده.",
+    icon: ScanSearch,
+    href: "#page-analysis",
   },
   {
     step: "۴",

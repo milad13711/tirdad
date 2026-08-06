@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { BusinessCategoryPicker } from "@/components/admin/business-category-picker";
 
 const typeOptions = [
   { value: "IMAGE", label: "تصویر" },
@@ -35,6 +36,8 @@ export function NewPromptForm() {
   const [demoAfterUrl, setDemoAfterUrl] = useState("");
   const [beforeError, setBeforeError] = useState<string | null>(null);
   const [afterError, setAfterError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isPremium, setIsPremium] = useState(false);
 
   async function handleImageChange(
     event: ChangeEvent<HTMLInputElement>,
@@ -66,10 +69,7 @@ export function NewPromptForm() {
     setLoading(true);
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const tags = String(formData.get("tags") ?? "")
-      .split(/[,،]/)
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const price = isPremium ? Number(formData.get("price") ?? 0) : 0;
 
     try {
       const res = await fetch("/api/admin/prompts", {
@@ -79,9 +79,11 @@ export function NewPromptForm() {
           name: formData.get("name"),
           type: formData.get("type"),
           promptText: formData.get("promptText"),
+          usageInstructions: formData.get("usageInstructions") || undefined,
+          price,
           demoBeforeUrl: demoBeforeUrl || undefined,
           demoAfterUrl: demoAfterUrl || undefined,
-          tags,
+          tags: categories,
           featured: formData.get("featured") === "on",
         }),
       });
@@ -90,6 +92,8 @@ export function NewPromptForm() {
       form.reset();
       setDemoBeforeUrl("");
       setDemoAfterUrl("");
+      setCategories([]);
+      setIsPremium(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پرامپت");
@@ -140,8 +144,34 @@ export function NewPromptForm() {
         />
       </div>
       <div className="mt-4">
-        <Label htmlFor="prompt-tags">تگ‌ها (با کاما جدا کنید)</Label>
-        <Input id="prompt-tags" name="tags" placeholder="پرتره، محصول، انیمه" />
+        <Label htmlFor="prompt-usage">توضیحات آموزشی نحوه استفاده (بعد از باز شدن پرامپت نمایش داده می‌شود)</Label>
+        <Textarea
+          id="prompt-usage"
+          name="usageInstructions"
+          placeholder="مثلاً: این پرامپت را در ابزار X بچسبانید و عکس محصول را آپلود کنید..."
+          rows={3}
+        />
+      </div>
+      <div className="mt-4">
+        <Label>دسته‌بندی کسب‌وکار</Label>
+        <BusinessCategoryPicker selected={categories} onChange={setCategories} />
+      </div>
+      <div className="mt-4 rounded-lg border border-border p-4">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            checked={isPremium}
+            onChange={(e) => setIsPremium(e.target.checked)}
+            className="h-4 w-4 rounded border-border"
+          />
+          پریمیوم (پولی)
+        </label>
+        {isPremium && (
+          <div className="mt-3 max-w-40">
+            <Label htmlFor="prompt-price">قیمت (تومان)</Label>
+            <Input id="prompt-price" name="price" type="number" min={1000} step={1000} placeholder="۵۰۰۰۰" required />
+          </div>
+        )}
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div>

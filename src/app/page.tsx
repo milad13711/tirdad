@@ -6,7 +6,7 @@ import { Hero } from "@/components/site/hero";
 import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
 import { AiShowcase } from "@/components/site/ai-showcase";
-import { ContentProduction } from "@/components/site/content-production";
+import { InstagramAnalysis } from "@/components/site/instagram-analysis";
 import { Pricing } from "@/components/site/pricing";
 import { Testimonials } from "@/components/site/testimonials";
 import { InstagramCrm } from "@/components/site/instagram";
@@ -50,8 +50,9 @@ export default async function Home() {
            before asking for a bigger commitment.
         5. Testimonials — social proof placed right before the two
            high-commitment asks below, not buried at the bottom.
-        6. ContentProduction / InstagramCrm — the actual conversion points:
-           a custom teaser, then the CRM that turns its traffic into sales.
+        6. InstagramAnalysis / InstagramCrm — the actual conversion points:
+           a free page audit (low-friction lead magnet), then the CRM that
+           turns the resulting conversations into sales.
         7. Pricing, Faq (objection handling), Blog, final Cta.
       */}
       <main className="relative flex-1">
@@ -61,7 +62,7 @@ export default async function Home() {
         <Services />
         <Courses />
         <Testimonials />
-        <ContentProduction />
+        <InstagramAnalysis />
         <InstagramCrm content={content} />
         {settings.subscriptionPlansEnabled && <Pricing />}
         <Faq />

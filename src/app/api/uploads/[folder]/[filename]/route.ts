@@ -9,7 +9,7 @@ const CONTENT_TYPES: Record<string, string> = {
   webp: "image/webp",
   gif: "image/gif",
 };
-const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "teasers", "branding"]);
+const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "teasers", "branding", "leads"]);
 
 // Serves admin-uploaded images from disk on every request instead of
 // through Next's public/ static handler. `next start` snapshots public/'s

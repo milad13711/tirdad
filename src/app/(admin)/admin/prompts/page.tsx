@@ -21,8 +21,8 @@ export default async function AdminPromptsPage() {
   return (
     <div>
       <PageHeader
-        title="پرامپت‌های رایگان"
-        description="مدیریت گالری پرامپت‌های رایگان با عکس قبل/بعد"
+        title="پرامپت‌ها"
+        description="مدیریت گالری پرامپت‌های رایگان و پریمیوم با عکس قبل/بعد"
       />
 
       <div className="mb-8">
@@ -31,6 +31,7 @@ export default async function AdminPromptsPage() {
             <TableRow>
               <TableHead>عنوان</TableHead>
               <TableHead>دسته‌بندی</TableHead>
+              <TableHead>قیمت</TableHead>
               <TableHead>وضعیت</TableHead>
               <TableHead></TableHead>
             </TableRow>
