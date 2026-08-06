@@ -6,6 +6,7 @@ import { Footer } from "@/components/site/footer";
 import { Container } from "@/components/site/container";
 import { getPublishedBlogPostBySlug } from "@/lib/queries/blog";
 import { getSiteSettings } from "@/lib/queries/settings";
+import { getSiteContent } from "@/lib/site-content";
 import { formatJalali } from "@/lib/format";
 
 export async function generateMetadata({
@@ -37,15 +38,20 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [post, settings] = await Promise.all([
+  const [post, settings, content] = await Promise.all([
     getPublishedBlogPostBySlug(slug),
     getSiteSettings(),
+    getSiteContent(),
   ]);
   if (!post) notFound();
 
   return (
     <>
-      <Navbar showPricing={settings.subscriptionPlansEnabled} />
+      <Navbar
+        showPricing={settings.subscriptionPlansEnabled}
+        siteTitle={content.siteTitle}
+        logoUrl={content.logoUrl}
+      />
       <main className="flex-1 py-24 md:py-32">
         <Container className="max-w-3xl">
           {post.coverImage && (
@@ -65,8 +71,8 @@ export default async function BlogPostPage({
           <div className="whitespace-pre-line leading-8 text-foreground">{post.content}</div>
         </Container>
       </main>
-      <Footer />
-      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} />
+      <Footer siteTitle={content.siteTitle} logoUrl={content.logoUrl} />
+      <MobileBottomNav showPricing={settings.subscriptionPlansEnabled} siteTitle={content.siteTitle} />
     </>
   );
 }

@@ -85,6 +85,7 @@ model User {
   usageLogs     UsageLog[]
   lessonCompletions LessonCompletion[]
   serviceRequests   ServiceRequest[]
+  pushSubscriptions PushSubscription[]
 }
 
 model OtpCode {
@@ -402,4 +403,20 @@ model TeaserSample {
   videoUrl   String?
   active     Boolean  @default(true)
   createdAt  DateTime @default(now())
+}
+
+// One row per browser/device that opted into push notifications (from the
+// installed PWA or the site itself — Notification permission doesn't
+// require installing). userId is nullable: a visitor can opt in before
+// logging in, and admin broadcasts target every row regardless of user.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String?
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

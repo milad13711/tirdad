@@ -8,6 +8,10 @@ import { prisma } from "@/lib/db";
  * no schema migration needed since it all lives in SiteSettings.content.
  */
 export const SITE_CONTENT_DEFAULTS = {
+  siteTitle: "تیرداد",
+  // Empty means "no custom logo uploaded" — every place that renders the
+  // logo falls back to the default Sparkles-in-a-box mark when this is "".
+  logoUrl: "",
   heroTitle: "دیگر عقب نمان از",
   heroTitleHighlight: "هوش مصنوعی",
   heroSubtitle:

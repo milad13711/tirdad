@@ -26,7 +26,13 @@ const primaryTabs = [
   { label: "CRM", href: "/#instagram-crm", icon: Users },
 ] as const;
 
-export function MobileBottomNav({ showPricing = true }: { showPricing?: boolean }) {
+export function MobileBottomNav({
+  showPricing = true,
+  siteTitle = "تیرداد",
+}: {
+  showPricing?: boolean;
+  siteTitle?: string;
+}) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreLinks = showPricing ? navLinks : navLinks.filter((link) => link.href !== "/#pricing");
 
@@ -58,7 +64,7 @@ export function MobileBottomNav({ showPricing = true }: { showPricing?: boolean 
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <span className="text-sm font-bold">منو</span>
+          <span className="text-sm font-bold">منوی {siteTitle}</span>
           <button
             type="button"
             onClick={() => setMoreOpen(false)}
