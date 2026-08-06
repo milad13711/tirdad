@@ -7,6 +7,7 @@ import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
 import { AiShowcase } from "@/components/site/ai-showcase";
 import { InstagramAnalysis } from "@/components/site/instagram-analysis";
+import { ScaleSales } from "@/components/site/scale-sales";
 import { Pricing } from "@/components/site/pricing";
 import { Testimonials } from "@/components/site/testimonials";
 import { InstagramCrm } from "@/components/site/instagram";
@@ -39,31 +40,23 @@ export default async function Home() {
         logoUrl={content.logoUrl}
       />
       {/*
-        Section order follows the sales funnel, not just visual variety:
-        1. Hero — the hook.
-        2. AiShowcase — free prompts, a zero-friction way to try the brand
-           before committing to anything (top of funnel).
-        3. Services — the map of the whole journey, ending on the two
-           highest-value offers (teaser production, Instagram CRM) so
-           visitors see where the free stuff eventually leads.
-        4. Courses — a paid but still self-serve step that builds trust
-           before asking for a bigger commitment.
-        5. Testimonials — social proof placed right before the two
-           high-commitment asks below, not buried at the bottom.
-        6. InstagramAnalysis / InstagramCrm — the actual conversion points:
-           a free page audit (low-friction lead magnet), then the CRM that
-           turns the resulting conversations into sales.
-        7. Pricing, Faq (objection handling), Blog, final Cta.
+        Section order follows the 5-step narrative: Hero (hook) -> Services
+        (quick map of the whole journey) -> the 5 numbered steps in order
+        (free prompts -> courses -> free page analysis -> Instagram CRM ->
+        "scale sales", the payoff statement with no CTA of its own) ->
+        Testimonials (proof, right after the pitch) -> Pricing/Faq/Blog
+        (supplementary, objection-handling) -> final Cta.
       */}
       <main className="relative flex-1">
         <ScrollDecor />
         <Hero content={content} />
-        <AiShowcase />
         <Services />
+        <AiShowcase />
         <Courses />
-        <Testimonials />
         <InstagramAnalysis />
         <InstagramCrm content={content} />
+        <ScaleSales />
+        <Testimonials />
         {settings.subscriptionPlansEnabled && <Pricing />}
         <Faq />
         <Blog posts={posts} />

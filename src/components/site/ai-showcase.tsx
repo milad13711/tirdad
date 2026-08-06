@@ -17,14 +17,15 @@ export async function AiShowcase() {
       <Container>
         <Reveal className="mb-16 text-center">
           <div className="flex flex-col items-center">
-            <SectionLabel>قدم اول: رایگان امتحان کن</SectionLabel>
+            <SectionLabel>۱. رایگان امتحان کن</SectionLabel>
             <SectionTitle>
               پرامپت‌های رایگان
               <br /> آماده استفاده
             </SectionTitle>
             <p className="mt-6 max-w-2xl leading-8 text-muted-foreground">
-              همان پرامپت‌های حرفه‌ای که رقبایت دارند ازشان استفاده می‌کنند — رایگان،
-              همین حالا و بدون نیاز به دانش فنی، مال تو هم می‌شوند.
+              اول خودت نتیجه رو ببین، بعد تصمیم بگیر. با پرامپت‌های آماده، فقط توی چند دقیقه
+              تصویر و ویدئوهایی بساز که قبلاً شاید ساعت‌ها وقتت رو می‌گرفت. رایگانه، ساده‌ست و
+              فقط کافیه امتحانش کنی.
             </p>
           </div>
         </Reveal>
@@ -36,7 +37,7 @@ export async function AiShowcase() {
             href="/prompts"
             className="inline-flex items-center gap-2 font-medium text-primary hover:underline"
           >
-            نمایش همه پرامپت‌ها
+            مشاهده پرامپت‌های رایگان
             <ArrowLeft size={16} />
           </Link>
         </div>

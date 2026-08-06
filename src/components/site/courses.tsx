@@ -14,20 +14,23 @@ export async function Courses() {
     <section id="courses" className="py-24 md:py-32">
       <Container className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
         <Reveal>
-          <SectionLabel>قدم دوم: پکیج‌های آموزشی</SectionLabel>
+          <SectionLabel>۲. حرفه‌ای یاد بگیر</SectionLabel>
           <SectionTitle>
             یک بار برای همیشه یاد بگیر
             <br /> و دیگر عقب نمان
           </SectionTitle>
           <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
-            دوره‌های گام‌به‌گام تولید محتوا و رشد کسب‌وکار با هوش مصنوعی، بدون پیچیدگی و
-            با پشتیبانی کامل — همین که شروع کنی، از خیلی‌ها جلو می‌افتی.
+            فرق کسی که از هوش مصنوعی پول درمی‌آره با کسی که فقط باهاش بازی می‌کنه، توی یاد
+            گرفتنه. خیلی‌ها ChatGPT رو باز می‌کنن، چند سؤال می‌پرسن و فکر می‌کنن همین یعنی
+            استفاده از هوش مصنوعی؛ ولی کسب‌وکارهایی که دارن رشد می‌کنن، دقیقاً می‌دونن چطور
+            ازش برای تولید محتوا، تبلیغات و فروش استفاده کنن. ما هم دقیقاً همون چیزهایی رو
+            یادت می‌دیم که توی بازار واقعاً جواب داده.
           </p>
         </Reveal>
         <Reveal delay={0.15}>
           <Button variant="outline" asChild>
             <Link href="/courses">
-              مشاهده همه پکیج‌ها
+              مشاهده همه آموزش‌ها
               <ArrowLeft size={16} />
             </Link>
           </Button>

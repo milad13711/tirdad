@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site/container";
@@ -15,21 +14,23 @@ export function Cta({ showPricing = true }: { showPricing?: boolean }) {
               className="pointer-events-none absolute -bottom-24 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-primary/25 blur-[100px]"
             />
             <h2 className="relative z-10 text-balance text-3xl font-extrabold leading-tight md:text-5xl">
-              رقبات منتظر تو نمی‌مانند
+              رقبات منتظر نمی‌مونه
             </h2>
             <p className="relative z-10 mx-auto mt-5 max-w-xl text-balance text-muted-foreground">
-              همین حالا رایگان ثبت‌نام کن، یا مستقیم برای آنالیز رایگان پیجت یا CRM
-              اینستاگرام درخواست بده — دیر کردن هزینه دارد.
+              هر روزی که شروع رو عقب می‌اندازی، یکی دیگه داره بیشتر دیده می‌شه، مشتری بیشتری
+              جذب می‌کنه و فاصله‌اش با تو بیشتر می‌شه. لازم نیست همه چیز رو از امروز بلد
+              باشی؛ فقط کافیه امروز شروع کنی.
             </p>
             <div className="relative z-10 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild>
-                <Link href="/login">
-                  شروع رایگان
+                <a href="#ai-tools">
+                  شروع با پرامپت رایگان
                   <ArrowLeft size={18} />
-                </Link>
+                </a>
               </Button>
+              <span className="text-sm text-muted-foreground">یا</span>
               <Button size="lg" variant="outline" asChild>
-                <a href="#page-analysis">آنالیز رایگان پیج</a>
+                <a href="#page-analysis">درخواست آنالیز رایگان پیج</a>
               </Button>
               {showPricing && (
                 <Button size="lg" variant="outline" asChild>

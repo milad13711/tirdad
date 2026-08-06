@@ -4,9 +4,9 @@ import { Reveal } from "@/components/site/reveal";
 import { InstagramAnalysisForm } from "@/components/site/instagram-analysis-form";
 
 const benefits = [
-  { icon: ImageIcon, label: "بررسی بیو، هایلایت‌ها و عکس پروفایل" },
-  { icon: BarChart3, label: "تحلیل نرخ تعامل و کیفیت محتوا" },
-  { icon: TrendingUp, label: "پیشنهاد مشخص برای رشد و افزایش فروش" },
+  { icon: ImageIcon, label: "بررسی بیو، هایلایت و پروفایل" },
+  { icon: BarChart3, label: "تحلیل تعامل و کیفیت محتوا" },
+  { icon: TrendingUp, label: "نقشه راه برای جذب مشتری بیشتر" },
 ];
 
 export function InstagramAnalysis() {
@@ -15,14 +15,15 @@ export function InstagramAnalysis() {
       <Container>
         <div className="grid items-center gap-14 lg:grid-cols-2">
           <Reveal>
-            <SectionLabel>قدم سوم: آنالیز رایگان پیج</SectionLabel>
+            <SectionLabel>۳. پیجت را عیب‌یابی کن</SectionLabel>
             <SectionTitle className="mb-6">
-              پیج اینستاگرامت چقدر
-              <br /> آماده فروش است؟
+              شاید مشکل از محصولت
+              <br /> نباشه؛ شاید پیجت باشه
             </SectionTitle>
             <p className="mb-8 leading-8 text-muted-foreground">
-              قبل از اینکه برای تیزر یا CRM هزینه کنی، بذار مجید تیرداد رایگان پیجت رو بررسی کنه —
-              دقیقاً بدونی از کجا شروع کنی.
+              گاهی یه بیوی ضعیف، هایلایت‌های نامرتب یا چند اشتباه ساده باعث می‌شه مخاطب وارد
+              پیج بشه و بدون اینکه حتی دایرکت بده، خارج بشه. قبل از اینکه برای تبلیغات یا تولید
+              محتوا هزینه کنی، بذار رایگان پیجت رو بررسی کنیم.
             </p>
             <div className="space-y-4">
               {benefits.map((item) => (
