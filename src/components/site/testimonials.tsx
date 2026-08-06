@@ -10,7 +10,11 @@ export function Testimonials() {
         <Reveal className="mb-16 text-center">
           <div className="flex flex-col items-center">
             <SectionLabel>نظرات مشتریان</SectionLabel>
-            <SectionTitle>اعتماد کسب‌وکارهای دیجیتال</SectionTitle>
+            <SectionTitle className="mb-6">این فقط حرف ما نیست</SectionTitle>
+            <p className="max-w-2xl leading-8 text-muted-foreground">
+              کسب‌وکارهایی که زودتر این مسیر رو شروع کردن، امروز زمان کمتری برای تولید
+              محتوا می‌ذارن، مشتری بیشتری جذب می‌کنن و فروش منظم‌تری دارن.
+            </p>
           </div>
         </Reveal>
 

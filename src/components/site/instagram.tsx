@@ -1,4 +1,4 @@
-import { MessageCircle, TrendingUp, Users } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { InstagramLeadForm } from "@/components/site/instagram-lead-form";
@@ -6,9 +6,11 @@ import { InstagramCrmPricing } from "@/components/site/instagram-crm-pricing";
 import type { SiteContent } from "@/lib/site-content";
 
 const highlights = [
-  { icon: MessageCircle, label: "مدیریت لیدهای دایرکت و کامنت" },
-  { icon: TrendingUp, label: "پیگیری قیف فروش تا مرحله تبدیل" },
-  { icon: Users, label: "گزارش‌گیری کامل از عملکرد تیم" },
+  "مدیریت دایرکت و کامنت",
+  "ثبت خودکار لیدها",
+  "پیگیری مراحل فروش",
+  "گزارش عملکرد تیم",
+  "پیامک و اتوماسیون",
 ];
 
 export function InstagramCrm({ content }: { content: SiteContent }) {
@@ -19,7 +21,7 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
       <Container>
         <div className="grid items-center gap-16 rounded-3xl border border-border bg-card p-8 md:p-16 lg:grid-cols-2">
           <Reveal>
-            <SectionLabel>قدم چهارم: CRM اینستاگرام</SectionLabel>
+            <SectionLabel>۴. مشتری‌ها را حفظ کن</SectionLabel>
             <SectionTitle className="mb-6">
               {titleLine1}
               {titleLine2 && (
@@ -29,13 +31,11 @@ export function InstagramCrm({ content }: { content: SiteContent }) {
               )}
             </SectionTitle>
             <p className="mb-8 leading-8 text-muted-foreground">{content.instagramDescription}</p>
-            <div className="space-y-4">
-              {highlights.map((item) => (
-                <div key={item.label} className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <item.icon size={16} />
-                  </span>
-                  <span className="text-sm text-muted-foreground">{item.label}</span>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {highlights.map((label) => (
+                <div key={label} className="flex items-center gap-2.5">
+                  <CheckCircle2 size={16} className="shrink-0 text-primary" />
+                  <span className="text-sm text-muted-foreground">{label}</span>
                 </div>
               ))}
             </div>

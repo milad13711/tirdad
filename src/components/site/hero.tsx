@@ -16,9 +16,9 @@ const VIDEO_POSTER = "/videos/hero-portrait-poster.jpg";
 const VIDEO_OBJECT_POSITION = "42% 32%";
 
 const trustIndicators = [
-  { icon: Users, label: "+۱۲هزار کاربر فعال" },
-  { icon: Star, label: "۹۸٪ رضایت مشتریان" },
-  { icon: ShieldCheck, label: "+۵۰ پکیج و ابزار" },
+  { icon: Users, label: "+۱۲ هزار کاربر فعال" },
+  { icon: Star, label: "۹۸٪ رضایت کاربران" },
+  { icon: ShieldCheck, label: "+۵۰ آموزش و ابزار کاربردی" },
 ];
 
 export function Hero({ content }: { content: SiteContent }) {
@@ -46,21 +46,11 @@ export function Hero({ content }: { content: SiteContent }) {
             reading-start side under both the site's RTL layout and a
             plain LTR fallback. */}
         <div className="flex flex-col items-start text-start">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6 flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            هر روز که می‌گذرد، رقبای تو دارند از هوش مصنوعی جلو می‌افتند
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-balance text-4xl font-extrabold leading-[1.15] tracking-tight sm:text-5xl lg:text-6xl"
+            transition={{ duration: 0.6 }}
+            className="text-balance text-3xl font-extrabold leading-[1.3] tracking-tight sm:text-4xl lg:text-5xl"
           >
             {content.heroTitle}{" "}
             <span className="bg-gradient-to-l from-primary to-primary/60 bg-clip-text text-transparent">
@@ -86,13 +76,13 @@ export function Hero({ content }: { content: SiteContent }) {
             <Button size="lg" asChild>
               <a href="#ai-tools">
                 <SparklesIcon size={18} />
-                پرامپت‌های رایگان را امتحان کن
+                شروع با پرامپت رایگان
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#courses">
                 <GraduationCap size={18} />
-                با دوره‌ها از بقیه جلو بیفت
+                مشاهده آموزش‌ها
               </a>
             </Button>
           </motion.div>

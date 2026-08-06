@@ -10,29 +10,29 @@ import { Reveal } from "@/components/site/reveal";
 const pillars = [
   {
     step: "۱",
-    title: "پرامپت‌های رایگان",
-    description: "قبل از رقیبات، همین حالا و بدون ثبت‌نام، هوش مصنوعی را رایگان امتحان کن.",
+    title: "رایگان امتحان کن",
+    description: "اول خودت نتیجه رو ببین، بعد تصمیم بگیر — رایگانه و فقط چند دقیقه وقت می‌گیره.",
     icon: Sparkles,
     href: "#ai-tools",
   },
   {
     step: "۲",
-    title: "پکیج‌های آموزشی",
-    description: "یاد بگیر و از بقیه جلو بیفت — گام‌به‌گام، بدون پیچیدگی و بدون نیاز به دانش فنی.",
+    title: "حرفه‌ای یاد بگیر",
+    description: "دقیقاً همون چیزهایی رو یاد بگیر که کسب‌وکارهای در حال رشد واقعاً ازش استفاده می‌کنن.",
     icon: GraduationCap,
     href: "#courses",
   },
   {
     step: "۳",
-    title: "آنالیز رایگان پیج اینستاگرام",
-    description: "قبل از هر هزینه‌ای، بذار رایگان بررسی کنیم پیجت دقیقاً از کجا عقب مانده.",
+    title: "پیجت را عیب‌یابی کن",
+    description: "قبل از اینکه برای تبلیغات هزینه کنی، بذار رایگان بررسی کنیم پیجت کجا مشتری از دست می‌ده.",
     icon: ScanSearch,
     href: "#page-analysis",
   },
   {
     step: "۴",
-    title: "CRM مدیریت مشتریان اینستاگرام",
-    description: "دیگر هیچ لید و مشتری بالقوه‌ای را از دست نده، تا مرحله فروش نهایی پیگیری کن.",
+    title: "مشتری‌ها را حفظ کن",
+    description: "هیچ دایرکت و لیدی گم نشه — همه‌چیز جلوی چشمت و قابل پیگیری بمونه.",
     icon: Users,
     href: "#instagram-crm",
   },
@@ -43,7 +43,7 @@ export function Services() {
     <section id="services" className="py-24 md:py-32">
       <Container>
         <Reveal>
-          <SectionLabel>مسیری که رقبات دارند طی می‌کنند</SectionLabel>
+          <SectionLabel>مسیری که تا امروز جواب داده</SectionLabel>
           <SectionTitle className="mb-16">
             از امتحان رایگان تا
             <br /> مشتری‌های واقعی
