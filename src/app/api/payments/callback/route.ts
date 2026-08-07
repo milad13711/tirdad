@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import type { Order } from "@/generated/prisma/client";
 import { verifyPayment } from "@/lib/payment/zarinpal";
 import { notifyAdmins } from "@/lib/telegram";
+import { dispatchSmsTrigger } from "@/lib/sms/dispatch";
 import { formatToman } from "@/lib/format";
 
 function appUrl() {
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
     return resultRedirect(false, "شماره سفارش نامعتبر است");
   }
 
-  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { user: true } });
   if (!order) {
     return resultRedirect(false, "سفارش یافت نشد");
   }
@@ -113,6 +114,12 @@ export async function GET(request: Request) {
   void notifyAdmins(
     `💳 پرداخت موفق\n${order.itemLabel}\nمبلغ: ${formatToman(order.amount)} تومان\nشماره سفارش: ${order.id}`,
   );
+
+  void dispatchSmsTrigger("ORDER_PAID", order.user.phone, {
+    name: order.user.name ?? "",
+    itemLabel: order.itemLabel,
+    amount: formatToman(order.amount),
+  });
 
   return successRedirect(order, "پرداخت با موفقیت انجام شد");
 }

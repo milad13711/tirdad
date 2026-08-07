@@ -383,6 +383,34 @@ model SiteSettings {
   updatedAt                DateTime @updatedAt
 }
 
+// Singleton row (always id = 1) storing the admin's LimoSMS (api.limosms.com)
+// credentials. `enabled` is only set true once a save has been verified
+// against the getcurrentcredit endpoint, so trigger dispatch can trust it.
+model SmsSettings {
+  id           Int      @id @default(1)
+  apiKey       String?
+  senderNumber String?
+  enabled      Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+}
+
+// Admin-defined SMS automations. `eventKey` matches a key from
+// src/lib/sms/event-keys.ts (or a custom one) and is looked up by
+// dispatchSmsTrigger() at the matching point in the app (order paid, lead
+// created, ...). `message` may contain {{variable}} placeholders that get
+// substituted with the values passed to dispatchSmsTrigger.
+model SmsTrigger {
+  id        String   @id @default(cuid())
+  name      String
+  eventKey  String
+  message   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventKey])
+}
+
 // Singleton row (always id = 1) storing the admin's linked Instagram
 // business account credentials for the CRM sync. A real Meta Graph API
 // integration also requires an approved Meta app + webhook subscription

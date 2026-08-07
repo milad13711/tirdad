@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { notifyAdmins } from "@/lib/telegram";
+import { dispatchSmsTrigger } from "@/lib/sms/dispatch";
 import { isRateLimited } from "@/lib/auth/rate-limit";
 
 const bodySchema = z.object({
@@ -42,6 +43,10 @@ export async function POST(request: Request) {
     `📩 لید جدید از فرم سایت\nنام: ${lead.name}\nموبایل: ${lead.phone}` +
       (lead.pageUrl ? `\nپیج: ${lead.pageUrl}` : ""),
   );
+
+  if (lead.phone) {
+    void dispatchSmsTrigger("LEAD_CREATED", lead.phone, { name: lead.name });
+  }
 
   return NextResponse.json({ ok: true });
 }
