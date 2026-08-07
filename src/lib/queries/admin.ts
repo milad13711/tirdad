@@ -76,6 +76,10 @@ export async function getSmsSettings() {
   return prisma.smsSettings.findUnique({ where: { id: 1 } });
 }
 
+export async function getVpnConfig() {
+  return prisma.vpnConfig.findUnique({ where: { id: 1 } });
+}
+
 export async function getSmsTriggers() {
   return prisma.smsTrigger.findMany({ orderBy: { createdAt: "desc" } });
 }

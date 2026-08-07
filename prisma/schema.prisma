@@ -557,3 +557,15 @@ model InboxMessage {
 
   @@index([provider, externalId])
 }
+
+// Singleton row (id = 1) storing a VLESS/VMess config to eventually route
+// Telegram/Instagram/WhatsApp API calls through, since those are filtered
+// in Iran. Storage only for now — actually proxying traffic through it
+// needs a server-side proxy process (e.g. xray-core) wired into the
+// deploy pipeline, which is a separate, larger infra change not done yet.
+model VpnConfig {
+  id        Int      @id @default(1)
+  configUrl String?
+  enabled   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
