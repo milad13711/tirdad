@@ -73,13 +73,6 @@ export async function getUserOrders(userId: string) {
   });
 }
 
-export async function getUserServiceRequests(userId: string) {
-  return prisma.serviceRequest.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-  });
-}
-
 export async function getUserTickets(userId: string) {
   return prisma.ticket.findMany({
     where: { userId },

@@ -8,7 +8,10 @@ interface Tab {
   content: ReactNode;
 }
 
-export function SettingsTabs({ tabs }: { tabs: Tab[] }) {
+// Generic in-page tab switcher used to group related admin pages under a
+// single sidebar nav entry (see src/app/(admin)/admin/layout.tsx) instead
+// of one nav item per page — only the active tab's content is rendered.
+export function AdminTabs({ tabs }: { tabs: Tab[] }) {
   const [active, setActive] = useState(tabs[0]?.key);
 
   return (

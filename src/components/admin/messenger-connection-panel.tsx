@@ -129,8 +129,8 @@ export function MessengerConnectionPanel({ connections }: { connections: Connect
           <div className="mb-1 text-sm font-semibold">دایرکت اینستاگرام</div>
           <p className="text-xs leading-6 text-muted-foreground">
             از همون فرم اتصال اینستاگرام توی{" "}
-            <Link href="/admin/crm" className="text-primary hover:underline">
-              صفحه CRM اینستاگرام
+            <Link href="/admin/engagement" className="text-primary hover:underline">
+              صفحه ارتباط با مخاطب (تب CRM اینستاگرام)
             </Link>{" "}
             وصل کن (Access Token + Business Account ID با دسترسی instagram_manage_messages) — بعد از اتصال، دایرکت‌ها
             هر ۳۰ ثانیه توی همین صندوق پیام هم آرشیو می‌شن و می‌تونی از همینجا جواب بدی.
