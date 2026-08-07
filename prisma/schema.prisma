@@ -505,3 +505,50 @@ model MarketingCampaign {
   clickCount     Int              @default(0)
   createdAt      DateTime         @default(now())
 }
+
+enum MessengerProvider {
+  TELEGRAM
+  BALE
+  WHATSAPP
+  INSTAGRAM
+}
+
+// One row per messenger bot connection (singleton per provider). Telegram
+// and Bale both expose a Telegram-compatible Bot API, so both are polled
+// via getUpdates rather than a webhook — the production server doesn't
+// have a domain/SSL yet, which Bot API webhooks require, but getUpdates
+// works fine over plain outbound HTTPS from us to them.
+model MessengerConnection {
+  id            String            @id @default(cuid())
+  provider      MessengerProvider @unique
+  token         String?
+  botUsername   String?
+  connectedAt   DateTime?
+  pollOffset    Int               @default(0)
+  lastPollAt    DateTime?
+  lastPollError String?
+  updatedAt     DateTime          @updatedAt
+}
+
+enum InboxDirection {
+  IN
+  OUT
+}
+
+// Archived messenger conversation history, populated by the polling loop
+// (src/lib/messengers/poll.ts) for inbound messages and by the admin
+// reply action for outbound ones. Threads are grouped by
+// (provider, externalId) — externalId is the provider's own chat id,
+// needed to send a reply back.
+model InboxMessage {
+  id           String            @id @default(cuid())
+  provider     MessengerProvider
+  externalId   String
+  senderName   String?
+  senderHandle String?
+  direction    InboxDirection
+  text         String
+  createdAt    DateTime          @default(now())
+
+  @@index([provider, externalId])
+}
