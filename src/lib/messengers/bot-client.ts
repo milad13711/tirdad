@@ -2,6 +2,11 @@
 // fork), differing only in base URL. Shared client covers getMe (used to
 // verify a token on connect), getUpdates (long-poll for new messages),
 // and sendMessage (admin replies from the inbox).
+//
+// Both are filtered in Iran, so requests go through proxiedFetch — routed
+// via the admin's VPN config when one is connected and running, otherwise
+// a plain direct connection (unchanged from before the VPN feature).
+import { proxiedFetch } from "@/lib/proxy/proxied-fetch";
 
 export type PolledProvider = "TELEGRAM" | "BALE";
 
@@ -15,7 +20,7 @@ function apiBase(provider: PolledProvider, token: string) {
 async function call<T>(provider: PolledProvider, token: string, method: string, body?: unknown): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${apiBase(provider, token)}/${method}`, {
+    response = await proxiedFetch(`${apiBase(provider, token)}/${method}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),

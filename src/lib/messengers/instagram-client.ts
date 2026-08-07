@@ -3,6 +3,10 @@
 // working call also requires a Meta app with instagram_manage_messages
 // approved and a long-lived page-scoped token — this repo can't provision
 // that, only call the API once it's set up.
+//
+// Filtered in Iran like Telegram/Bale, so requests go through
+// proxiedFetch (see src/lib/proxy/proxied-fetch.ts).
+import { proxiedFetch } from "@/lib/proxy/proxied-fetch";
 
 const GRAPH_BASE = "https://graph.facebook.com/v21.0";
 
@@ -18,7 +22,7 @@ async function graphGet<T>(path: string, params: Record<string, string>): Promis
 
   let res: Response;
   try {
-    res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+    res = await proxiedFetch(url, { signal: AbortSignal.timeout(15_000) });
   } catch {
     throw new InstagramApiError("اتصال به Graph API برقرار نشد");
   }
@@ -67,7 +71,7 @@ export async function sendInstagramMessage(
 
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await proxiedFetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ recipient: { id: recipientId }, message: { text } }),

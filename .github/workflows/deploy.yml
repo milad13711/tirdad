@@ -40,6 +40,14 @@ jobs:
               cp -r "${APP_DIR}/uploads" /tmp/tirdad.uploads.bak
             fi
 
+            # Downloaded xray-core binary for the VPN feature (see
+            # src/lib/proxy/xray-manager.ts) — not in git, carried over so
+            # every deploy doesn't re-download it from GitHub releases.
+            if [ -d "${APP_DIR}/.data" ]; then
+              rm -rf /tmp/tirdad.data.bak
+              cp -r "${APP_DIR}/.data" /tmp/tirdad.data.bak
+            fi
+
             rm -rf "${APP_DIR}"
             su - tirdad-app -c "mkdir -p ~/tirdad && tar -xzf /tmp/tirdad.tar.gz -C ~/tirdad --strip-components=1"
 
@@ -52,6 +60,12 @@ jobs:
               rm -rf "${APP_DIR}/uploads"
               mv /tmp/tirdad.uploads.bak "${APP_DIR}/uploads"
               chown -R tirdad-app:tirdad-app "${APP_DIR}/uploads"
+            fi
+
+            if [ -d /tmp/tirdad.data.bak ]; then
+              rm -rf "${APP_DIR}/.data"
+              mv /tmp/tirdad.data.bak "${APP_DIR}/.data"
+              chown -R tirdad-app:tirdad-app "${APP_DIR}/.data"
             fi
 
             echo "== Installing dependencies =="
