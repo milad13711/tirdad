@@ -480,3 +480,28 @@ model PushSubscription {
 
   @@index([userId])
 }
+
+enum MarketingChannel {
+  PUSH
+  SMS
+  WHATSAPP
+  TELEGRAM
+  BALE
+  INSTAGRAM
+}
+
+// One row per marketing send from /admin/marketing. `segments` snapshots
+// the audience-filter keys (src/lib/queries/marketing.ts SEGMENTS) picked
+// for that send. `clickCount` is incremented by the /api/marketing/click
+// redirect route when a tracked link in the message is opened — only
+// PUSH/SMS messages currently carry one.
+model MarketingCampaign {
+  id             String           @id @default(cuid())
+  channel        MarketingChannel
+  message        String
+  segments       Json
+  recipientCount Int
+  sentCount      Int              @default(0)
+  clickCount     Int              @default(0)
+  createdAt      DateTime         @default(now())
+}
