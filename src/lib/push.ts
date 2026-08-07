@@ -16,13 +16,14 @@ function ensureConfigured() {
   configured = true;
 }
 
-// Sends to every subscribed device and prunes subscriptions the push
-// service reports as gone (410/404 — the user uninstalled, cleared data,
-// or revoked permission), so the table doesn't accumulate dead endpoints.
-export async function broadcastPush(payload: { title: string; body: string; url?: string }) {
-  ensureConfigured();
+type PushSub = { endpoint: string; p256dh: string; auth: string };
 
-  const subscriptions = await prisma.pushSubscription.findMany();
+// Shared by broadcastPush/sendPushToUsers: sends to every given
+// subscription and prunes ones the push service reports as gone (410/404
+// — the user uninstalled, cleared data, or revoked permission), so the
+// table doesn't accumulate dead endpoints.
+async function sendToSubscriptions(subscriptions: PushSub[], payload: { title: string; body: string; url?: string }) {
+  ensureConfigured();
   const data = JSON.stringify(payload);
 
   let sent = 0;
@@ -55,4 +56,20 @@ export async function broadcastPush(payload: { title: string; body: string; url?
   }
 
   return { sent, failed, total: subscriptions.length };
+}
+
+export async function broadcastPush(payload: { title: string; body: string; url?: string }) {
+  const subscriptions = await prisma.pushSubscription.findMany();
+  return sendToSubscriptions(subscriptions, payload);
+}
+
+// Marketing sends: only the subset of subscribed devices belonging to the
+// given (segment-filtered) user ids.
+export async function sendPushToUsers(
+  userIds: string[],
+  payload: { title: string; body: string; url?: string },
+) {
+  if (userIds.length === 0) return { sent: 0, failed: 0, total: 0 };
+  const subscriptions = await prisma.pushSubscription.findMany({ where: { userId: { in: userIds } } });
+  return sendToSubscriptions(subscriptions, payload);
 }
