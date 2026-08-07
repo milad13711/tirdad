@@ -549,6 +549,11 @@ model InboxMessage {
   direction    InboxDirection
   text         String
   createdAt    DateTime          @default(now())
+  // Instagram polling has no Telegram-style update offset to consume from,
+  // so new messages are deduped against already-imported ones by the
+  // Graph API's own message id. Telegram/Bale don't need this (their
+  // pollOffset already guarantees no repeats) and leave it null.
+  externalMessageId String?       @unique
 
   @@index([provider, externalId])
 }

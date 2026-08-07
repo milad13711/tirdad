@@ -3,9 +3,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { sendMessage, BotApiError, type PolledProvider } from "@/lib/messengers/bot-client";
+import { sendInstagramMessage, InstagramApiError } from "@/lib/messengers/instagram-client";
 
 const bodySchema = z.object({
-  provider: z.enum(["TELEGRAM", "BALE"]),
+  provider: z.enum(["TELEGRAM", "BALE", "INSTAGRAM"]),
   externalId: z.string().min(1),
   text: z.string().trim().min(1).max(2000),
 });
@@ -23,19 +24,28 @@ export async function POST(request: Request) {
 
   const { provider, externalId, text } = parsed.data;
 
-  const connection = await prisma.messengerConnection.findUnique({ where: { provider } });
-  if (!connection?.token || !connection.connectedAt) {
-    return NextResponse.json({ error: "این پیام‌رسان متصل نیست" }, { status: 400 });
-  }
-
   try {
-    await sendMessage(provider as PolledProvider, connection.token, externalId, text);
+    if (provider === "INSTAGRAM") {
+      const connection = await prisma.instagramConnection.findUnique({ where: { id: 1 } });
+      if (!connection?.accessToken || !connection.businessAccountId || !connection.connectedAt) {
+        return NextResponse.json({ error: "اکانت اینستاگرام متصل نیست" }, { status: 400 });
+      }
+      await sendInstagramMessage(connection.businessAccountId, connection.accessToken, externalId, text);
+    } else {
+      const connection = await prisma.messengerConnection.findUnique({ where: { provider } });
+      if (!connection?.token || !connection.connectedAt) {
+        return NextResponse.json({ error: "این پیام‌رسان متصل نیست" }, { status: 400 });
+      }
+      await sendMessage(provider as PolledProvider, connection.token, externalId, text);
+    }
+
     const message = await prisma.inboxMessage.create({
       data: { provider, externalId, direction: "OUT", text },
     });
     return NextResponse.json({ ok: true, message });
   } catch (err) {
-    const errMessage = err instanceof BotApiError ? err.message : "ارسال پاسخ ناموفق بود";
+    const errMessage =
+      err instanceof BotApiError || err instanceof InstagramApiError ? err.message : "ارسال پاسخ ناموفق بود";
     return NextResponse.json({ error: errMessage }, { status: 502 });
   }
 }
