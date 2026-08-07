@@ -9,7 +9,7 @@ export default async function AdminInboxPage() {
   if (!session) redirect("/login");
 
   const messages = await prisma.inboxMessage.findMany({
-    where: { provider: { in: ["TELEGRAM", "BALE"] } },
+    where: { provider: { in: ["TELEGRAM", "BALE", "INSTAGRAM"] } },
     orderBy: { createdAt: "desc" },
     take: 500,
   });
@@ -22,8 +22,8 @@ export default async function AdminInboxPage() {
       />
       <InboxPanel
         messages={messages.filter(
-          (m): m is typeof m & { provider: "TELEGRAM" | "BALE" } =>
-            m.provider === "TELEGRAM" || m.provider === "BALE",
+          (m): m is typeof m & { provider: "TELEGRAM" | "BALE" | "INSTAGRAM" } =>
+            m.provider === "TELEGRAM" || m.provider === "BALE" || m.provider === "INSTAGRAM",
         )}
       />
     </div>

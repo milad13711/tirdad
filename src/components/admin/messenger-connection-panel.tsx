@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Send, Unlink } from "lucide-react";
@@ -123,21 +124,33 @@ export function MessengerConnectionPanel({ connections }: { connections: Connect
         <ConnectionCard connection={bale} />
       </div>
 
-      <div className="mt-4 rounded-lg border border-dashed border-border p-4">
-        <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-          واتساپ و دایرکت اینستاگرام
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-border p-4">
+          <div className="mb-1 text-sm font-semibold">دایرکت اینستاگرام</div>
+          <p className="text-xs leading-6 text-muted-foreground">
+            از همون فرم اتصال اینستاگرام توی{" "}
+            <Link href="/admin/crm" className="text-primary hover:underline">
+              صفحه CRM اینستاگرام
+            </Link>{" "}
+            وصل کن (Access Token + Business Account ID با دسترسی instagram_manage_messages) — بعد از اتصال، دایرکت‌ها
+            هر ۳۰ ثانیه توی همین صندوق پیام هم آرشیو می‌شن و می‌تونی از همینجا جواب بدی.
+          </p>
         </div>
-        <p className="text-xs leading-6 text-muted-foreground">
-          اتصال امن این دو نیازمند تایید Meta Business (WhatsApp Business API و Instagram Graph API با دسترسی
-          instagram_manage_messages) است. وقتی Business Account ID و Access Token رو آماده کردی، این بخش برای
-          وارد کردنشون تکمیل می‌شه.
-        </p>
+
+        <div className="rounded-lg border border-dashed border-border p-4">
+          <div className="mb-1 text-sm font-semibold text-muted-foreground">واتساپ</div>
+          <p className="text-xs leading-6 text-muted-foreground">
+            برخلاف تلگرام/بله/اینستاگرام، WhatsApp Cloud API فقط وب‌هوک پشتیبانی می‌کنه و جایگزین استعلام دوره‌ای
+            نداره؛ یعنی بدون دامنه و SSL واقعی روی سایت، پیام ورودی واتساپ اصلاً قابل دریافت نیست. بعد از راه‌اندازی
+            دامنه، این بخش هم تکمیل می‌شه.
+          </p>
+        </div>
       </div>
 
       <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
         <Send size={12} />
-        چون سایت هنوز دامنه و SSL نداره، پیام‌ها با وب‌هوک دریافت نمی‌شن — به‌جاش هر ۵ ثانیه از تلگرام/بله
-        استعلام گرفته می‌شه؛ بعد از اتصال دامنه می‌شه به وب‌هوک آنی سوییچ کرد.
+        چون سایت هنوز دامنه و SSL نداره، پیام‌ها با وب‌هوک دریافت نمی‌شن — به‌جاش هر ۵ ثانیه از تلگرام/بله و هر ۳۰
+        ثانیه از اینستاگرام استعلام گرفته می‌شه؛ بعد از اتصال دامنه می‌شه به وب‌هوک آنی سوییچ کرد.
       </p>
     </div>
   );
