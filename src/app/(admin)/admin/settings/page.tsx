@@ -4,11 +4,13 @@ import { getSession } from "@/lib/auth/session";
 import { getSiteSettings } from "@/lib/queries/settings";
 import { getSiteContent } from "@/lib/site-content";
 import { getSmsSettings, getSmsTriggers } from "@/lib/queries/admin";
+import { getMessengerConnections } from "@/lib/queries/messengers";
 import { SiteSettingsForm } from "@/components/admin/site-settings-form";
 import { SiteContentForm } from "@/components/admin/site-content-form";
 import { SiteBrandingForm } from "@/components/admin/site-branding-form";
 import { PushNotificationForm } from "@/components/admin/push-notification-form";
 import { SmsSettingsPanel } from "@/components/admin/sms-settings-panel";
+import { MessengerConnectionPanel } from "@/components/admin/messenger-connection-panel";
 
 function maskApiKey(apiKey: string | null) {
   if (!apiKey) return null;
@@ -19,11 +21,12 @@ export default async function AdminSettingsPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const [settings, content, smsSettings, smsTriggers] = await Promise.all([
+  const [settings, content, smsSettings, smsTriggers, messengerConnections] = await Promise.all([
     getSiteSettings(),
     getSiteContent(),
     getSmsSettings(),
     getSmsTriggers(),
+    getMessengerConnections(),
   ]);
 
   return (
@@ -38,6 +41,12 @@ export default async function AdminSettingsPage() {
         senderNumber={smsSettings?.senderNumber ?? null}
         maskedApiKey={maskApiKey(smsSettings?.apiKey ?? null)}
         triggers={smsTriggers}
+      />
+      <MessengerConnectionPanel
+        connections={messengerConnections.filter(
+          (c): c is typeof c & { provider: "TELEGRAM" | "BALE" } =>
+            c.provider === "TELEGRAM" || c.provider === "BALE",
+        )}
       />
     </div>
   );

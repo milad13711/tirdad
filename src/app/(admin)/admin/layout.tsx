@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Clapperboard,
+  Inbox,
   LayoutDashboard,
   Megaphone,
   MessagesSquare,
@@ -25,6 +26,7 @@ const items: NavItem[] = [
   { label: "نمونه‌کارهای تیزر", href: "/admin/teasers", icon: <Clapperboard size={17} /> },
   { label: "CRM اینستاگرام", href: "/admin/crm", icon: <MessagesSquare size={17} /> },
   { label: "مارکتینگ", href: "/admin/marketing", icon: <Megaphone size={17} /> },
+  { label: "صندوق پیام", href: "/admin/inbox", icon: <Inbox size={17} /> },
   { label: "بلاگ", href: "/admin/blog", icon: <Newspaper size={17} /> },
   { label: "کد تخفیف", href: "/admin/coupons", icon: <Ticket size={17} /> },
   { label: "تنظیمات سایت", href: "/admin/settings", icon: <Settings size={17} /> },
