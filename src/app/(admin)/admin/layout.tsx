@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   BookOpen,
   Clapperboard,
   Inbox,
@@ -18,6 +19,7 @@ import type { NavItem } from "@/components/dashboard/sidebar";
 
 const items: NavItem[] = [
   { label: "نمای کلی", href: "/admin", icon: <LayoutDashboard size={17} /> },
+  { label: "گزارش‌ها", href: "/admin/reports", icon: <BarChart3 size={17} /> },
   { label: "کاربران", href: "/admin/users", icon: <Users size={17} /> },
   { label: "سفارش‌ها", href: "/admin/orders", icon: <ShoppingCart size={17} /> },
   { label: "پکیج‌های آموزشی", href: "/admin/courses", icon: <BookOpen size={17} /> },
