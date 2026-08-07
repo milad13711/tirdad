@@ -12,7 +12,7 @@ import { PushNotificationForm } from "@/components/admin/push-notification-form"
 import { SmsSettingsPanel } from "@/components/admin/sms-settings-panel";
 import { MessengerConnectionPanel } from "@/components/admin/messenger-connection-panel";
 import { VpnConfigPanel } from "@/components/admin/vpn-config-panel";
-import { SettingsTabs } from "@/components/admin/settings-tabs";
+import { AdminTabs } from "@/components/admin/admin-tabs";
 import { maskVpnConfig } from "@/lib/vpn";
 
 function maskApiKey(apiKey: string | null) {
@@ -37,7 +37,7 @@ export default async function AdminSettingsPage() {
     <div>
       <PageHeader title="تنظیمات سایت" description="کلیدهای کلی و محتوای قابل‌ویرایش صفحه اصلی" />
 
-      <SettingsTabs
+      <AdminTabs
         tabs={[
           {
             key: "general",

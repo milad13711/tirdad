@@ -85,7 +85,6 @@ model User {
   tickets       Ticket[]
   usageLogs     UsageLog[]
   lessonCompletions LessonCompletion[]
-  serviceRequests   ServiceRequest[]
   pushSubscriptions PushSubscription[]
   promptPurchases   PromptPurchase[]
 }
@@ -424,45 +423,6 @@ model InstagramConnection {
   lastSyncAt        DateTime?
   lastSyncError     String?
   updatedAt         DateTime  @updatedAt
-}
-
-enum ServiceRequestType {
-  TEASER
-  IMAGE
-  WEBSITE
-}
-
-enum ServiceRequestStatus {
-  NEW
-  CONTACTED
-  IN_PROGRESS
-  DONE
-  CLOSED
-}
-
-model ServiceRequest {
-  id          String                @id @default(cuid())
-  userId      String
-  type        ServiceRequestType
-  description String
-  status      ServiceRequestStatus  @default(NEW)
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-// Portfolio samples of finished custom teaser/content work, shown in the
-// landing page's "تولید محتوا" section — distinct from the AiTool prompt
-// gallery, which showcases prompts visitors can use themselves.
-model TeaserSample {
-  id         String   @id @default(cuid())
-  title      String
-  coverImage String?
-  videoUrl   String?
-  active     Boolean  @default(true)
-  createdAt  DateTime @default(now())
 }
 
 // One row per browser/device that opted into push notifications (from the
