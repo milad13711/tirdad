@@ -317,6 +317,11 @@ model Lead {
   // /api/leads/upload. Both null for other lead sources.
   pageUrl       String?
   attachmentUrl String?
+  // Admin's written analysis for a page-analysis request (pageUrl set) and
+  // when it was sent back to the requester via SMS — see
+  // /api/admin/leads/respond. Null until the admin responds.
+  analysisNote  String?
+  respondedAt   DateTime?
   stage         LeadStage  @default(NEW)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt

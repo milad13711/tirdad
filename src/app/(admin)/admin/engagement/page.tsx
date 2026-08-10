@@ -6,7 +6,7 @@ import { AdminTabs } from "@/components/admin/admin-tabs";
 import { Badge } from "@/components/ui/badge";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { getAdminLeads, getInstagramConnection } from "@/lib/queries/admin";
+import { getAdminLeads, getInstagramConnection, getPageAnalysisRequests } from "@/lib/queries/admin";
 import { getMarketingCampaigns, getMarketingContacts } from "@/lib/queries/marketing";
 import { leadStageLabel } from "@/lib/status-labels";
 import { NewLeadForm } from "@/components/admin/new-lead-form";
@@ -15,6 +15,7 @@ import { InstagramConnectionCard } from "@/components/admin/instagram-connection
 import { InboxPanel } from "@/components/admin/inbox-panel";
 import { MarketingPanel } from "@/components/admin/marketing-panel";
 import { MarketingCampaignHistory } from "@/components/admin/marketing-campaign-history";
+import { PageAnalysisPanel } from "@/components/admin/page-analysis-panel";
 
 const STAGE_ORDER = ["NEW", "CONTACTED", "OFFERED", "CONVERTED", "LOST"] as const;
 
@@ -22,18 +23,20 @@ export default async function AdminEngagementPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const [leads, connection, inboxMessages, contacts, campaigns, webAppInstalls] = await Promise.all([
-    getAdminLeads(),
-    getInstagramConnection(),
-    prisma.inboxMessage.findMany({
-      where: { provider: { in: ["TELEGRAM", "BALE", "INSTAGRAM"] } },
-      orderBy: { createdAt: "desc" },
-      take: 500,
-    }),
-    getMarketingContacts(),
-    getMarketingCampaigns(),
-    prisma.pushSubscription.count(),
-  ]);
+  const [leads, connection, inboxMessages, contacts, campaigns, webAppInstalls, pageAnalysisRequests] =
+    await Promise.all([
+      getAdminLeads(),
+      getInstagramConnection(),
+      prisma.inboxMessage.findMany({
+        where: { provider: { in: ["TELEGRAM", "BALE", "INSTAGRAM"] } },
+        orderBy: { createdAt: "desc" },
+        take: 500,
+      }),
+      getMarketingContacts(),
+      getMarketingCampaigns(),
+      prisma.pushSubscription.count(),
+      getPageAnalysisRequests(),
+    ]);
 
   const totalLeads = leads.length;
   const converted = leads.filter((lead) => lead.stage === "CONVERTED").length;
@@ -41,6 +44,7 @@ export default async function AdminEngagementPage() {
   const whatsappReachable = contacts.length;
   const totalClicks = campaigns.reduce((sum, c) => sum + c.clickCount, 0);
   const totalSent = campaigns.reduce((sum, c) => sum + c.sentCount, 0);
+  const pendingAnalysisCount = pageAnalysisRequests.filter((r) => !r.respondedAt).length;
 
   return (
     <div>
@@ -95,6 +99,28 @@ export default async function AdminEngagementPage() {
                 </div>
 
                 <NewLeadForm />
+              </>
+            ),
+          },
+          {
+            key: "page-analysis",
+            label: (
+              <span className="flex items-center gap-1.5">
+                درخواست‌های آنالیز پیج
+                {pendingAnalysisCount > 0 && <Badge variant="warning">{pendingAnalysisCount}</Badge>}
+              </span>
+            ),
+            content: (
+              <>
+                <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <span>
+                    مجموع درخواست‌ها: <strong className="text-foreground">{pageAnalysisRequests.length}</strong>
+                  </span>
+                  <span>
+                    در انتظار پاسخ: <strong className="text-foreground">{pendingAnalysisCount}</strong>
+                  </span>
+                </div>
+                <PageAnalysisPanel leads={pageAnalysisRequests} />
               </>
             ),
           },

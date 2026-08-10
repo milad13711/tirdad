@@ -61,6 +61,17 @@ export async function getAdminLeads() {
   return prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
 }
 
+// Leads submitted from the landing page's free Instagram page-analysis
+// form always carry a pageUrl (see the form at
+// src/components/site/instagram-analysis-form.tsx) — other lead sources
+// never set it, so this is what separates the two in the admin UI.
+export async function getPageAnalysisRequests() {
+  return prisma.lead.findMany({
+    where: { pageUrl: { not: null } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getInstagramConnection() {
   return prisma.instagramConnection.findUnique({ where: { id: 1 } });
 }
