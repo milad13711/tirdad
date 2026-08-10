@@ -76,6 +76,13 @@ export default async function AdminSettingsPage() {
                   (c): c is typeof c & { provider: "TELEGRAM" | "BALE" } =>
                     c.provider === "TELEGRAM" || c.provider === "BALE",
                 )}
+                whatsapp={
+                  messengerConnections.find((c) => c.provider === "WHATSAPP") ?? {
+                    botUsername: null,
+                    connectedAt: null,
+                    phoneNumberId: null,
+                  }
+                }
               />
             ),
           },

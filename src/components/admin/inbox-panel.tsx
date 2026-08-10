@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatJalali } from "@/lib/format";
 
-type Provider = "TELEGRAM" | "BALE" | "INSTAGRAM";
+type Provider = "TELEGRAM" | "BALE" | "INSTAGRAM" | "WHATSAPP";
 
 interface InboxMessage {
   id: string;
@@ -24,12 +24,14 @@ const PROVIDER_ICON: Record<Provider, string> = {
   TELEGRAM: "✈️",
   BALE: "🔵",
   INSTAGRAM: "📸",
+  WHATSAPP: "💬",
 };
 
 const PROVIDER_LABEL: Record<Provider, string> = {
   TELEGRAM: "تلگرام",
   BALE: "بله",
   INSTAGRAM: "اینستاگرام",
+  WHATSAPP: "واتساپ",
 };
 
 export function InboxPanel({ messages }: { messages: InboxMessage[] }) {

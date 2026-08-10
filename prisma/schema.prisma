@@ -487,6 +487,12 @@ model MessengerConnection {
   pollOffset    Int               @default(0)
   lastPollAt    DateTime?
   lastPollError String?
+  // WhatsApp Cloud API only: Phone Number ID (Graph API target for sends)
+  // and the verify token the admin chose, checked against Meta's webhook
+  // handshake at src/app/api/webhooks/whatsapp/route.ts. Null for every
+  // other provider.
+  phoneNumberId String?
+  verifyToken   String?
   updatedAt     DateTime          @updatedAt
 }
 
