@@ -19,7 +19,7 @@ export function Topbar({
           type="button"
           onClick={onMenuClick}
           aria-label="باز کردن منو"
-          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border md:hidden"
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-border transition-colors hover:bg-secondary md:hidden"
         >
           <Menu size={17} />
         </button>
@@ -28,7 +28,7 @@ export function Topbar({
 
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/10 text-sm font-bold text-primary ring-1 ring-primary/15">
           {userInitial}
         </div>
       </div>

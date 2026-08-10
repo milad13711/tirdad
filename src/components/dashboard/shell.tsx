@@ -20,7 +20,7 @@ export function DashboardShell({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen" dir="rtl">
+    <div className="dashboard-shell flex min-h-screen" dir="rtl">
       <div className="hidden md:block">
         <div className="fixed inset-y-0 right-0 z-40">
           <Sidebar items={items} title={navTitle} />

@@ -17,6 +17,8 @@
   --destructive: #ef4444;
   --ring: #1a7fff;
   --radius: 0.5rem;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 24px rgba(15, 23, 42, 0.08);
 }
 
 .dark {
@@ -35,6 +37,8 @@
   --border: rgba(245, 248, 255, 0.08);
   --destructive: #ef4444;
   --ring: #1a7fff;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.24), 0 12px 28px rgba(0, 0, 0, 0.36);
 }
 
 @theme inline {
@@ -91,6 +95,19 @@
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Dashboard/admin shell only — adds card depth without touching the
+   marketing site, which reuses the same .bg-card utility class but wants
+   to stay flat/editorial. Scoped via the wrapper in dashboard/shell.tsx. */
+.dashboard-shell .bg-card {
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.dashboard-shell .stat-card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
 }
 
 @keyframes accordion-down {
