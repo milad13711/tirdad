@@ -20,7 +20,7 @@ export function Footer({
   return (
     <footer className="border-t border-border py-16">
       <Container>
-        <div className="grid gap-12 md:grid-cols-3">
+        <div className="grid gap-12 md:grid-cols-4">
           <div>
             <Link href="/" className="flex w-fit items-center gap-2 text-lg font-extrabold">
               <SiteLogo logoUrl={logoUrl} siteTitle={siteTitle} />
@@ -62,6 +62,23 @@ export function Footer({
                 </a>
               ))}
             </div>
+          </div>
+
+          <div>
+            <h4 className="mb-4 text-sm font-semibold">نماد اعتماد</h4>
+            <a
+              referrerPolicy="origin"
+              target="_blank"
+              rel="noopener"
+              href="https://trustseal.enamad.ir/?id=773301&Code=Q4U8Wf7iTYc7J2GFYQU41l1aXzJxpJCq"
+            >
+              <img
+                referrerPolicy="origin"
+                src="https://trustseal.enamad.ir/logo.aspx?id=773301&Code=Q4U8Wf7iTYc7J2GFYQU41l1aXzJxpJCq"
+                alt="نماد اعتماد الکترونیکی"
+                className="h-[90px] w-[90px] cursor-pointer"
+              />
+            </a>
           </div>
         </div>
 
