@@ -23,12 +23,15 @@ async function callLimo(path: string, apiKey: string, body: unknown): Promise<Re
   const data = await response.json().catch(() => null);
   if (!response.ok || !data) {
     throw new LimoSmsError(
-      (data && typeof data.Message === "string" && data.Message) ||
+      (data && typeof data.message === "string" && data.message) ||
         `درخواست به لیمو اس‌ام‌اس ناموفق بود (${response.status})`,
     );
   }
-  if (data.Success === false) {
-    throw new LimoSmsError(typeof data.Message === "string" ? data.Message : "درخواست ناموفق بود");
+  // LimoSMS returns lowercase field names (success/message/result), unlike
+  // the PascalCase shown in their C#/PHP sample code — verified against a
+  // real sendsms response: {"success":true,"message":"...","messageId":[...]}.
+  if (data.success === false) {
+    throw new LimoSmsError(typeof data.message === "string" ? data.message : "درخواست ناموفق بود");
   }
   return data;
 }
@@ -43,10 +46,10 @@ export async function limoSendSms(
     MobileNumber: params.mobileNumbers,
     SendToBlocksNumber: false,
   });
-  return data as { Success: boolean; Message: string; MessageId: string[] };
+  return data as { success: boolean; message: string; messageId: string[] };
 }
 
 export async function limoGetCurrentCredit(apiKey: string) {
   const data = await callLimo("getcurrentcredit", apiKey, undefined);
-  return data as { Success: boolean; Message: string; Result: unknown };
+  return data as { success: boolean; message: string; result: unknown };
 }

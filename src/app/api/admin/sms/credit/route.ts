@@ -16,7 +16,7 @@ export async function GET() {
 
   try {
     const credit = await limoGetCurrentCredit(settings.apiKey);
-    return NextResponse.json({ ok: true, credit: credit.Result });
+    return NextResponse.json({ ok: true, credit: credit.result });
   } catch (err) {
     const message = err instanceof LimoSmsError ? err.message : "دریافت موجودی ناموفق بود";
     return NextResponse.json({ error: message }, { status: 502 });

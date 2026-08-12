@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       update: { apiKey, senderNumber, enabled: true },
       create: { id: 1, apiKey, senderNumber, enabled: true },
     });
-    return NextResponse.json({ ok: true, settings, credit: credit.Result });
+    return NextResponse.json({ ok: true, settings, credit: credit.result });
   } catch (err) {
     await prisma.smsSettings.upsert({
       where: { id: 1 },
