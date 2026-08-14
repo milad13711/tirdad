@@ -10,6 +10,9 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  // Limited system-user tier: inbox, page-analysis requests, orders,
+  // marketing only — no site settings, content, or user management.
+  STAFF
 }
 
 enum SubscriptionStatus {
@@ -76,6 +79,10 @@ model User {
   phone         String         @unique
   name          String?
   role          Role           @default(USER)
+  // Only ever set for ADMIN/STAFF accounts, created from /admin/users —
+  // customers always sign in via OTP and never have one. Lets system
+  // users log in without depending on SMS delivery.
+  passwordHash  String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   subscriptions Subscription[]

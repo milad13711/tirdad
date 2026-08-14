@@ -1,172 +1,72 @@
 import { redirect } from "next/navigation";
-import { BellRing, MessagesSquare, MousePointerClick, Smartphone } from "lucide-react";
-import { PageHeader } from "@/components/dashboard/page-header";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { AdminTabs } from "@/components/admin/admin-tabs";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/dashboard/page-header";
 import { getSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
-import { getAdminLeads, getInstagramConnection, getPageAnalysisRequests } from "@/lib/queries/admin";
-import { getMarketingCampaigns, getMarketingContacts } from "@/lib/queries/marketing";
+import { isFullAdmin } from "@/lib/auth/roles";
+import { getAdminLeads, getInstagramConnection } from "@/lib/queries/admin";
 import { leadStageLabel } from "@/lib/status-labels";
 import { NewLeadForm } from "@/components/admin/new-lead-form";
 import { LeadCard } from "@/components/admin/lead-card";
 import { InstagramConnectionCard } from "@/components/admin/instagram-connection-card";
-import { InboxPanel } from "@/components/admin/inbox-panel";
-import { MarketingPanel } from "@/components/admin/marketing-panel";
-import { MarketingCampaignHistory } from "@/components/admin/marketing-campaign-history";
-import { PageAnalysisPanel } from "@/components/admin/page-analysis-panel";
 
 const STAGE_ORDER = ["NEW", "CONTACTED", "OFFERED", "CONVERTED", "LOST"] as const;
 
 export default async function AdminEngagementPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (!isFullAdmin(session)) redirect("/admin/inbox");
 
-  const [leads, connection, inboxMessages, contacts, campaigns, webAppInstalls, pageAnalysisRequests] =
-    await Promise.all([
-      getAdminLeads(),
-      getInstagramConnection(),
-      prisma.inboxMessage.findMany({
-        where: { provider: { in: ["TELEGRAM", "BALE", "INSTAGRAM"] } },
-        orderBy: { createdAt: "desc" },
-        take: 500,
-      }),
-      getMarketingContacts(),
-      getMarketingCampaigns(),
-      prisma.pushSubscription.count(),
-      getPageAnalysisRequests(),
-    ]);
+  const [leads, connection] = await Promise.all([getAdminLeads(), getInstagramConnection()]);
 
   const totalLeads = leads.length;
   const converted = leads.filter((lead) => lead.stage === "CONVERTED").length;
-  const instagramReachable = contacts.filter((c) => c.segments.includes("INSTAGRAM_DM_ONLY")).length;
-  const whatsappReachable = contacts.length;
-  const totalClicks = campaigns.reduce((sum, c) => sum + c.clickCount, 0);
-  const totalSent = campaigns.reduce((sum, c) => sum + c.sentCount, 0);
-  const pendingAnalysisCount = pageAnalysisRequests.filter((r) => !r.respondedAt).length;
 
   return (
     <div>
-      <PageHeader title="ارتباط با مخاطب" description="لیدهای اینستاگرام، صندوق پیام یکپارچه و کمپین‌های مارکتینگ" />
+      <PageHeader title="CRM اینستاگرام" description="لیدهای اینستاگرام و پیگیری فروش" />
 
-      <AdminTabs
-        tabs={[
-          {
-            key: "crm",
-            label: "CRM اینستاگرام",
-            content: (
-              <>
-                <InstagramConnectionCard
-                  connectedAt={connection?.connectedAt ?? null}
-                  businessAccountId={connection?.businessAccountId ?? null}
-                  lastSyncAt={connection?.lastSyncAt ?? null}
-                  lastSyncError={connection?.lastSyncError ?? null}
-                />
-
-                <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <span>
-                    مجموع لیدها: <strong className="text-foreground">{totalLeads}</strong>
-                  </span>
-                  <span>
-                    نرخ تبدیل:{" "}
-                    <strong className="text-foreground">
-                      {totalLeads === 0 ? 0 : Math.round((converted / totalLeads) * 100)}٪
-                    </strong>
-                  </span>
-                </div>
-
-                <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-                  {STAGE_ORDER.map((stage) => {
-                    const stageLeads = leads.filter((lead) => lead.stage === stage);
-                    return (
-                      <div key={stage} className="w-64 shrink-0 rounded-xl border border-border bg-card">
-                        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                          <span className="text-sm font-semibold">{leadStageLabel[stage]}</span>
-                          <Badge variant="outline">{stageLeads.length}</Badge>
-                        </div>
-                        <div className="space-y-3 p-3">
-                          {stageLeads.length === 0 && (
-                            <p className="py-6 text-center text-xs text-muted-foreground">لیدی وجود ندارد</p>
-                          )}
-                          {stageLeads.map((lead) => (
-                            <LeadCard key={lead.id} lead={lead} />
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <NewLeadForm />
-              </>
-            ),
-          },
-          {
-            key: "page-analysis",
-            label: (
-              <span className="flex items-center gap-1.5">
-                درخواست‌های آنالیز پیج
-                {pendingAnalysisCount > 0 && <Badge variant="warning">{pendingAnalysisCount}</Badge>}
-              </span>
-            ),
-            content: (
-              <>
-                <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <span>
-                    مجموع درخواست‌ها: <strong className="text-foreground">{pageAnalysisRequests.length}</strong>
-                  </span>
-                  <span>
-                    در انتظار پاسخ: <strong className="text-foreground">{pendingAnalysisCount}</strong>
-                  </span>
-                </div>
-                <PageAnalysisPanel leads={pageAnalysisRequests} />
-              </>
-            ),
-          },
-          {
-            key: "inbox",
-            label: "صندوق پیام",
-            content: (
-              <InboxPanel
-                messages={inboxMessages.filter(
-                  (m): m is typeof m & { provider: "TELEGRAM" | "BALE" | "INSTAGRAM" } =>
-                    m.provider === "TELEGRAM" || m.provider === "BALE" || m.provider === "INSTAGRAM",
-                )}
-              />
-            ),
-          },
-          {
-            key: "marketing",
-            label: "مارکتینگ",
-            content: (
-              <>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <StatCard
-                    label="نصب وب‌اپ (Push)"
-                    value={webAppInstalls.toLocaleString("fa-IR")}
-                    icon={Smartphone}
-                  />
-                  <StatCard
-                    label="مخاطبان قابل دسترسی در اینستاگرام"
-                    value={instagramReachable.toLocaleString("fa-IR")}
-                    icon={MessagesSquare}
-                  />
-                  <StatCard label="کل پیام‌های ارسالی" value={totalSent.toLocaleString("fa-IR")} icon={BellRing} />
-                  <StatCard
-                    label="کل کلیک‌های کمپین‌ها"
-                    value={totalClicks.toLocaleString("fa-IR")}
-                    icon={MousePointerClick}
-                  />
-                </div>
-
-                <MarketingPanel contacts={contacts} />
-                <MarketingCampaignHistory campaigns={campaigns} whatsappReachable={whatsappReachable} />
-              </>
-            ),
-          },
-        ]}
+      <InstagramConnectionCard
+        connectedAt={connection?.connectedAt ?? null}
+        businessAccountId={connection?.businessAccountId ?? null}
+        lastSyncAt={connection?.lastSyncAt ?? null}
+        lastSyncError={connection?.lastSyncError ?? null}
       />
+
+      <div className="mb-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <span>
+          مجموع لیدها: <strong className="text-foreground">{totalLeads}</strong>
+        </span>
+        <span>
+          نرخ تبدیل:{" "}
+          <strong className="text-foreground">
+            {totalLeads === 0 ? 0 : Math.round((converted / totalLeads) * 100)}٪
+          </strong>
+        </span>
+      </div>
+
+      <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+        {STAGE_ORDER.map((stage) => {
+          const stageLeads = leads.filter((lead) => lead.stage === stage);
+          return (
+            <div key={stage} className="w-64 shrink-0 rounded-xl border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <span className="text-sm font-semibold">{leadStageLabel[stage]}</span>
+                <Badge variant="outline">{stageLeads.length}</Badge>
+              </div>
+              <div className="space-y-3 p-3">
+                {stageLeads.length === 0 && (
+                  <p className="py-6 text-center text-xs text-muted-foreground">لیدی وجود ندارد</p>
+                )}
+                {stageLeads.map((lead) => (
+                  <LeadCard key={lead.id} lead={lead} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <NewLeadForm />
     </div>
   );
 }

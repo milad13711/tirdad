@@ -12,25 +12,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/lib/auth/session";
-import { formatJalali, formatToman } from "@/lib/format";
-import { getAdminUsers, getAdminOrders, getAdminCoupons } from "@/lib/queries/admin";
-import { orderStatusLabel, orderStatusVariant } from "@/lib/status-labels";
+import { isFullAdmin } from "@/lib/auth/roles";
+import { formatJalali } from "@/lib/format";
+import { getAdminUsers, getAdminCoupons } from "@/lib/queries/admin";
 import { NewCouponForm } from "@/components/admin/new-coupon-form";
 import { CouponRow } from "@/components/admin/coupon-row";
 
 export default async function AdminSalesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (!isFullAdmin(session)) redirect("/admin/inbox");
 
-  const [users, orders, coupons] = await Promise.all([
-    getAdminUsers(),
-    getAdminOrders(),
-    getAdminCoupons(),
-  ]);
+  const [users, coupons] = await Promise.all([getAdminUsers(), getAdminCoupons()]);
 
   return (
     <div>
-      <PageHeader title="فروش و کاربران" description="مدیریت کاربران، سفارش‌ها و کدهای تخفیف" />
+      <PageHeader title="کاربران و تخفیف‌ها" description="مدیریت مشتریان و کدهای تخفیف" />
 
       <AdminTabs
         tabs={[
@@ -48,7 +45,6 @@ export default async function AdminSalesPage() {
                       <TableHead>نام کاربر</TableHead>
                       <TableHead>شماره موبایل</TableHead>
                       <TableHead>پلن</TableHead>
-                      <TableHead>نقش</TableHead>
                       <TableHead>تاریخ عضویت</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -62,11 +58,6 @@ export default async function AdminSalesPage() {
                         <TableCell>
                           <Badge variant="outline">{user.subscriptions[0]?.plan.name ?? "رایگان"}</Badge>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-                            {user.role === "ADMIN" ? "مدیر" : "کاربر"}
-                          </Badge>
-                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {formatJalali(user.createdAt)}
                         </TableCell>
@@ -76,49 +67,6 @@ export default async function AdminSalesPage() {
                 </Table>
               </div>
             ),
-          },
-          {
-            key: "orders",
-            label: "سفارش‌ها",
-            content:
-              orders.length === 0 ? (
-                <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-                  هنوز سفارشی ثبت نشده است.
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>شماره سفارش</TableHead>
-                      <TableHead>کاربر</TableHead>
-                      <TableHead>مورد</TableHead>
-                      <TableHead>مبلغ (تومان)</TableHead>
-                      <TableHead>وضعیت</TableHead>
-                      <TableHead>تاریخ</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">
-                          #{order.id.slice(-6).toUpperCase()}
-                        </TableCell>
-                        <TableCell>{order.user.name ?? order.user.phone}</TableCell>
-                        <TableCell className="text-muted-foreground">{order.itemLabel}</TableCell>
-                        <TableCell>{formatToman(order.amount)}</TableCell>
-                        <TableCell>
-                          <Badge variant={orderStatusVariant[order.status]}>
-                            {orderStatusLabel[order.status]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {formatJalali(order.createdAt)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ),
           },
           {
             key: "coupons",

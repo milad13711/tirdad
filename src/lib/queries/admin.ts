@@ -24,17 +24,27 @@ export async function getAdminStats() {
   };
 }
 
-export async function getAdminOrders() {
+export async function getAdminOrders(take = 20) {
   return prisma.order.findMany({
     include: { user: true },
     orderBy: { createdAt: "desc" },
-    take: 20,
+    take,
   });
 }
 
+// Real paying customers only (role USER) — system users (ADMIN/STAFF,
+// managed from /admin/users) are a separate list, see getSystemUsers().
 export async function getAdminUsers() {
   return prisma.user.findMany({
+    where: { role: "USER" },
     include: { subscriptions: { where: { status: "ACTIVE" }, include: { plan: true }, take: 1 } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getSystemUsers() {
+  return prisma.user.findMany({
+    where: { role: { in: ["ADMIN", "STAFF"] } },
     orderBy: { createdAt: "desc" },
   });
 }

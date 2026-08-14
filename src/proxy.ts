@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAdminRoute && session.role !== "ADMIN") {
+  if (isAdminRoute && session.role !== "ADMIN" && session.role !== "STAFF") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

@@ -2,7 +2,7 @@ import { jwtVerify, SignJWT } from "jose";
 
 export type SessionPayload = {
   sub: string;
-  role: "USER" | "ADMIN";
+  role: "USER" | "ADMIN" | "STAFF";
 };
 
 const ACCESS_TOKEN_TTL = "15m";
