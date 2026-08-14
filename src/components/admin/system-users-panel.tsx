@@ -29,7 +29,8 @@ export function SystemUsersPanel({ users, currentUserId }: { users: SystemUser[]
     event.preventDefault();
     setError(null);
     setLoading(true);
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     try {
       const res = await fetch("/api/admin/users", {
         method: "POST",
@@ -43,7 +44,7 @@ export function SystemUsersPanel({ users, currentUserId }: { users: SystemUser[]
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "خطا در ایجاد کاربر");
-      (event.currentTarget as HTMLFormElement).reset();
+      form.reset();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ایجاد کاربر");
