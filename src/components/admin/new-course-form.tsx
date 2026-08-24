@@ -55,6 +55,7 @@ export function NewCourseForm() {
           coverImage: coverImage || undefined,
           price: formData.get("price"),
           level: formData.get("level"),
+          accessDurationDays: formData.get("accessDurationDays"),
         }),
       });
       const data = await res.json();
@@ -99,6 +100,16 @@ export function NewCourseForm() {
         <div>
           <Label htmlFor="course-duration">مدت زمان آموزش</Label>
           <Input id="course-duration" name="durationLabel" placeholder="مثال: ۱۸ ساعت" />
+        </div>
+        <div>
+          <Label htmlFor="course-access-duration">مدت اعتبار دسترسی (روز)</Label>
+          <Input
+            id="course-access-duration"
+            name="accessDurationDays"
+            type="number"
+            min={1}
+            placeholder="خالی = دسترسی نامحدود"
+          />
         </div>
         <div className="md:col-span-2">
           <Label htmlFor="course-cover">تصویر پکیج</Label>

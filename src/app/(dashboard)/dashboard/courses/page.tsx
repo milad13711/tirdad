@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/auth/session";
 import { getUserEnrollments } from "@/lib/queries/dashboard";
+import { formatJalali } from "@/lib/format";
 
 export default async function MyCoursesPage() {
   const session = await getSession();
@@ -38,6 +39,7 @@ export default async function MyCoursesPage() {
           {enrollments.map((enrollment) => {
             const totalLessons = enrollment.course.lessons.length;
             const completedLessons = Math.round((enrollment.progress / 100) * totalLessons);
+            const expired = Boolean(enrollment.expiresAt && enrollment.expiresAt < new Date());
             return (
               <div
                 key={enrollment.id}
@@ -45,7 +47,9 @@ export default async function MyCoursesPage() {
               >
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <h3 className="font-bold leading-7">{enrollment.course.title}</h3>
-                  {enrollment.progress === 100 ? (
+                  {expired ? (
+                    <Badge variant="destructive">منقضی‌شده</Badge>
+                  ) : enrollment.progress === 100 ? (
                     <Badge variant="success">تکمیل‌شده</Badge>
                   ) : (
                     <Badge variant="outline">در حال یادگیری</Badge>
@@ -60,12 +64,14 @@ export default async function MyCoursesPage() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    {completedLessons} از {totalLessons} درس تماشا شده
+                    {enrollment.expiresAt
+                      ? `${expired ? "انقضا" : "دسترسی تا"} ${formatJalali(enrollment.expiresAt)}`
+                      : `${completedLessons} از ${totalLessons} درس تماشا شده`}
                   </span>
-                  <Button asChild size="sm">
+                  <Button asChild size="sm" variant={expired ? "outline" : "default"}>
                     <Link href={`/dashboard/courses/${enrollment.courseId}`}>
                       <PlayCircle size={15} />
-                      ادامه یادگیری
+                      {expired ? "مشاهده وضعیت" : "ادامه یادگیری"}
                     </Link>
                   </Button>
                 </div>

@@ -63,6 +63,20 @@ export async function getAdminCourseWithLessons(courseId: string) {
   });
 }
 
+// Purchasers of a package with their access-expiry state, for admin review
+// and manual extension/revocation from /admin/courses/[id]/students.
+export async function getAdminCourseEnrollments(courseId: string) {
+  const [course, enrollments] = await Promise.all([
+    prisma.course.findUnique({ where: { id: courseId } }),
+    prisma.enrollment.findMany({
+      where: { courseId },
+      include: { user: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+  return { course, enrollments };
+}
+
 export async function getAdminPrompts() {
   return prisma.aiTool.findMany({ orderBy: { createdAt: "desc" } });
 }

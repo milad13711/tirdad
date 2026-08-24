@@ -41,7 +41,8 @@ export async function getEnrollmentForLearning(userId: string, courseId: string)
   ]);
 
   if (!enrollment) return null;
-  return { enrollment, completedLessonIds: new Set(completions.map((c) => c.lessonId)) };
+  const expired = Boolean(enrollment.expiresAt && enrollment.expiresAt < new Date());
+  return { enrollment, expired, completedLessonIds: new Set(completions.map((c) => c.lessonId)) };
 }
 
 export async function getPurchasableCourses(userId: string) {

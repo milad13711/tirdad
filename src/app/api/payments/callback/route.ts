@@ -82,10 +82,17 @@ export async function GET(request: Request) {
     });
 
     if (order.itemType === "COURSE" && order.courseId) {
+      const course = await tx.course.findUnique({
+        where: { id: order.courseId },
+        select: { accessDurationDays: true },
+      });
+      const expiresAt = course?.accessDurationDays
+        ? new Date(Date.now() + course.accessDurationDays * 24 * 60 * 60 * 1000)
+        : null;
       await tx.enrollment.upsert({
         where: { userId_courseId: { userId: order.userId, courseId: order.courseId } },
-        create: { userId: order.userId, courseId: order.courseId },
-        update: {},
+        create: { userId: order.userId, courseId: order.courseId, expiresAt },
+        update: { expiresAt },
       });
     }
 

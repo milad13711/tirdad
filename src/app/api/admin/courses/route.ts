@@ -4,6 +4,12 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { slugify } from "@/lib/slugify";
 
+// Days of playback access from purchase; empty/null/undefined = lifetime.
+const accessDurationDaysSchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? null : val),
+  z.coerce.number().int().min(1).nullable().optional(),
+);
+
 const createSchema = z.object({
   title: z.string().min(2),
   description: z.string().optional(),
@@ -11,6 +17,7 @@ const createSchema = z.object({
   durationLabel: z.string().optional(),
   price: z.coerce.number().int().min(0),
   level: z.string().optional(),
+  accessDurationDays: accessDurationDaysSchema,
 });
 
 const patchSchema = z.object({
@@ -22,6 +29,7 @@ const patchSchema = z.object({
   price: z.coerce.number().int().min(0).optional(),
   level: z.string().optional(),
   published: z.boolean().optional(),
+  accessDurationDays: accessDurationDaysSchema,
 });
 
 async function requireAdmin() {

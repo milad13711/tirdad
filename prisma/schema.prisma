@@ -181,6 +181,10 @@ model Course {
   price         Int
   level         String?
   published     Boolean      @default(false)
+  // Days of playback access granted from the moment of purchase. Null =
+  // lifetime access (no expiry). Applied to Enrollment.expiresAt when the
+  // order is paid — see payments callback.
+  accessDurationDays Int?
   createdAt     DateTime     @default(now())
   lessons       Lesson[]
   enrollments   Enrollment[]
@@ -212,13 +216,18 @@ model LessonCompletion {
 }
 
 model Enrollment {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   courseId  String
-  progress  Int      @default(0)
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress  Int       @default(0)
+  // Copied from Course.accessDurationDays at purchase time. Null = lifetime
+  // access. Once passed, playback is blocked (see getEnrollmentForLearning)
+  // though the enrollment row — and the user's history — stays intact.
+  // Admin can extend/revoke it from /admin/courses/[id]/students.
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
 }

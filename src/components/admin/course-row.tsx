@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { ListVideo, Pencil } from "lucide-react";
+import { ListVideo, Pencil, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ interface CourseRowProps {
     level: string | null;
     coverImage: string | null;
     durationLabel: string | null;
+    accessDurationDays: number | null;
     published: boolean;
     _count: { enrollments: number };
   };
@@ -69,6 +70,7 @@ export function CourseRow({ course }: CourseRowProps) {
           price: formData.get("price"),
           level: formData.get("level"),
           durationLabel: formData.get("durationLabel"),
+          accessDurationDays: formData.get("accessDurationDays"),
           coverImage,
         }),
       });
@@ -104,6 +106,14 @@ export function CourseRow({ course }: CourseRowProps) {
                 defaultValue={course.durationLabel ?? ""}
                 placeholder="مدت زمان"
                 className="w-32"
+              />
+              <Input
+                name="accessDurationDays"
+                type="number"
+                min={1}
+                defaultValue={course.accessDurationDays ?? ""}
+                placeholder="اعتبار دسترسی (روز)"
+                className="w-40"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -141,7 +151,16 @@ export function CourseRow({ course }: CourseRowProps) {
         </div>
       </TableCell>
       <TableCell>{formatToman(course.price)}</TableCell>
-      <TableCell className="text-muted-foreground">{course._count.enrollments}</TableCell>
+      <TableCell className="text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span>{course._count.enrollments}</span>
+          {course.accessDurationDays ? (
+            <Badge variant="outline">{course.accessDurationDays} روز</Badge>
+          ) : (
+            <Badge variant="outline">نامحدود</Badge>
+          )}
+        </div>
+      </TableCell>
       <TableCell>
         <Badge variant={course.published ? "success" : "outline"}>
           {course.published ? "منتشرشده" : "پیش‌نویس"}
@@ -162,6 +181,11 @@ export function CourseRow({ course }: CourseRowProps) {
           <Button asChild variant="outline" size="icon" aria-label="مدیریت دروس">
             <Link href={`/admin/courses/${course.id}/lessons`}>
               <ListVideo size={14} />
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="icon" aria-label="دانشجویان و دسترسی">
+            <Link href={`/admin/courses/${course.id}/students`}>
+              <Users size={14} />
             </Link>
           </Button>
           <DeleteButton
