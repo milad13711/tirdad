@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { VideoUploadField } from "@/components/admin/video-upload-field";
 
 interface LessonRowProps {
   lesson: {
@@ -24,6 +25,7 @@ export function LessonRow({ lesson }: LessonRowProps) {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState(lesson.videoUrl ?? "");
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,7 +39,7 @@ export function LessonRow({ lesson }: LessonRowProps) {
         body: JSON.stringify({
           id: lesson.id,
           title: formData.get("title"),
-          videoUrl: formData.get("videoUrl") || "",
+          videoUrl: videoUrl || formData.get("videoUrl") || "",
         }),
       });
       const data = await res.json();
@@ -55,22 +57,31 @@ export function LessonRow({ lesson }: LessonRowProps) {
     return (
       <TableRow>
         <TableCell colSpan={4}>
-          <form onSubmit={handleSave} className="flex flex-wrap items-center gap-2 py-1">
-            <Input name="title" defaultValue={lesson.title} className="min-w-40 flex-1" required />
-            <Input
-              name="videoUrl"
-              dir="ltr"
-              defaultValue={lesson.videoUrl ?? ""}
-              placeholder="https://..."
-              className="min-w-48 flex-1"
-            />
-            <Button type="submit" size="sm" disabled={loading}>
-              {loading ? "..." : "ذخیره"}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
-              انصراف
-            </Button>
-            {error && <p className="w-full text-xs text-destructive">{error}</p>}
+          <form onSubmit={handleSave} className="space-y-2 py-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <Input name="title" defaultValue={lesson.title} className="min-w-40 flex-1" required />
+              <Input
+                name="videoUrl"
+                dir="ltr"
+                defaultValue={videoUrl.startsWith("/api/uploads/") ? "" : videoUrl}
+                placeholder="https://..."
+                disabled={videoUrl.startsWith("/api/uploads/")}
+                onChange={(event) => setVideoUrl(event.target.value)}
+                className="min-w-48 flex-1"
+              />
+            </div>
+            <div className="max-w-sm">
+              <VideoUploadField value={videoUrl.startsWith("/api/uploads/") ? videoUrl : ""} onChange={setVideoUrl} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button type="submit" size="sm" disabled={loading}>
+                {loading ? "..." : "ذخیره"}
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
+                انصراف
+              </Button>
+            </div>
+            {error && <p className="text-xs text-destructive">{error}</p>}
           </form>
         </TableCell>
       </TableRow>
