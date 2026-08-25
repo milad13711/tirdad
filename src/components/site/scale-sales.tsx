@@ -2,7 +2,7 @@ import { Container, SectionLabel, SectionTitle } from "@/components/site/contain
 import { Reveal } from "@/components/site/reveal";
 
 // The payoff step: no CTA of its own, no form — after prompts, courses,
-// page analysis, and CRM, this is the "here's what it adds up to"
+// page analysis, and tool packages, this is the "here's what it adds up to"
 // statement that sets up Testimonials (proof) and the final Cta (ask).
 export function ScaleSales() {
   return (
