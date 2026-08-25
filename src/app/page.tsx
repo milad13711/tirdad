@@ -7,10 +7,10 @@ import { Services } from "@/components/site/services";
 import { Courses } from "@/components/site/courses";
 import { AiShowcase } from "@/components/site/ai-showcase";
 import { InstagramAnalysis } from "@/components/site/instagram-analysis";
+import { Tools } from "@/components/site/tools";
 import { ScaleSales } from "@/components/site/scale-sales";
 import { Pricing } from "@/components/site/pricing";
 import { Testimonials } from "@/components/site/testimonials";
-import { InstagramCrm } from "@/components/site/instagram";
 import { Faq } from "@/components/site/faq";
 import { Blog } from "@/components/site/blog";
 import { Cta } from "@/components/site/cta";
@@ -42,10 +42,14 @@ export default async function Home() {
       {/*
         Section order follows the 5-step narrative: Hero (hook) -> Services
         (quick map of the whole journey) -> the 5 numbered steps in order
-        (free prompts -> courses -> free page analysis -> Instagram CRM ->
-        "scale sales", the payoff statement with no CTA of its own) ->
-        Testimonials (proof, right after the pitch) -> Pricing/Faq/Blog
-        (supplementary, objection-handling) -> final Cta.
+        (free prompts -> courses -> free page analysis -> downloadable
+        tool packages -> "scale sales", the payoff statement with no CTA of
+        its own) -> Testimonials (proof, right after the pitch) ->
+        Pricing/Faq/Blog (supplementary, objection-handling) -> final Cta.
+        The Instagram-CRM section+pricing is deliberately not rendered here
+        for now (hidden from landing/nav, not deleted — see instagram.tsx
+        and instagram-crm-pricing.tsx) while the tool-packages feature
+        takes its place as step 4.
       */}
       <main className="relative flex-1">
         <ScrollDecor />
@@ -54,7 +58,7 @@ export default async function Home() {
         <AiShowcase />
         <Courses />
         <InstagramAnalysis />
-        <InstagramCrm content={content} />
+        <Tools />
         <ScaleSales />
         <Testimonials />
         {settings.subscriptionPlansEnabled && <Pricing />}

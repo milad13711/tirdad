@@ -9,27 +9,30 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSession } from "@/lib/auth/session";
-import { getAdminCourses, getAdminPrompts, getAdminBlogPosts } from "@/lib/queries/admin";
+import { getAdminCourses, getAdminPrompts, getAdminBlogPosts, getAdminToolPackages } from "@/lib/queries/admin";
 import { NewCourseForm } from "@/components/admin/new-course-form";
 import { CourseRow } from "@/components/admin/course-row";
 import { NewPromptForm } from "@/components/admin/new-prompt-form";
 import { PromptRow } from "@/components/admin/prompt-row";
 import { NewBlogPostForm } from "@/components/admin/new-blog-post-form";
 import { BlogPostRow } from "@/components/admin/blog-post-row";
+import { NewToolPackageForm } from "@/components/admin/new-tool-package-form";
+import { ToolPackageRow } from "@/components/admin/tool-package-row";
 
 export default async function AdminContentPage() {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const [courses, prompts, posts] = await Promise.all([
+  const [courses, prompts, posts, toolPackages] = await Promise.all([
     getAdminCourses(),
     getAdminPrompts(),
     getAdminBlogPosts(),
+    getAdminToolPackages(),
   ]);
 
   return (
     <div>
-      <PageHeader title="محتوا" description="مدیریت دوره‌ها، پرامپت‌ها و مقالات بلاگ" />
+      <PageHeader title="محتوا" description="مدیریت دوره‌ها، ابزارها، پرامپت‌ها و مقالات بلاگ" />
 
       <AdminTabs
         tabs={[
@@ -55,6 +58,31 @@ export default async function AdminContentPage() {
                   </TableBody>
                 </Table>
                 <NewCourseForm />
+              </>
+            ),
+          },
+          {
+            key: "tools",
+            label: "ابزارها",
+            content: (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>عنوان پکیج</TableHead>
+                      <TableHead>قیمت</TableHead>
+                      <TableHead>دانلود</TableHead>
+                      <TableHead>وضعیت</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {toolPackages.map((toolPackage) => (
+                      <ToolPackageRow key={toolPackage.id} toolPackage={toolPackage} />
+                    ))}
+                  </TableBody>
+                </Table>
+                <NewToolPackageForm />
               </>
             ),
           },

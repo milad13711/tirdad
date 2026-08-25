@@ -91,7 +91,7 @@ export const navLinks = [
   { label: "پرامپت رایگان", href: "/#ai-tools" },
   { label: "دوره‌ها", href: "/#courses" },
   { label: "آنالیز رایگان پیج", href: "/#page-analysis" },
-  { label: "CRM اینستاگرام", href: "/#instagram-crm" },
+  { label: "ابزارها", href: "/#tools" },
   { label: "پلن‌ها", href: "/#pricing" },
   { label: "بلاگ", href: "/#blog" },
 ] as const;

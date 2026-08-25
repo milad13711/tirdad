@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 
 type PurchasePayload =
   | { itemType: "COURSE"; courseId: string }
-  | { itemType: "SUBSCRIPTION"; planId: string };
+  | { itemType: "SUBSCRIPTION"; planId: string }
+  | { itemType: "TOOL_PACKAGE"; toolPackageId: string };
 
 export function BuyButton({
   payload,

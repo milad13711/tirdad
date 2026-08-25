@@ -8,6 +8,7 @@ const bodySchema = z.union([
   z.object({ itemType: z.literal("COURSE"), courseId: z.string().min(1) }),
   z.object({ itemType: z.literal("SUBSCRIPTION"), planId: z.string().min(1) }),
   z.object({ itemType: z.literal("PROMPT"), aiToolId: z.string().min(1) }),
+  z.object({ itemType: z.literal("TOOL_PACKAGE"), toolPackageId: z.string().min(1) }),
 ]);
 
 function appUrl() {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
 
   let amount: number;
   let itemLabel: string;
-  let orderData: { courseId?: string; planId?: string; aiToolId?: string } = {};
+  let orderData: { courseId?: string; planId?: string; aiToolId?: string; toolPackageId?: string } = {};
 
   if (parsed.data.itemType === "COURSE") {
     const course = await prisma.course.findUnique({ where: { id: parsed.data.courseId } });
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
     amount = plan.price;
     itemLabel = `اشتراک ${plan.name}`;
     orderData = { planId: parsed.data.planId };
-  } else {
+  } else if (parsed.data.itemType === "PROMPT") {
     const prompt = await prisma.aiTool.findUnique({ where: { id: parsed.data.aiToolId } });
     if (!prompt || !prompt.active || prompt.price <= 0) {
       return NextResponse.json({ error: "پرامپت مورد نظر یافت نشد" }, { status: 404 });
@@ -67,6 +68,20 @@ export async function POST(request: Request) {
     amount = prompt.price;
     itemLabel = prompt.name;
     orderData = { aiToolId: parsed.data.aiToolId };
+  } else {
+    const toolPackage = await prisma.toolPackage.findUnique({ where: { id: parsed.data.toolPackageId } });
+    if (!toolPackage || !toolPackage.published || toolPackage.price <= 0) {
+      return NextResponse.json({ error: "پکیج مورد نظر یافت نشد" }, { status: 404 });
+    }
+    const alreadyOwned = await prisma.toolPackagePurchase.findUnique({
+      where: { userId_toolPackageId: { userId: user.id, toolPackageId: toolPackage.id } },
+    });
+    if (alreadyOwned) {
+      return NextResponse.json({ error: "شما قبلاً این پکیج را خریداری کرده‌اید" }, { status: 409 });
+    }
+    amount = toolPackage.price;
+    itemLabel = toolPackage.title;
+    orderData = { toolPackageId: parsed.data.toolPackageId };
   }
 
   if (amount < 1000) {

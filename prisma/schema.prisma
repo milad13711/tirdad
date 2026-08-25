@@ -23,7 +23,7 @@ enum SubscriptionStatus {
 
 enum OrderItemType {
   COURSE
-  PROMPT_PACKAGE
+  TOOL_PACKAGE
   SUBSCRIPTION
   PROMPT
 }
@@ -94,6 +94,7 @@ model User {
   lessonCompletions LessonCompletion[]
   pushSubscriptions PushSubscription[]
   promptPurchases   PromptPurchase[]
+  toolPackagePurchases ToolPackagePurchase[]
 }
 
 model OtpCode {
@@ -147,12 +148,14 @@ model Order {
   courseId     String?
   planId       String?
   aiToolId     String?
+  toolPackageId String?
   createdAt    DateTime      @default(now())
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon       Coupon?       @relation(fields: [couponId], references: [id])
   course       Course?       @relation(fields: [courseId], references: [id])
   plan         SubscriptionPlan? @relation(fields: [planId], references: [id])
   aiTool       AiTool?       @relation(fields: [aiToolId], references: [id])
+  toolPackage  ToolPackage?  @relation(fields: [toolPackageId], references: [id])
   transactions Transaction[]
 
   @@index([userId])
@@ -297,13 +300,40 @@ model AiGeneration {
   @@index([userId])
 }
 
-model PromptPackage {
-  id        String   @id @default(cuid())
-  title     String
-  category  String?
-  price     Int
-  fileUrl   String?
-  createdAt DateTime @default(now())
+// Downloadable asset packs shown on the public "ابزارها" (Tools) landing
+// section and /tools archive — font packs, CapCut effect presets, LUTs,
+// etc. price = 0 means free (anyone can download, no purchase needed);
+// price > 0 requires a ToolPackagePurchase, created by the payment
+// callback once a TOOL_PACKAGE order is verified paid — mirrors how
+// AiTool/PromptPurchase gates premium prompts.
+model ToolPackage {
+  id            String                @id @default(cuid())
+  title         String
+  slug          String                @unique
+  category      String?
+  description   String?
+  coverImage    String?
+  fileUrl       String?
+  price         Int                   @default(0)
+  published     Boolean               @default(false)
+  downloadCount Int                   @default(0)
+  createdAt     DateTime              @default(now())
+  orders        Order[]
+  purchases     ToolPackagePurchase[]
+}
+
+// One row per (user, purchased paid tool package) — grants permanent
+// download access, created by the payment callback. Free packages need no
+// row here; download access is just "price === 0".
+model ToolPackagePurchase {
+  id            String      @id @default(cuid())
+  userId        String
+  toolPackageId String
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  toolPackage   ToolPackage @relation(fields: [toolPackageId], references: [id])
+
+  @@unique([userId, toolPackageId])
 }
 
 model BlogPost {

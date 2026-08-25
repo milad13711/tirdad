@@ -7,9 +7,9 @@ import {
   Home,
   LogIn,
   MoreHorizontal,
+  Package,
   ScanSearch,
   Sparkles,
-  Users,
   X,
 } from "lucide-react";
 import { navLinks } from "@/lib/content";
@@ -23,7 +23,7 @@ const primaryTabs = [
   { label: "پرامپت رایگان", href: "/#ai-tools", icon: Sparkles },
   { label: "دوره‌ها", href: "/#courses", icon: GraduationCap },
   { label: "آنالیز پیج", href: "/#page-analysis", icon: ScanSearch },
-  { label: "CRM", href: "/#instagram-crm", icon: Users },
+  { label: "ابزارها", href: "/#tools", icon: Package },
 ] as const;
 
 export function MobileBottomNav({

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, ScanSearch, Sparkles, Users } from "lucide-react";
+import { GraduationCap, Package, ScanSearch, Sparkles } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 
@@ -31,10 +31,10 @@ const pillars = [
   },
   {
     step: "۴",
-    title: "مشتری‌ها را حفظ کن",
-    description: "هیچ دایرکت و لیدی گم نشه — همه‌چیز جلوی چشمت و قابل پیگیری بمونه.",
-    icon: Users,
-    href: "#instagram-crm",
+    title: "با ابزارهای آماده بساز",
+    description: "فونت، افکت و پریست‌های آماده رو دانلود کن و همون لحظه توی کارت استفاده کن.",
+    icon: Package,
+    href: "#tools",
   },
 ] as const;
 

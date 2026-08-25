@@ -62,6 +62,15 @@ export async function getActivePrompts(userId: string) {
   });
 }
 
+// Every free tool package (downloadable by anyone) plus paid ones this
+// user has purchased — mirrors getActivePrompts' free-or-purchased shape.
+export async function getUserToolPackages(userId: string) {
+  return prisma.toolPackage.findMany({
+    where: { published: true, OR: [{ price: 0 }, { purchases: { some: { userId } } }] },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getPlans() {
   return prisma.subscriptionPlan.findMany({ orderBy: { price: "asc" } });
 }

@@ -17,7 +17,7 @@ const VIDEO_TYPES: Record<string, string> = {
   ogv: "video/ogg",
 };
 const CONTENT_TYPES: Record<string, string> = { ...IMAGE_TYPES, ...VIDEO_TYPES };
-const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "branding", "leads", "lesson-videos"]);
+const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "branding", "leads", "lesson-videos", "tools"]);
 
 // Serves admin-uploaded files from disk on every request instead of
 // through Next's public/ static handler. `next start` snapshots public/'s

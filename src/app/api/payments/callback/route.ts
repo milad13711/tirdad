@@ -116,6 +116,14 @@ export async function GET(request: Request) {
         update: {},
       });
     }
+
+    if (order.itemType === "TOOL_PACKAGE" && order.toolPackageId) {
+      await tx.toolPackagePurchase.upsert({
+        where: { userId_toolPackageId: { userId: order.userId, toolPackageId: order.toolPackageId } },
+        create: { userId: order.userId, toolPackageId: order.toolPackageId },
+        update: {},
+      });
+    }
   });
 
   void notifyAdmins(

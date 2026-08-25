@@ -5,7 +5,7 @@ import path from "node:path";
 import { getSession } from "@/lib/auth/session";
 
 const MAX_BYTES = 8 * 1024 * 1024;
-const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "branding"]);
+const ALLOWED_FOLDERS = new Set(["blog", "prompts", "courses", "branding", "tools"]);
 
 // Formats every browser can already render directly — stored as-is.
 const PASSTHROUGH_TYPES: Record<string, string> = {
