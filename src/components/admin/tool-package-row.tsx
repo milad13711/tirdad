@@ -101,8 +101,18 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
               />
               <Input name="category" defaultValue={toolPackage.category ?? ""} placeholder="دسته‌بندی" className="w-40" />
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ToolFileUploadField value={fileKey} onChange={setFileKey} />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <ToolFileUploadField
+                value={fileKey.startsWith("http") ? "" : fileKey}
+                onChange={setFileKey}
+              />
+              <Input
+                dir="ltr"
+                placeholder="یا لینک دانلود خارجی"
+                value={fileKey.startsWith("http") ? fileKey : ""}
+                disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
+                onChange={(event) => setFileKey(event.target.value)}
+              />
               <div className="flex items-center gap-3">
                 <Input type="file" accept="image/*" onChange={handleImageChange} className="max-w-56" />
                 {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}

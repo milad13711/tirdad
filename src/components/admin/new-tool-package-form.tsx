@@ -43,7 +43,7 @@ export function NewToolPackageForm() {
     event.preventDefault();
     setError(null);
     if (!fileKey) {
-      setError("لطفاً ابتدا فایل قابل دانلود پکیج را آپلود کنید.");
+      setError("لطفاً یک فایل آپلود کنید یا لینک دانلود پکیج را وارد کنید.");
       return;
     }
     setLoading(true);
@@ -102,10 +102,24 @@ export function NewToolPackageForm() {
           <Input id="tool-category" name="category" placeholder="مثال: فونت، افکت کپ‌کات" />
         </div>
       </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div>
-          <Label>فایل قابل دانلود پکیج</Label>
-          <ToolFileUploadField value={fileKey} onChange={setFileKey} />
+          <Label>آپلود فایل روی سرور</Label>
+          <ToolFileUploadField
+            value={fileKey.startsWith("http") ? "" : fileKey}
+            onChange={setFileKey}
+          />
+        </div>
+        <div>
+          <Label htmlFor="tool-file-url">یا لینک دانلود خارجی</Label>
+          <Input
+            id="tool-file-url"
+            dir="ltr"
+            placeholder="https://drive.google.com/..."
+            value={fileKey.startsWith("http") ? fileKey : ""}
+            disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
+            onChange={(event) => setFileKey(event.target.value)}
+          />
         </div>
         <div>
           <Label htmlFor="tool-cover">تصویر پکیج</Label>

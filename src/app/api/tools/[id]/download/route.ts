@@ -15,9 +15,12 @@ const CONTENT_TYPES: Record<string, string> = {
 
 // Gated download: free packages (price 0) are open to anyone, paid ones
 // require the requester to own a ToolPackagePurchase (or be an admin).
-// fileUrl on ToolPackage is an internal storage key ("tool-files/<name>"),
-// never a public URL — this route is the only thing that resolves it, so
-// a paid package's file can't be fetched by guessing a static path.
+// fileUrl on ToolPackage is either an internal storage key
+// ("tool-files/<name>", streamed from disk below) or an admin-pasted
+// external URL (Google Drive, Dropbox, etc. — redirected to). Either way
+// this route is the only thing that resolves it, so a paid package can't
+// be fetched by guessing a static path — the external-link case still
+// gets the same purchase check before the redirect.
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const toolPackage = await prisma.toolPackage.findUnique({ where: { id } });
@@ -40,7 +43,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
   }
 
-  // Defense in depth: fileUrl is normally only ever set by
+  if (/^https?:\/\//.test(toolPackage.fileUrl)) {
+    void prisma.toolPackage
+      .update({ where: { id: toolPackage.id }, data: { downloadCount: { increment: 1 } } })
+      .catch(() => {});
+    return NextResponse.redirect(toolPackage.fileUrl);
+  }
+
+  // Defense in depth: an internal fileUrl is normally only ever set by
   // /api/admin/upload-tool-file's fixed "tool-files/<uuid>.<ext>" shape,
   // but this rejects anything else (e.g. a manually-typed path) before it
   // reaches the filesystem.
