@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import { requestPayment } from "@/lib/payment/zarinpal";
+import { requestGatewayPayment } from "@/lib/payment/gateway";
 
 const bodySchema = z.union([
   z.object({ itemType: z.literal("COURSE"), courseId: z.string().min(1) }),
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
   });
 
   try {
-    const { authority, paymentUrl } = await requestPayment({
+    const { gateway, token, paymentUrl } = await requestGatewayPayment({
       amount,
       description: itemLabel,
       callbackUrl: `${appUrl()}/api/payments/callback?orderId=${order.id}`,
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
     });
 
     await prisma.transaction.create({
-      data: { orderId: order.id, gateway: "zarinpal", refId: authority, status: "PENDING" },
+      data: { orderId: order.id, gateway, refId: token, status: "PENDING" },
     });
 
     return NextResponse.json({ ok: true, paymentUrl });

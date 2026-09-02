@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import type { Order } from "@/generated/prisma/client";
-import { verifyPayment } from "@/lib/payment/zarinpal";
+import { verifyGatewayCallback, type GatewayName } from "@/lib/payment/gateway";
 import { notifyAdmins } from "@/lib/telegram";
 import { dispatchSmsTrigger } from "@/lib/sms/dispatch";
 import { formatToman } from "@/lib/format";
@@ -33,14 +33,15 @@ function successRedirect(order: Order, message: string) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const orderId = url.searchParams.get("orderId");
-  const authority = url.searchParams.get("Authority");
-  const status = url.searchParams.get("Status");
 
   if (!orderId) {
     return resultRedirect(false, "شماره سفارش نامعتبر است");
   }
 
-  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { user: true } });
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { user: true, transactions: { orderBy: { createdAt: "desc" }, take: 1 } },
+  });
   if (!order) {
     return resultRedirect(false, "سفارش یافت نشد");
   }
@@ -48,18 +49,11 @@ export async function GET(request: Request) {
     return successRedirect(order, "این سفارش قبلاً پرداخت شده است");
   }
 
-  if (status !== "OK" || !authority) {
-    await prisma.$transaction([
-      prisma.order.update({ where: { id: order.id }, data: { status: "FAILED" } }),
-      prisma.transaction.updateMany({
-        where: { orderId: order.id },
-        data: { status: "FAILED" },
-      }),
-    ]);
-    return resultRedirect(false, "پرداخت توسط شما لغو شد");
-  }
+  const transaction = order.transactions[0];
+  const gateway: GatewayName = transaction?.gateway === "bitpay" ? "bitpay" : "zarinpal";
+  const storedToken = transaction?.refId ?? null;
 
-  const verification = await verifyPayment({ amount: order.amount, authority }).catch(
+  const verification = await verifyGatewayCallback(gateway, order.amount, url.searchParams, storedToken).catch(
     () => ({ success: false as const }),
   );
 
@@ -71,7 +65,7 @@ export async function GET(request: Request) {
         data: { status: "FAILED" },
       }),
     ]);
-    return resultRedirect(false, "تایید پرداخت ناموفق بود");
+    return resultRedirect(false, "پرداخت ناموفق بود یا توسط شما لغو شد");
   }
 
   await prisma.$transaction(async (tx) => {
