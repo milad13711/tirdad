@@ -72,56 +72,52 @@ export function PromptGallery({
 
   return (
     <div>
-      <div className="mb-8 space-y-4">
-        <div className="relative">
-          <Search size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTag(null)}
+            className={cn(
+              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+              activeTag === null
+                ? "bg-foreground text-background"
+                : "bg-secondary text-muted-foreground hover:text-foreground",
+            )}
+          >
+            همه
+          </button>
+          {tags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => setActiveTag(tag)}
+              className={cn(
+                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                activeTag === tag
+                  ? "bg-foreground text-background"
+                  : "bg-secondary text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative w-full sm:w-64">
+          <Search size={15} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="جستجو در پرامپت‌ها..."
-            className="pr-11"
+            className="rounded-full pr-10"
           />
         </div>
-        {tags.length > 0 && (
-          <div>
-            <p className="mb-2 text-xs font-medium text-muted-foreground">دسته‌بندی کسب‌وکار</p>
-            <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTag(null)}
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                activeTag === null
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-primary/50",
-              )}
-            >
-              همه
-            </button>
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => setActiveTag(tag)}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                  activeTag === tag
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border text-muted-foreground hover:border-primary/50",
-                )}
-              >
-                {tag}
-              </button>
-            ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {prompts.length === 0 && !loading ? (
         <p className="py-20 text-center text-muted-foreground">پرامپتی پیدا نشد.</p>
       ) : (
-        <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
+        <div className="columns-2 gap-3 sm:columns-2 md:columns-3 lg:columns-4">
           {prompts.map((prompt) => (
             <PublicPromptCard key={prompt.id} prompt={prompt} autoReveal={prompt.id === highlightId} />
           ))}

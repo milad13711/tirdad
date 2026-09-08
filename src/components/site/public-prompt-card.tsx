@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Check, Copy, CreditCard, Eye, EyeOff, Heart, Lock } from "lucide-react";
+import { ImageIcon, Lock, Music, PlayCircle, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { aiToolTypeLabel } from "@/lib/status-labels";
 import { formatToman } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { PromptDemo } from "@/components/site/prompt-demo";
+import { PromptDetailModal } from "@/components/site/prompt-detail-modal";
 
 export interface PublicPrompt {
   id: string;
@@ -37,47 +35,26 @@ function readIds(key: string): string[] {
   }
 }
 
-function legacyCopy(text: string) {
-  const textarea = document.createElement("textarea");
-  textarea.value = text;
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.focus();
-  textarea.select();
-  try {
-    document.execCommand("copy");
-    return true;
-  } catch {
-    return false;
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
+const typeIcon = { IMAGE: ImageIcon, VIDEO: Video, AUDIO: Music } as const;
 
+// Meigen-style masonry tile: the hero image renders at its natural aspect
+// ratio (no fixed aspect-*), which is what actually produces the varied
+// tile heights of a Pinterest-style grid — no JS layout math needed, the
+// browser's own CSS-columns reflow handles it. Full prompt content (text
+// reveal, copy, purchase, before/after comparison) lives in the modal, not
+// here — expanding a tile in place would reflow every item below it in a
+// CSS-columns masonry, which reads as janky; a modal sidesteps that.
 export function PublicPromptCard({ prompt, autoReveal = false }: { prompt: PublicPrompt; autoReveal?: boolean }) {
-  const router = useRouter();
-  const [revealed, setRevealed] = useState(autoReveal && prompt.owned);
-  const [copied, setCopied] = useState(false);
+  const [modalOpen, setModalOpen] = useState(() => autoReveal && prompt.owned);
   const [viewCount, setViewCount] = useState(prompt.viewCount);
   const [likeCount, setLikeCount] = useState(prompt.likeCount);
   const [liked, setLiked] = useState(false);
-  const [purchasing, setPurchasing] = useState(false);
-  const [purchaseError, setPurchaseError] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Server has no localStorage, so liked state can only be known after
-    // mount — this is the standard hydration-safe pattern for reading
-    // client-only storage, not a derivable-from-props value.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLiked(readIds(LIKED_KEY).includes(prompt.id));
   }, [prompt.id]);
-
-  useEffect(() => {
-    if (!autoReveal || !cardRef.current) return;
-    cardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [autoReveal]);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -125,148 +102,92 @@ export function PublicPromptCard({ prompt, autoReveal = false }: { prompt: Publi
     }
   }
 
-  async function handleCopy() {
-    let ok = false;
-    if (navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(prompt.promptText);
-        ok = true;
-      } catch {
-        ok = legacyCopy(prompt.promptText);
-      }
-    } else {
-      ok = legacyCopy(prompt.promptText);
-    }
-    if (ok) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }
-
-  async function handlePurchase() {
-    setPurchaseError(null);
-    setPurchasing(true);
-    try {
-      const res = await fetch("/api/payments/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemType: "PROMPT", aiToolId: prompt.id }),
-      });
-      if (res.status === 401) {
-        router.push(`/login?next=${encodeURIComponent("/prompts")}`);
-        return;
-      }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "خطا در اتصال به درگاه پرداخت");
-      window.location.href = data.paymentUrl;
-    } catch (err) {
-      setPurchaseError(err instanceof Error ? err.message : "خطا در اتصال به درگاه پرداخت");
-      setPurchasing(false);
-    }
-  }
-
   const isLocked = prompt.price > 0 && !prompt.owned;
+  // For IMAGE prompts demoAfterUrl/demoBeforeUrl are both photos, so the
+  // "after" shot makes the punchier tile. For VIDEO/AUDIO, demoAfterUrl is
+  // the actual clip/track file (see PromptDemo) — only demoBeforeUrl is a
+  // still image there, so using demoAfterUrl as an <img> src would render
+  // a broken image.
+  const heroImage = prompt.type === "IMAGE" ? prompt.demoAfterUrl || prompt.demoBeforeUrl : prompt.demoBeforeUrl;
+  const TypeIcon = typeIcon[prompt.type];
 
   return (
-    <div
-      ref={cardRef}
-      className={cn(
-        "mb-6 break-inside-avoid rounded-2xl border bg-card p-5 ring-primary/30 transition-shadow",
-        autoReveal ? "border-primary ring-4" : "border-border",
-      )}
-    >
-      <PromptDemo
-        type={prompt.type}
-        name={prompt.name}
-        demoBeforeUrl={prompt.demoBeforeUrl}
-        demoAfterUrl={prompt.demoAfterUrl}
-      />
+    <>
+      <div
+        ref={cardRef}
+        onClick={() => setModalOpen(true)}
+        className={cn(
+          "group relative mb-4 block w-full cursor-pointer overflow-hidden rounded-2xl bg-card ring-primary/40 transition-shadow break-inside-avoid",
+          autoReveal ? "ring-4" : "",
+        )}
+      >
+        {heroImage ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={heroImage} alt={prompt.name} loading="lazy" className="block w-full transition-transform duration-500 ease-out group-hover:scale-[1.03]" />
+            {prompt.type === "VIDEO" && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <PlayCircle size={40} className="text-white/90 drop-shadow-lg" />
+              </span>
+            )}
 
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <h3 className="font-bold">{prompt.name}</h3>
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
-          <Badge variant="secondary">{aiToolTypeLabel[prompt.type]}</Badge>
-          {prompt.price === 0 ? (
-            <Badge variant="success">رایگان</Badge>
-          ) : (
-            <Badge variant={prompt.owned ? "success" : "warning"}>
-              {prompt.owned ? "پریمیوم • خریداری‌شده" : "پریمیوم"}
-            </Badge>
-          )}
-        </div>
-      </div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
 
-      {prompt.tags.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {prompt.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] text-muted-foreground">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+            {isLocked && (
+              <span className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md">
+                <Lock size={13} />
+              </span>
+            )}
 
-      {revealed && !isLocked && (
-        <div className="mb-3 space-y-2">
-          <p dir="ltr" className="rounded-lg bg-secondary/60 p-3 text-left text-xs leading-6 text-muted-foreground">
-            {prompt.promptText}
-          </p>
-          {prompt.usageInstructions && (
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-6 text-foreground">
-              <p className="mb-1 font-bold text-primary">نحوه استفاده صحیح</p>
-              {prompt.usageInstructions}
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-3">
+              <div className="flex items-center gap-1.5">
+                <Badge variant="secondary" className="bg-white/15 text-white backdrop-blur-md">
+                  {aiToolTypeLabel[prompt.type]}
+                </Badge>
+                {prompt.price === 0 ? (
+                  <Badge variant="success">رایگان</Badge>
+                ) : (
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-black">
+                    {prompt.owned ? "خریداری‌شده" : `${formatToman(prompt.price)} تومان`}
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-sm font-semibold text-white drop-shadow-md">{prompt.name}</p>
             </div>
-          )}
-        </div>
-      )}
-
-      {isLocked ? (
-        <div className="space-y-2">
-          <Button className="w-full" onClick={handlePurchase} disabled={purchasing}>
-            <CreditCard size={15} />
-            {purchasing ? "در حال اتصال به درگاه..." : `خرید و مشاهده — ${formatToman(prompt.price)} تومان`}
-          </Button>
-          {purchaseError && <p className="text-xs text-destructive">{purchaseError}</p>}
-        </div>
-      ) : (
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={() => setRevealed((v) => !v)}>
-            {revealed ? <EyeOff size={15} /> : <Eye size={15} />}
-            {revealed ? "پنهان کردن پرامپت" : "نمایش پرامپت"}
-          </Button>
-          {revealed && (
-            <Button variant="outline" size="icon" aria-label="کپی پرامپت" onClick={handleCopy}>
-              {copied ? <Check size={15} /> : <Copy size={15} />}
-            </Button>
-          )}
-        </div>
-      )}
-
-      <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <Eye size={13} />
-          {viewCount.toLocaleString("fa-IR")} بازدید
-        </span>
-        <button
-          type="button"
-          onClick={toggleLike}
-          className={cn(
-            "flex items-center gap-1.5 transition-colors hover:text-primary",
-            liked && "text-primary",
-          )}
-          aria-pressed={liked}
-          aria-label={liked ? "لغو پسندیدن" : "پسندیدن"}
-        >
-          <Heart size={13} fill={liked ? "currentColor" : "none"} />
-          {likeCount.toLocaleString("fa-IR")} پسند
-        </button>
-        {isLocked && (
-          <span className="mr-auto flex items-center gap-1.5">
-            <Lock size={12} />
-            قفل
-          </span>
+          </>
+        ) : (
+          <div className="relative flex aspect-[3/4] w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-primary/15 via-secondary to-secondary p-6 text-center">
+            {isLocked && (
+              <span className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-background/70 text-foreground backdrop-blur-md">
+                <Lock size={13} />
+              </span>
+            )}
+            <TypeIcon size={28} className="text-primary/70" />
+            <p className="line-clamp-3 text-sm font-medium text-foreground">{prompt.name}</p>
+            <div className="flex items-center gap-1.5">
+              <Badge variant="secondary">{aiToolTypeLabel[prompt.type]}</Badge>
+              {prompt.price === 0 ? (
+                <Badge variant="success">رایگان</Badge>
+              ) : (
+                <Badge variant={prompt.owned ? "success" : "warning"}>
+                  {prompt.owned ? "خریداری‌شده" : `${formatToman(prompt.price)} تومان`}
+                </Badge>
+              )}
+            </div>
+          </div>
         )}
       </div>
-    </div>
+
+      {modalOpen && (
+        <PromptDetailModal
+          prompt={prompt}
+          viewCount={viewCount}
+          likeCount={likeCount}
+          liked={liked}
+          onToggleLike={toggleLike}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
+    </>
   );
 }
