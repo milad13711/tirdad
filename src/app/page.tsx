@@ -40,24 +40,25 @@ export default async function Home() {
         logoUrl={content.logoUrl}
       />
       {/*
-        Section order follows the 5-step narrative: Hero (hook) -> Services
-        (quick map of the whole journey) -> the 5 numbered steps in order
-        (free prompts -> courses -> free page analysis -> downloadable
-        tool packages -> "scale sales", the payoff statement with no CTA of
-        its own) -> Testimonials (proof, right after the pitch) ->
+        Section order follows the 5-step narrative: Hero (hook) ->
+        InstagramAnalysis (the flagship, highest-intent service — free page
+        analysis leads convert best, so it leads) -> Services (map of the
+        rest of the journey) -> free prompts -> courses -> downloadable tool
+        packages -> "scale sales", the payoff statement with no CTA of its
+        own -> Testimonials (proof, right after the pitch) ->
         Pricing/Faq/Blog (supplementary, objection-handling) -> final Cta.
         The Instagram-CRM section+pricing is deliberately not rendered here
         for now (hidden from landing/nav, not deleted — see instagram.tsx
         and instagram-crm-pricing.tsx) while the tool-packages feature
-        takes its place as step 4.
+        takes its place as a later step.
       */}
       <main className="relative flex-1">
         <ScrollDecor />
         <Hero content={content} />
+        <InstagramAnalysis />
         <Services />
         <AiShowcase />
         <Courses />
-        <InstagramAnalysis />
         <Tools />
         <ScaleSales />
         <Testimonials />

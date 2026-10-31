@@ -13,6 +13,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q")?.trim() ?? "";
   const tag = url.searchParams.get("tag")?.trim() ?? "";
+  const pricing = url.searchParams.get("pricing"); // "free" | "paid" | null (all)
   const cursor = url.searchParams.get("cursor") ?? undefined;
   const session = await getSession();
   const purchasedIds = await getPurchasedPromptIds(session?.sub ?? null);
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
   const where: Prisma.AiToolWhereInput = {
     active: true,
     ...(tag ? { tags: { has: tag } } : {}),
+    ...(pricing === "free" ? { price: 0 } : pricing === "paid" ? { price: { gt: 0 } } : {}),
     ...(q
       ? {
           OR: [

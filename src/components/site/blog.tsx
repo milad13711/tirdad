@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Container, SectionLabel, SectionTitle } from "@/components/site/container";
@@ -29,12 +30,15 @@ export function Blog({ posts }: { posts: BlogPost[] }) {
               <Link href={`/blog/${post.slug}`} className="group block h-full">
                 <article className="h-full cursor-pointer overflow-hidden rounded-2xl border border-border bg-card p-7 transition-colors hover:border-primary/40">
                   {post.coverImage && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={post.coverImage}
-                      alt={post.title}
-                      className="-mx-7 -mt-7 mb-5 h-40 w-[calc(100%+3.5rem)] object-cover"
-                    />
+                    <div className="relative -mx-7 -mt-7 mb-5 h-40 w-[calc(100%+3.5rem)]">
+                      <Image
+                        src={post.coverImage}
+                        alt={post.title}
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
                   )}
                   <h3 className="mb-3 text-lg font-bold leading-8">{post.title}</h3>
                   {post.excerpt && (

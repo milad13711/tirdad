@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Download, Package } from "lucide-react";
 import { formatToman } from "@/lib/format";
@@ -17,13 +18,14 @@ export function PublicToolCard({ toolPackage }: { toolPackage: PublicToolPackage
       href={`/tools/${toolPackage.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-primary/50"
     >
-      <div className="aspect-video w-full overflow-hidden bg-secondary">
+      <div className="relative aspect-[9/16] w-full overflow-hidden bg-secondary">
         {toolPackage.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={toolPackage.coverImage}
             alt={toolPackage.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-muted-foreground">

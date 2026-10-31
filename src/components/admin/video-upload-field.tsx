@@ -83,14 +83,17 @@ export function VideoUploadField({
 
   if (value) {
     return (
-      <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-secondary/50 px-3 py-2 text-sm">
-        <span className="flex items-center gap-2 truncate text-emerald-500">
-          <CheckCircle2 size={15} className="shrink-0" />
-          {fileName ?? "ویدیو آپلود شد"}
-        </span>
-        <Button type="button" variant="outline" size="icon" onClick={clear} aria-label="حذف ویدیو">
-          <X size={13} />
-        </Button>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-secondary/50 px-3 py-2 text-sm">
+          <span className="flex items-center gap-2 truncate text-emerald-500">
+            <CheckCircle2 size={15} className="shrink-0" />
+            {fileName ?? "ویدیو آپلود شد"}
+          </span>
+          <Button type="button" variant="outline" size="icon" onClick={clear} aria-label="حذف ویدیو">
+            <X size={13} />
+          </Button>
+        </div>
+        <video src={value} controls className="max-h-56 w-full rounded-md border border-border bg-black" />
       </div>
     );
   }

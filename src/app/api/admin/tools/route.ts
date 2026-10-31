@@ -9,6 +9,7 @@ const createSchema = z.object({
   category: z.string().optional(),
   description: z.string().optional(),
   coverImage: z.string().optional(),
+  demoVideoUrl: z.string().optional(),
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0),
 });
@@ -19,6 +20,7 @@ const patchSchema = z.object({
   category: z.string().optional(),
   description: z.string().optional(),
   coverImage: z.string().optional(),
+  demoVideoUrl: z.string().optional(),
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0).optional(),
   published: z.boolean().optional(),

@@ -10,6 +10,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
+import { VideoUploadField } from "@/components/admin/video-upload-field";
 import { formatToman } from "@/lib/format";
 
 interface ToolPackageRowProps {
@@ -19,6 +20,7 @@ interface ToolPackageRowProps {
     category: string | null;
     price: number;
     coverImage: string | null;
+    demoVideoUrl: string | null;
     fileUrl: string | null;
     downloadCount: number;
     published: boolean;
@@ -33,6 +35,7 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
   const [error, setError] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState(toolPackage.coverImage ?? "");
   const [fileKey, setFileKey] = useState(toolPackage.fileUrl ?? "");
+  const [demoVideoUrl, setDemoVideoUrl] = useState(toolPackage.demoVideoUrl ?? "");
 
   async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -70,6 +73,7 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
           category: formData.get("category"),
           price: formData.get("price"),
           coverImage,
+          demoVideoUrl,
           fileUrl: fileKey,
         }),
       });
@@ -118,9 +122,12 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
                 {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
                 {coverImage && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverImage} alt="" className="h-9 w-14 rounded object-cover" />
+                  <img src={coverImage} alt="" className="aspect-[9/16] w-10 rounded object-cover" />
                 )}
               </div>
+            </div>
+            <div>
+              <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
             </div>
             <div className="flex items-center gap-2">
               <Button type="submit" size="sm" disabled={loading || uploading}>
@@ -143,7 +150,7 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
         <div className="flex items-center gap-2">
           {toolPackage.coverImage && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={toolPackage.coverImage} alt="" className="h-8 w-12 rounded object-cover" />
+            <img src={toolPackage.coverImage} alt="" className="aspect-[9/16] w-8 rounded object-cover" />
           )}
           <div>
             {toolPackage.title}

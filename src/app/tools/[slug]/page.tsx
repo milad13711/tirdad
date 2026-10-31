@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Download, Package } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
@@ -60,13 +61,14 @@ export default async function ToolDetailPage({
       <main className="flex-1 py-16 md:py-24">
         <Container className="grid gap-10 lg:grid-cols-[1fr_360px]">
           <div>
-            <div className="mb-6 aspect-video w-full overflow-hidden rounded-2xl border border-border bg-secondary">
+            <div className="relative mx-auto mb-6 aspect-[9/16] w-full max-w-xs overflow-hidden rounded-2xl border border-border bg-secondary lg:mx-0">
               {toolPackage.coverImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={toolPackage.coverImage}
                   alt={toolPackage.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="320px"
+                  className="object-cover"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -80,6 +82,27 @@ export default async function ToolDetailPage({
             {toolPackage.category && (
               <div className="mb-8 flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
                 <span>{toolPackage.category}</span>
+              </div>
+            )}
+
+            {toolPackage.demoVideoUrl && (
+              <div className="mb-8">
+                <h2 className="mb-3 font-bold">پیش‌نمایش ویدیویی</h2>
+                <div className="aspect-video w-full overflow-hidden rounded-xl border border-border bg-black">
+                  {toolPackage.demoVideoUrl.includes("youtube.com") || toolPackage.demoVideoUrl.includes("youtu.be") ? (
+                    <iframe
+                      src={toolPackage.demoVideoUrl
+                        .replace("watch?v=", "embed/")
+                        .replace("youtu.be/", "youtube.com/embed/")}
+                      title="پیش‌نمایش ویدیویی"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <video src={toolPackage.demoVideoUrl} controls className="h-full w-full" />
+                  )}
+                </div>
               </div>
             )}
 
@@ -111,19 +134,14 @@ export default async function ToolDetailPage({
                   </p>
                 )}
               </>
-            ) : session ? (
-              <BuyButton payload={{ itemType: "TOOL_PACKAGE", toolPackageId: toolPackage.id }} className="w-full">
+            ) : (
+              <BuyButton
+                payload={{ itemType: "TOOL_PACKAGE", toolPackageId: toolPackage.id }}
+                loggedIn={Boolean(session)}
+                className="w-full"
+              >
                 خرید و دانلود پکیج
               </BuyButton>
-            ) : (
-              <>
-                <Button asChild className="w-full">
-                  <a href="/login">ورود برای خرید پکیج</a>
-                </Button>
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  برای خرید ابتدا وارد حساب کاربری خود شوید.
-                </p>
-              </>
             )}
           </aside>
         </Container>

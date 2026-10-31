@@ -10,6 +10,10 @@ export type NavItem = {
   label: string;
   href: string;
   icon: ReactNode;
+  // Optional section label rendered above this item when it differs from
+  // the previous item's group — turns a flat wall of links into a few
+  // labeled clusters without changing the underlying route list.
+  group?: string;
 };
 
 export function Sidebar({
@@ -54,26 +58,33 @@ export function Sidebar({
       <p className="px-6 pb-2 text-xs font-medium tracking-wide text-muted-foreground/80">{title}</p>
 
       <nav className="flex-1 space-y-1 px-3">
-        {items.map((item) => {
+        {items.map((item, index) => {
           const active = pathname === item.href;
+          const showGroupLabel = item.group && item.group !== items[index - 1]?.group;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              className={cn(
-                "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                active
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+            <div key={item.href}>
+              {showGroupLabel && (
+                <p className={cn("px-3 pb-1.5 text-[11px] font-semibold text-muted-foreground/60", index > 0 && "pt-4")}>
+                  {item.group}
+                </p>
               )}
-            >
-              {active && (
-                <span className="absolute inset-y-1.5 right-0 w-0.5 rounded-full bg-primary" aria-hidden />
-              )}
-              <span className={cn("transition-transform duration-200", active && "scale-110")}>{item.icon}</span>
-              {item.label}
-            </Link>
+              <Link
+                href={item.href}
+                onClick={onNavigate}
+                className={cn(
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  active
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                )}
+              >
+                {active && (
+                  <span className="absolute inset-y-1.5 right-0 w-0.5 rounded-full bg-primary" aria-hidden />
+                )}
+                <span className={cn("transition-transform duration-200", active && "scale-110")}>{item.icon}</span>
+                {item.label}
+              </Link>
+            </div>
           );
         })}
       </nav>

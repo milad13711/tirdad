@@ -23,17 +23,19 @@ export function PromptGallery({
   const [cursor, setCursor] = useState(initial.nextCursor);
   const [tags] = useState(initial.tags ?? []);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [pricing, setPricing] = useState<"all" | "free" | "paid">("all");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const fetchPage = useCallback(
-    async (opts: { q: string; tag: string | null; cursor: string | null; replace: boolean }) => {
+    async (opts: { q: string; tag: string | null; pricing: string; cursor: string | null; replace: boolean }) => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (opts.q) params.set("q", opts.q);
         if (opts.tag) params.set("tag", opts.tag);
+        if (opts.pricing !== "all") params.set("pricing", opts.pricing);
         if (opts.cursor) params.set("cursor", opts.cursor);
         const res = await fetch(`/api/prompts?${params.toString()}`);
         const data: PromptsResponse = await res.json();
@@ -46,14 +48,14 @@ export function PromptGallery({
     [],
   );
 
-  // Search/tag changes replace the whole list from page 1.
+  // Search/tag/pricing changes replace the whole list from page 1.
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchPage({ q: query, tag: activeTag, cursor: null, replace: true });
+      fetchPage({ q: query, tag: activeTag, pricing, cursor: null, replace: true });
     }, 300);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, activeTag]);
+  }, [query, activeTag, pricing]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -61,17 +63,41 @@ export function PromptGallery({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && cursor && !loading) {
-          fetchPage({ q: query, tag: activeTag, cursor, replace: false });
+          fetchPage({ q: query, tag: activeTag, pricing, cursor, replace: false });
         }
       },
       { rootMargin: "400px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [cursor, loading, query, activeTag, fetchPage]);
+  }, [cursor, loading, query, activeTag, pricing, fetchPage]);
 
   return (
     <div>
+      <div className="mb-4 flex items-center gap-1.5">
+        {(
+          [
+            ["all", "همه"],
+            ["free", "رایگان"],
+            ["paid", "ویژه"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setPricing(value)}
+            className={cn(
+              "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+              pricing === value
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto">
           <button

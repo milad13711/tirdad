@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
+import { VideoUploadField } from "@/components/admin/video-upload-field";
 
 export function NewToolPackageForm() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function NewToolPackageForm() {
   const [coverImageError, setCoverImageError] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState("");
   const [fileKey, setFileKey] = useState("");
+  const [demoVideoUrl, setDemoVideoUrl] = useState("");
 
   async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -59,6 +61,7 @@ export function NewToolPackageForm() {
           category: formData.get("category"),
           description: formData.get("description"),
           coverImage: coverImage || undefined,
+          demoVideoUrl: demoVideoUrl || formData.get("demoVideoUrl") || undefined,
           fileUrl: fileKey,
           price: formData.get("price"),
         }),
@@ -68,6 +71,7 @@ export function NewToolPackageForm() {
       form.reset();
       setCoverImage("");
       setFileKey("");
+      setDemoVideoUrl("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پکیج");
@@ -122,14 +126,30 @@ export function NewToolPackageForm() {
           />
         </div>
         <div>
-          <Label htmlFor="tool-cover">تصویر پکیج</Label>
+          <Label htmlFor="tool-cover">تصویر پکیج (عمودی ۹:۱۶)</Label>
           <Input id="tool-cover" type="file" accept="image/*" onChange={handleImageChange} />
           {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
           {coverImageError && <p className="mt-1 text-xs text-destructive">{coverImageError}</p>}
           {coverImage && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverImage} alt="" className="mt-2 h-20 w-full rounded-lg object-cover" />
+            <img src={coverImage} alt="" className="mt-2 aspect-[9/16] w-24 rounded-lg object-cover" />
           )}
+        </div>
+      </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div>
+          <Label>آپلود ویدیوی پیش‌نمایش روی سرور</Label>
+          <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
+        </div>
+        <div>
+          <Label htmlFor="tool-demo-video">یا لینک ویدیو (یوتیوب یا خارجی)</Label>
+          <Input
+            id="tool-demo-video"
+            name="demoVideoUrl"
+            dir="ltr"
+            placeholder="https://youtube.com/watch?v=..."
+            disabled={Boolean(demoVideoUrl)}
+          />
         </div>
       </div>
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}

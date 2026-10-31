@@ -313,6 +313,9 @@ model ToolPackage {
   category      String?
   description   String?
   coverImage    String?
+  // YouTube/Vimeo link or an uploaded file served via /api/uploads — shown
+  // as a demo/preview on the public tool detail page.
+  demoVideoUrl  String?
   fileUrl       String?
   price         Int                   @default(0)
   published     Boolean               @default(false)
