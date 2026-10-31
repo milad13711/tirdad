@@ -15,7 +15,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: root
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           script_stop: true
           script: |
             set -e
