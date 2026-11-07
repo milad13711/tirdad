@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { isYouTubeUrl, toYouTubeEmbedUrl } from "@/lib/youtube";
 import { CheckCircle2, Download, Package } from "lucide-react";
 import { Navbar } from "@/components/site/navbar";
 import { MobileBottomNav } from "@/components/site/mobile-bottom-nav";
@@ -44,12 +45,19 @@ export default async function ToolDetailPage({
   if (!toolPackage) notFound();
 
   const isFree = toolPackage.price === 0;
+  const isAdmin = session?.role === "ADMIN";
   const purchase = !isFree && session
     ? await prisma.toolPackagePurchase.findUnique({
         where: { userId_toolPackageId: { userId: session.sub, toolPackageId: toolPackage.id } },
       })
     : null;
-  const canDownload = isFree || Boolean(purchase) || session?.role === "ADMIN";
+
+  // An unpublished package (admin editing it, or never finished) must stay
+  // invisible to the public and to non-owners — but an existing owner or
+  // an admin must still be able to reach it.
+  if (!toolPackage.published && !purchase && !isAdmin) notFound();
+
+  const canDownload = isFree || Boolean(purchase) || isAdmin;
 
   return (
     <>
@@ -89,11 +97,9 @@ export default async function ToolDetailPage({
               <div className="mb-8">
                 <h2 className="mb-3 font-bold">پیش‌نمایش ویدیویی</h2>
                 <div className="aspect-video w-full overflow-hidden rounded-xl border border-border bg-black">
-                  {toolPackage.demoVideoUrl.includes("youtube.com") || toolPackage.demoVideoUrl.includes("youtu.be") ? (
+                  {isYouTubeUrl(toolPackage.demoVideoUrl) ? (
                     <iframe
-                      src={toolPackage.demoVideoUrl
-                        .replace("watch?v=", "embed/")
-                        .replace("youtu.be/", "youtube.com/embed/")}
+                      src={toYouTubeEmbedUrl(toolPackage.demoVideoUrl)}
                       title="پیش‌نمایش ویدیویی"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen

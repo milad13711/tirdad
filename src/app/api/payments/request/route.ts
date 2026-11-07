@@ -6,6 +6,7 @@ import { normalizePhone } from "@/lib/auth/otp";
 import { signAccessToken, signRefreshToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE, REFRESH_COOKIE, accessCookieOptions, refreshCookieOptions } from "@/lib/auth/cookies";
 import { requestGatewayPayment } from "@/lib/payment/gateway";
+import { logEvent } from "@/lib/log-event";
 
 const common = { couponCode: z.string().trim().min(1).optional(), guestPhone: z.string().trim().optional() };
 
@@ -162,10 +163,28 @@ export async function POST(request: Request) {
       response.cookies.set(ACCESS_COOKIE, newSession.accessToken, accessCookieOptions);
       response.cookies.set(REFRESH_COOKIE, newSession.refreshToken, refreshCookieOptions);
     }
+    void logEvent({
+      action: "order.request",
+      success: true,
+      userId: user.id,
+      phone: user.phone,
+      message: `${parsed.data.itemType} ${itemLabel}`,
+      meta: { orderId: order.id, amount, couponCode: coupon?.code },
+      request,
+    });
     return response;
   } catch (err) {
     await prisma.order.update({ where: { id: order.id }, data: { status: "FAILED" } });
     const message = err instanceof Error ? err.message : "اتصال به درگاه پرداخت ناموفق بود";
+    void logEvent({
+      action: "order.request",
+      success: false,
+      userId: user.id,
+      phone: user.phone,
+      message,
+      meta: { orderId: order.id, itemType: parsed.data.itemType },
+      request,
+    });
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

@@ -412,6 +412,27 @@ model Coupon {
   orders         Order[]
 }
 
+// System-wide audit trail — failed/successful logins, OTP sends, purchase
+// requests, payment outcomes, etc. Deliberately has no required relation
+// (userId/phone are both optional) since many events happen before any
+// User row exists (e.g. a failed OTP for a number that never signs up) or
+// have no user at all (an SMS-provider failure). Viewed at /admin/logs.
+model EventLog {
+  id        String   @id @default(cuid())
+  action    String
+  success   Boolean  @default(true)
+  userId    String?
+  phone     String?
+  message   String?
+  meta      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+  @@index([userId])
+}
+
 model UsageLog {
   id        String   @id @default(cuid())
   userId    String

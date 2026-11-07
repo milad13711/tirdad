@@ -5,6 +5,7 @@ import { verifyGatewayCallback, type GatewayName } from "@/lib/payment/gateway";
 import { notifyAdmins } from "@/lib/telegram";
 import { dispatchSmsTrigger } from "@/lib/sms/dispatch";
 import { formatToman } from "@/lib/format";
+import { logEvent } from "@/lib/log-event";
 
 function appUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -65,6 +66,14 @@ export async function GET(request: Request) {
         data: { status: "FAILED" },
       }),
     ]);
+    void logEvent({
+      action: "payment.result",
+      success: false,
+      userId: order.userId,
+      message: `${order.itemType} ${order.itemLabel}`,
+      meta: { orderId: order.id, amount: order.amount },
+      request,
+    });
     return resultRedirect(false, "پرداخت ناموفق بود یا توسط شما لغو شد");
   }
 
@@ -128,6 +137,15 @@ export async function GET(request: Request) {
     name: order.user.name ?? "",
     itemLabel: order.itemLabel,
     amount: formatToman(order.amount),
+  });
+
+  void logEvent({
+    action: "payment.result",
+    success: true,
+    userId: order.userId,
+    message: `${order.itemType} ${order.itemLabel}`,
+    meta: { orderId: order.id, amount: order.amount },
+    request,
   });
 
   return successRedirect(order, "پرداخت با موفقیت انجام شد");

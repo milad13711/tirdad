@@ -2,10 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { CheckCircle2, Circle, PlayCircle } from "lucide-react";
+import { CheckCircle2, Circle, Download, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { isYouTubeUrl, toYouTubeEmbedUrl } from "@/lib/youtube";
 
 interface Lesson {
   id: string;
@@ -33,8 +34,7 @@ export function CourseLearningView({
     [lessons, activeId],
   );
 
-  const isYoutube =
-    activeLesson?.videoUrl?.includes("youtube.com") || activeLesson?.videoUrl?.includes("youtu.be");
+  const isYoutube = Boolean(activeLesson?.videoUrl && isYouTubeUrl(activeLesson.videoUrl));
 
   async function toggleComplete(lessonId: string, nextValue: boolean) {
     setLoading(true);
@@ -66,7 +66,7 @@ export function CourseLearningView({
             isYoutube ? (
               <iframe
                 key={activeLesson.id}
-                src={activeLesson.videoUrl.replace("watch?v=", "embed/")}
+                src={toYouTubeEmbedUrl(activeLesson.videoUrl)}
                 className="h-full w-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -82,23 +82,33 @@ export function CourseLearningView({
         </div>
 
         {activeLesson && (
-          <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
             <h3 className="font-bold">{activeLesson.title}</h3>
-            <Button
-              size="sm"
-              variant={completed.has(activeLesson.id) ? "outline" : "default"}
-              disabled={loading}
-              onClick={() => toggleComplete(activeLesson.id, !completed.has(activeLesson.id))}
-            >
-              {completed.has(activeLesson.id) ? (
-                <>
-                  <CheckCircle2 size={15} />
-                  تماشا شده
-                </>
-              ) : (
-                "علامت‌گذاری به‌عنوان تماشا شده"
+            <div className="flex items-center gap-2">
+              {activeLesson.videoUrl && !isYoutube && (
+                <Button asChild size="sm" variant="outline">
+                  <a href={`${activeLesson.videoUrl}?download=1`} download>
+                    <Download size={14} />
+                    دانلود ویدیو
+                  </a>
+                </Button>
               )}
-            </Button>
+              <Button
+                size="sm"
+                variant={completed.has(activeLesson.id) ? "outline" : "default"}
+                disabled={loading}
+                onClick={() => toggleComplete(activeLesson.id, !completed.has(activeLesson.id))}
+              >
+                {completed.has(activeLesson.id) ? (
+                  <>
+                    <CheckCircle2 size={15} />
+                    تماشا شده
+                  </>
+                ) : (
+                  "علامت‌گذاری به‌عنوان تماشا شده"
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </div>

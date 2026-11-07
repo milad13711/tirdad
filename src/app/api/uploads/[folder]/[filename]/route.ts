@@ -59,8 +59,18 @@ export async function GET(
     ? "public, max-age=31536000, immutable, no-transform"
     : "public, max-age=31536000, immutable";
 
+  // ?download=1 forces a real file save (Content-Disposition: attachment)
+  // instead of inline playback — used by the "دانلود ویدیو" button on
+  // purchased course lessons. Skips range handling on purpose: a partial
+  // range response can't carry a sensible total Content-Length for the
+  // browser's save dialog, and nothing here needs to scrub a download.
+  const forceDownload = new URL(request.url).searchParams.get("download") === "1";
+  const disposition: Record<string, string> = forceDownload
+    ? { "Content-Disposition": `attachment; filename="${filename}"` }
+    : {};
+
   const range = request.headers.get("range");
-  if (isVideo && range) {
+  if (isVideo && range && !forceDownload) {
     const match = /^bytes=(\d*)-(\d*)$/.exec(range);
     if (!match) {
       return new NextResponse(null, { status: 416, headers: { "Content-Range": `bytes */${fileSize}` } });
@@ -91,6 +101,7 @@ export async function GET(
       "Content-Length": String(fileSize),
       "Accept-Ranges": "bytes",
       "Cache-Control": cacheControl,
+      ...disposition,
     },
   });
 }

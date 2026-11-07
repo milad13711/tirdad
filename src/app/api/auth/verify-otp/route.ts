@@ -5,6 +5,7 @@ import { normalizePhone, verifyOtpCode } from "@/lib/auth/otp";
 import { isRateLimited } from "@/lib/auth/rate-limit";
 import { signAccessToken, signRefreshToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE, REFRESH_COOKIE, accessCookieOptions, refreshCookieOptions } from "@/lib/auth/cookies";
+import { logEvent } from "@/lib/log-event";
 
 const bodySchema = z.object({ phone: z.string(), code: z.string() });
 
@@ -32,6 +33,7 @@ export async function POST(request: Request) {
   });
 
   if (!otp || otp.attempts >= 5) {
+    void logEvent({ action: "otp.verify", success: false, phone, message: "expired_or_missing", request });
     return NextResponse.json({ error: "کد تایید منقضی شده یا نامعتبر است" }, { status: 400 });
   }
 
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       where: { id: otp.id },
       data: { attempts: { increment: 1 } },
     });
+    void logEvent({ action: "otp.verify", success: false, phone, message: "wrong_code", request });
     return NextResponse.json({ error: "کد تایید نادرست است" }, { status: 400 });
   }
 
@@ -64,5 +67,6 @@ export async function POST(request: Request) {
   });
   response.cookies.set(ACCESS_COOKIE, accessToken, accessCookieOptions);
   response.cookies.set(REFRESH_COOKIE, refreshToken, refreshCookieOptions);
+  void logEvent({ action: "otp.verify", success: true, userId: user.id, phone, request });
   return response;
 }

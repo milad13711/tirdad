@@ -51,7 +51,7 @@ export async function getSystemUsers() {
 
 export async function getAdminCourses() {
   return prisma.course.findMany({
-    include: { _count: { select: { enrollments: true } } },
+    include: { _count: { select: { enrollments: true, lessons: true } } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -122,4 +122,29 @@ export async function getAdminBlogPosts() {
 
 export async function getAdminCoupons() {
   return prisma.coupon.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+export async function getEventLogs(filter: { action?: string; success?: boolean; q?: string } = {}) {
+  return prisma.eventLog.findMany({
+    where: {
+      ...(filter.action ? { action: filter.action } : {}),
+      ...(filter.success !== undefined ? { success: filter.success } : {}),
+      ...(filter.q
+        ? {
+            OR: [
+              { phone: { contains: filter.q } },
+              { message: { contains: filter.q, mode: "insensitive" } },
+              { userId: { contains: filter.q } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: 300,
+  });
+}
+
+export async function getEventLogActions() {
+  const rows = await prisma.eventLog.findMany({ distinct: ["action"], select: { action: true } });
+  return rows.map((r) => r.action).sort();
 }

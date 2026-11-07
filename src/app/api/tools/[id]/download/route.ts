@@ -24,16 +24,22 @@ const CONTENT_TYPES: Record<string, string> = {
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const toolPackage = await prisma.toolPackage.findUnique({ where: { id } });
-  if (!toolPackage || !toolPackage.published || !toolPackage.fileUrl) {
+  if (!toolPackage || !toolPackage.fileUrl) {
     return NextResponse.json({ error: "فایلی برای این پکیج یافت نشد" }, { status: 404 });
   }
 
+  const session = await getSession();
+  const isAdmin = session?.role === "ADMIN";
+
   if (toolPackage.price > 0) {
-    const session = await getSession();
+    // Paid packages stay downloadable for anyone who already owns them,
+    // even if the admin unpublishes the package later (e.g. while editing
+    // it) — `published` only gates whether new buyers can find/purchase
+    // it, it must never revoke access someone already paid for.
     if (!session) {
       return NextResponse.json({ error: "برای دانلود این پکیج ابتدا وارد حساب کاربری شوید" }, { status: 401 });
     }
-    if (session.role !== "ADMIN") {
+    if (!isAdmin) {
       const owned = await prisma.toolPackagePurchase.findUnique({
         where: { userId_toolPackageId: { userId: session.sub, toolPackageId: toolPackage.id } },
       });
@@ -41,6 +47,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return NextResponse.json({ error: "برای دانلود این پکیج ابتدا آن را خریداری کنید" }, { status: 403 });
       }
     }
+  } else if (!toolPackage.published && !isAdmin) {
+    return NextResponse.json({ error: "فایلی برای این پکیج یافت نشد" }, { status: 404 });
   }
 
   if (/^https?:\/\//.test(toolPackage.fileUrl)) {

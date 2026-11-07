@@ -6,6 +6,7 @@ import { normalizePhone } from "@/lib/auth/otp";
 import { isRateLimited } from "@/lib/auth/rate-limit";
 import { signAccessToken, signRefreshToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE, REFRESH_COOKIE, accessCookieOptions, refreshCookieOptions } from "@/lib/auth/cookies";
+import { logEvent } from "@/lib/log-event";
 
 const bodySchema = z.object({ phone: z.string(), password: z.string().min(1) });
 
@@ -32,11 +33,20 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({ where: { phone } });
   if (!user?.passwordHash) {
+    void logEvent({ action: "login.password", success: false, phone, message: "no_password_set", request });
     return NextResponse.json({ error: "شماره موبایل یا رمز عبور اشتباه است" }, { status: 400 });
   }
 
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
   if (!valid) {
+    void logEvent({
+      action: "login.password",
+      success: false,
+      userId: user.id,
+      phone,
+      message: "wrong_password",
+      request,
+    });
     return NextResponse.json({ error: "شماره موبایل یا رمز عبور اشتباه است" }, { status: 400 });
   }
 
@@ -52,5 +62,6 @@ export async function POST(request: Request) {
   });
   response.cookies.set(ACCESS_COOKIE, accessToken, accessCookieOptions);
   response.cookies.set(REFRESH_COOKIE, refreshToken, refreshCookieOptions);
+  void logEvent({ action: "login.password", success: true, userId: user.id, phone, request });
   return response;
 }

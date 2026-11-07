@@ -6,6 +6,7 @@ import {
   Library,
   Megaphone,
   MessageSquareText,
+  ScrollText,
   Search,
   Settings,
   ShieldCheck,
@@ -45,6 +46,7 @@ const CONTENT_SALES_ITEMS: NavItem[] = [
 const MANAGEMENT_ITEMS: NavItem[] = [
   { label: "گزارش‌ها", href: "/admin/reports", icon: <BarChart3 size={17} />, group: "مدیریت" },
   { label: "کاربران سیستمی", href: "/admin/users", icon: <ShieldCheck size={17} />, group: "مدیریت" },
+  { label: "رویدادها و لاگ", href: "/admin/logs", icon: <ScrollText size={17} />, group: "مدیریت" },
   { label: "تنظیمات سایت", href: "/admin/settings", icon: <Settings size={17} />, group: "مدیریت" },
 ];
 

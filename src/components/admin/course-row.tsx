@@ -22,7 +22,7 @@ interface CourseRowProps {
     durationLabel: string | null;
     accessDurationDays: number | null;
     published: boolean;
-    _count: { enrollments: number };
+    _count: { enrollments: number; lessons: number };
   };
 }
 
@@ -178,9 +178,14 @@ export function CourseRow({ course }: CourseRowProps) {
           <Button variant="outline" size="icon" aria-label="ویرایش" onClick={() => setEditing(true)}>
             <Pencil size={14} />
           </Button>
-          <Button asChild variant="outline" size="icon" aria-label="مدیریت دروس">
+          <Button asChild variant="outline" size="sm" aria-label="مدیریت دروس" className="gap-1.5">
             <Link href={`/admin/courses/${course.id}/lessons`}>
               <ListVideo size={14} />
+              {course._count.lessons === 0 ? (
+                <Badge variant="destructive">بدون محتوا</Badge>
+              ) : (
+                <span className="text-xs">{course._count.lessons} درس</span>
+              )}
             </Link>
           </Button>
           <Button asChild variant="outline" size="icon" aria-label="دانشجویان و دسترسی">
