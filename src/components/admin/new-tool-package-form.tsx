@@ -64,6 +64,7 @@ export function NewToolPackageForm() {
           demoVideoUrl: demoVideoUrl || formData.get("demoVideoUrl") || undefined,
           fileUrl: fileKey,
           price: formData.get("price"),
+          salePrice: formData.get("salePrice"),
         }),
       });
       const data = await res.json();
@@ -95,6 +96,10 @@ export function NewToolPackageForm() {
           <Label htmlFor="tool-price">قیمت (تومان — صفر = رایگان)</Label>
           <Input id="tool-price" name="price" type="number" min={0} defaultValue={0} required />
         </div>
+      </div>
+      <div className="mt-4">
+        <Label htmlFor="tool-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
+        <Input id="tool-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">

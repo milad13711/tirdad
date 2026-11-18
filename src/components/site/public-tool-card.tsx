@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Download, Package } from "lucide-react";
-import { formatToman } from "@/lib/format";
+import { PriceTag } from "@/components/site/price-tag";
 
 export interface PublicToolPackage {
   id: string;
@@ -10,6 +10,7 @@ export interface PublicToolPackage {
   category: string | null;
   coverImage: string | null;
   price: number;
+  salePrice: number | null;
 }
 
 export function PublicToolCard({ toolPackage }: { toolPackage: PublicToolPackage }) {
@@ -42,7 +43,11 @@ export function PublicToolCard({ toolPackage }: { toolPackage: PublicToolPackage
         )}
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-5">
           <span className="text-lg font-extrabold">
-            {toolPackage.price === 0 ? "رایگان" : formatToman(toolPackage.price)}
+            {toolPackage.price === 0 ? (
+              "رایگان"
+            ) : (
+              <PriceTag price={toolPackage.price} salePrice={toolPackage.salePrice} suffix="" />
+            )}
           </span>
           <span className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-primary transition-colors group-hover:border-primary/50">
             <Download size={14} />

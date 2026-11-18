@@ -14,7 +14,7 @@ import { getSiteSettings } from "@/lib/queries/settings";
 import { getSiteContent } from "@/lib/site-content";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { formatToman } from "@/lib/format";
+import { PriceTag } from "@/components/site/price-tag";
 
 export async function generateMetadata({
   params,
@@ -122,7 +122,7 @@ export default async function ToolDetailPage({
 
           <aside className="h-fit rounded-2xl border border-border bg-card p-6 lg:sticky lg:top-24">
             <div className="mb-5 text-2xl font-extrabold">
-              {isFree ? "رایگان" : `${formatToman(toolPackage.price)} تومان`}
+              {isFree ? "رایگان" : <PriceTag price={toolPackage.price} salePrice={toolPackage.salePrice} />}
             </div>
 
             {canDownload ? (

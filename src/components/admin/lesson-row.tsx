@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { VideoUploadField } from "@/components/admin/video-upload-field";
+import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
 
 interface LessonRowProps {
   lesson: {
@@ -16,6 +17,8 @@ interface LessonRowProps {
     order: number;
     title: string;
     videoUrl: string | null;
+    attachmentUrl: string | null;
+    attachmentName: string | null;
     isFreeDemo: boolean;
   };
 }
@@ -26,6 +29,8 @@ export function LessonRow({ lesson }: LessonRowProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState(lesson.videoUrl ?? "");
+  const [attachmentUrl, setAttachmentUrl] = useState(lesson.attachmentUrl ?? "");
+  const [attachmentName, setAttachmentName] = useState(lesson.attachmentName ?? "");
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,6 +45,8 @@ export function LessonRow({ lesson }: LessonRowProps) {
           id: lesson.id,
           title: formData.get("title"),
           videoUrl: videoUrl || formData.get("videoUrl") || "",
+          attachmentUrl,
+          attachmentName,
         }),
       });
       const data = await res.json();
@@ -72,6 +79,15 @@ export function LessonRow({ lesson }: LessonRowProps) {
             </div>
             <div className="max-w-sm">
               <VideoUploadField value={videoUrl.startsWith("/api/uploads/") ? videoUrl : ""} onChange={setVideoUrl} />
+            </div>
+            <div className="max-w-sm">
+              <ToolFileUploadField
+                value={attachmentUrl}
+                onChange={(key, name) => {
+                  setAttachmentUrl(key);
+                  setAttachmentName(key ? (name ?? "") : "");
+                }}
+              />
             </div>
             <div className="flex items-center gap-2">
               <Button type="submit" size="sm" disabled={loading}>

@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     if (alreadyEnrolled) {
       return NextResponse.json({ error: "شما قبلاً این دوره را خریداری کرده‌اید" }, { status: 409 });
     }
-    baseAmount = course.price;
+    baseAmount = course.salePrice ?? course.price;
     itemLabel = course.title;
     orderData = { courseId: parsed.data.courseId };
   } else if (parsed.data.itemType === "SUBSCRIPTION") {
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     if (alreadyOwned) {
       return NextResponse.json({ error: "شما قبلاً این پکیج را خریداری کرده‌اید" }, { status: 409 });
     }
-    baseAmount = toolPackage.price;
+    baseAmount = toolPackage.salePrice ?? toolPackage.price;
     itemLabel = toolPackage.title;
     orderData = { toolPackageId: parsed.data.toolPackageId };
   }

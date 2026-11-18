@@ -182,6 +182,11 @@ model Course {
   coverImage    String?
   durationLabel String?
   price         Int
+  // Blanket discount shown to every visitor (strikethrough on `price`),
+  // separate from Coupon — null = no sale. Must be less than `price`;
+  // enforced in the admin API, not the DB. Effective checkout price is
+  // `salePrice ?? price`, and a coupon still applies on top of it.
+  salePrice     Int?
   level         String?
   published     Boolean      @default(false)
   // Days of playback access granted from the moment of purchase. Null =
@@ -201,6 +206,13 @@ model Lesson {
   order       Int
   videoUrl    String?
   isFreeDemo  Boolean            @default(false)
+  // Optional downloadable resource (slides, worksheet, etc.) — an internal
+  // storage key ("tool-files/<uuid>.<ext>", same upload pipeline as
+  // ToolPackage files), never a public URL. Gated behind enrollment, see
+  // /api/lessons/[id]/download. attachmentName is the original filename,
+  // shown on the download button since the key itself is a random uuid.
+  attachmentUrl  String?
+  attachmentName String?
   course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
   completions LessonCompletion[]
 
@@ -318,6 +330,8 @@ model ToolPackage {
   demoVideoUrl  String?
   fileUrl       String?
   price         Int                   @default(0)
+  // Same blanket-discount mechanism as Course.salePrice.
+  salePrice     Int?
   published     Boolean               @default(false)
   downloadCount Int                   @default(0)
   createdAt     DateTime              @default(now())

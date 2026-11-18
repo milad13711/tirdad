@@ -4,6 +4,11 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import { slugify } from "@/lib/slugify";
 
+const salePriceSchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? null : val),
+  z.coerce.number().int().min(0).nullable().optional(),
+);
+
 const createSchema = z.object({
   title: z.string().min(2),
   category: z.string().optional(),
@@ -12,6 +17,7 @@ const createSchema = z.object({
   demoVideoUrl: z.string().optional(),
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0),
+  salePrice: salePriceSchema,
 });
 
 const patchSchema = z.object({
@@ -23,6 +29,7 @@ const patchSchema = z.object({
   demoVideoUrl: z.string().optional(),
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0).optional(),
+  salePrice: salePriceSchema,
   published: z.boolean().optional(),
 });
 
@@ -40,6 +47,9 @@ export async function POST(request: Request) {
   const parsed = createSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "اطلاعات پکیج نامعتبر است" }, { status: 400 });
+  }
+  if (parsed.data.salePrice != null && parsed.data.salePrice >= parsed.data.price) {
+    return NextResponse.json({ error: "قیمت با تخفیف باید کمتر از قیمت اصلی باشد" }, { status: 400 });
   }
 
   const toolPackage = await prisma.toolPackage.create({
@@ -60,6 +70,13 @@ export async function PATCH(request: Request) {
   }
 
   const { id, ...data } = parsed.data;
+  if (data.salePrice != null) {
+    const effectivePrice =
+      data.price ?? (await prisma.toolPackage.findUnique({ where: { id }, select: { price: true } }))?.price;
+    if (effectivePrice != null && data.salePrice >= effectivePrice) {
+      return NextResponse.json({ error: "قیمت با تخفیف باید کمتر از قیمت اصلی باشد" }, { status: 400 });
+    }
+  }
   const toolPackage = await prisma.toolPackage.update({ where: { id }, data });
 
   return NextResponse.json({ ok: true, toolPackage });

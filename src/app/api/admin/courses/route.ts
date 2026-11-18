@@ -16,6 +16,10 @@ const createSchema = z.object({
   coverImage: z.string().optional(),
   durationLabel: z.string().optional(),
   price: z.coerce.number().int().min(0),
+  salePrice: z.preprocess(
+    (val) => (val === "" || val === undefined ? null : val),
+    z.coerce.number().int().min(0).nullable().optional(),
+  ),
   level: z.string().optional(),
   accessDurationDays: accessDurationDaysSchema,
 });
@@ -27,6 +31,10 @@ const patchSchema = z.object({
   coverImage: z.string().optional(),
   durationLabel: z.string().optional(),
   price: z.coerce.number().int().min(0).optional(),
+  salePrice: z.preprocess(
+    (val) => (val === "" || val === undefined ? null : val),
+    z.coerce.number().int().min(0).nullable().optional(),
+  ),
   level: z.string().optional(),
   published: z.boolean().optional(),
   accessDurationDays: accessDurationDaysSchema,
@@ -47,6 +55,9 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "اطلاعات دوره نامعتبر است" }, { status: 400 });
   }
+  if (parsed.data.salePrice != null && parsed.data.salePrice >= parsed.data.price) {
+    return NextResponse.json({ error: "قیمت با تخفیف باید کمتر از قیمت اصلی باشد" }, { status: 400 });
+  }
 
   const course = await prisma.course.create({
     data: { ...parsed.data, slug: slugify(parsed.data.title) },
@@ -66,6 +77,12 @@ export async function PATCH(request: Request) {
   }
 
   const { id, ...data } = parsed.data;
+  if (data.salePrice != null) {
+    const effectivePrice = data.price ?? (await prisma.course.findUnique({ where: { id }, select: { price: true } }))?.price;
+    if (effectivePrice != null && data.salePrice >= effectivePrice) {
+      return NextResponse.json({ error: "قیمت با تخفیف باید کمتر از قیمت اصلی باشد" }, { status: 400 });
+    }
+  }
   const course = await prisma.course.update({ where: { id }, data });
 
   return NextResponse.json({ ok: true, course });

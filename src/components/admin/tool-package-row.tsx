@@ -19,6 +19,7 @@ interface ToolPackageRowProps {
     title: string;
     category: string | null;
     price: number;
+    salePrice: number | null;
     coverImage: string | null;
     demoVideoUrl: string | null;
     fileUrl: string | null;
@@ -72,6 +73,7 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
           title: formData.get("title"),
           category: formData.get("category"),
           price: formData.get("price"),
+          salePrice: formData.get("salePrice"),
           coverImage,
           demoVideoUrl,
           fileUrl: fileKey,
@@ -104,6 +106,14 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
                 required
               />
               <Input name="category" defaultValue={toolPackage.category ?? ""} placeholder="دسته‌بندی" className="w-40" />
+              <Input
+                name="salePrice"
+                type="number"
+                min={0}
+                defaultValue={toolPackage.salePrice ?? ""}
+                placeholder="قیمت با تخفیف"
+                className="w-32"
+              />
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <ToolFileUploadField
@@ -160,7 +170,18 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
           </div>
         </div>
       </TableCell>
-      <TableCell>{toolPackage.price === 0 ? "رایگان" : `${formatToman(toolPackage.price)} تومان`}</TableCell>
+      <TableCell>
+        {toolPackage.price === 0 ? (
+          "رایگان"
+        ) : toolPackage.salePrice != null ? (
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground line-through">{formatToman(toolPackage.price)}</span>
+            <span className="font-medium text-primary">{formatToman(toolPackage.salePrice)}</span>
+          </div>
+        ) : (
+          `${formatToman(toolPackage.price)} تومان`
+        )}
+      </TableCell>
       <TableCell className="text-muted-foreground">{toolPackage.downloadCount}</TableCell>
       <TableCell>
         <Badge variant={toolPackage.published ? "success" : "outline"}>

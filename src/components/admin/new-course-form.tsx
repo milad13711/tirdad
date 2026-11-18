@@ -54,6 +54,7 @@ export function NewCourseForm() {
           durationLabel: formData.get("durationLabel"),
           coverImage: coverImage || undefined,
           price: formData.get("price"),
+          salePrice: formData.get("salePrice"),
           level: formData.get("level"),
           accessDurationDays: formData.get("accessDurationDays"),
         }),
@@ -85,6 +86,10 @@ export function NewCourseForm() {
           <Label htmlFor="course-price">قیمت (تومان)</Label>
           <Input id="course-price" name="price" type="number" min={0} placeholder="۱۹۹۰۰۰۰" required />
         </div>
+      </div>
+      <div className="mt-4">
+        <Label htmlFor="course-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
+        <Input id="course-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">

@@ -13,6 +13,8 @@ interface Lesson {
   title: string;
   order: number;
   videoUrl: string | null;
+  attachmentUrl: string | null;
+  attachmentName: string | null;
 }
 
 export function CourseLearningView({
@@ -90,6 +92,14 @@ export function CourseLearningView({
                   <a href={`${activeLesson.videoUrl}?download=1`} download>
                     <Download size={14} />
                     دانلود ویدیو
+                  </a>
+                </Button>
+              )}
+              {activeLesson.attachmentUrl && (
+                <Button asChild size="sm" variant="outline">
+                  <a href={`/api/lessons/${activeLesson.id}/download`}>
+                    <Download size={14} />
+                    {activeLesson.attachmentName || "فایل ضمیمه"}
                   </a>
                 </Button>
               )}

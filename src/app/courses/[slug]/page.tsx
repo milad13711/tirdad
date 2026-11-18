@@ -13,7 +13,8 @@ import { getSiteSettings } from "@/lib/queries/settings";
 import { getSiteContent } from "@/lib/site-content";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
-import { formatToman } from "@/lib/format";
+import { PriceTag } from "@/components/site/price-tag";
+import { isYouTubeUrl, toYouTubeEmbedUrl } from "@/lib/youtube";
 
 export async function generateMetadata({
   params,
@@ -51,8 +52,7 @@ export default async function CourseDetailPage({
   const alreadyOwned = Boolean(enrollment);
 
   const demoLesson = course.lessons.find((lesson) => lesson.isFreeDemo && lesson.videoUrl);
-  const isYoutubeDemo =
-    demoLesson?.videoUrl?.includes("youtube.com") || demoLesson?.videoUrl?.includes("youtu.be");
+  const isYoutubeDemo = Boolean(demoLesson?.videoUrl && isYouTubeUrl(demoLesson.videoUrl));
 
   return (
     <>
@@ -68,7 +68,7 @@ export default async function CourseDetailPage({
               {demoLesson?.videoUrl ? (
                 isYoutubeDemo ? (
                   <iframe
-                    src={demoLesson.videoUrl.replace("watch?v=", "embed/")}
+                    src={toYouTubeEmbedUrl(demoLesson.videoUrl)}
                     className="h-full w-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -136,7 +136,9 @@ export default async function CourseDetailPage({
           </div>
 
           <aside className="h-fit rounded-2xl border border-border bg-card p-6 lg:sticky lg:top-24">
-            <div className="mb-5 text-2xl font-extrabold">{formatToman(course.price)} تومان</div>
+            <div className="mb-5 text-2xl font-extrabold">
+              <PriceTag price={course.price} salePrice={course.salePrice} />
+            </div>
 
             {alreadyOwned ? (
               <>
@@ -150,19 +152,10 @@ export default async function CourseDetailPage({
                   شما این پکیج را قبلاً خریداری کرده‌اید.
                 </p>
               </>
-            ) : session ? (
-              <BuyButton payload={{ itemType: "COURSE", courseId: course.id }} className="w-full">
+            ) : (
+              <BuyButton payload={{ itemType: "COURSE", courseId: course.id }} loggedIn={Boolean(session)} className="w-full">
                 خرید و شروع یادگیری
               </BuyButton>
-            ) : (
-              <>
-                <Button asChild className="w-full">
-                  <Link href="/login">ورود برای خرید پکیج</Link>
-                </Button>
-                <p className="mt-3 text-center text-xs text-muted-foreground">
-                  برای خرید ابتدا وارد حساب کاربری خود شوید.
-                </p>
-              </>
             )}
           </aside>
         </Container>

@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { VideoUploadField } from "@/components/admin/video-upload-field";
+import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
 
 export function NewLessonForm({ courseId }: { courseId: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
+  const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [attachmentName, setAttachmentName] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +32,8 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
           courseId,
           title: formData.get("title"),
           videoUrl: videoUrl || formData.get("videoUrl") || undefined,
+          attachmentUrl: attachmentUrl || undefined,
+          attachmentName: attachmentName || undefined,
           isFreeDemo: formData.get("isFreeDemo") === "on",
         }),
       });
@@ -36,6 +41,8 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
       if (!res.ok) throw new Error(data.error ?? "خطا در ذخیره درس");
       form.reset();
       setVideoUrl("");
+      setAttachmentUrl("");
+      setAttachmentName("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره درس");
@@ -69,6 +76,16 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
             disabled={Boolean(videoUrl)}
           />
         </div>
+      </div>
+      <div className="mt-4">
+        <Label>فایل ضمیمه قابل دانلود (اختیاری — اسلاید، جزوه و...)</Label>
+        <ToolFileUploadField
+          value={attachmentUrl}
+          onChange={(key, name) => {
+            setAttachmentUrl(key);
+            setAttachmentName(key ? (name ?? "") : "");
+          }}
+        />
       </div>
       <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
         <input type="checkbox" name="isFreeDemo" className="h-4 w-4 accent-primary" />

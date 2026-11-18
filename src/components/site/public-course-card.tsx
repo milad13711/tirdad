@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, PlayCircle } from "lucide-react";
-import { formatToman } from "@/lib/format";
+import { PriceTag } from "@/components/site/price-tag";
 
 export interface PublicCourse {
   id: string;
@@ -10,6 +10,7 @@ export interface PublicCourse {
   coverImage: string | null;
   durationLabel: string | null;
   price: number;
+  salePrice: number | null;
   lessons: { videoUrl: string | null }[];
 }
 
@@ -44,7 +45,7 @@ export function PublicCourseCard({ course }: { course: PublicCourse }) {
           </span>
         )}
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-5">
-          <span className="text-lg font-extrabold">{formatToman(course.price)}</span>
+          <PriceTag price={course.price} salePrice={course.salePrice} className="text-lg font-extrabold" />
           <span className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-primary transition-colors group-hover:border-primary/50">
             مشاهده جزئیات
           </span>

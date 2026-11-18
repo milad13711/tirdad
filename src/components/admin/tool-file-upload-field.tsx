@@ -8,7 +8,7 @@ const ALLOWED_EXTENSIONS = ["zip", "rar", "7z", "pdf"];
 const MAX_BYTES = 3 * 1024 * 1024 * 1024;
 
 function uploadWithProgress(file: File, onProgress: (percent: number) => void) {
-  return new Promise<{ fileKey: string }>((resolve, reject) => {
+  return new Promise<{ fileKey: string; originalName: string }>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", `/api/admin/upload-tool-file?filename=${encodeURIComponent(file.name)}`);
     xhr.upload.onprogress = (event) => {
@@ -17,8 +17,9 @@ function uploadWithProgress(file: File, onProgress: (percent: number) => void) {
     xhr.onload = () => {
       try {
         const data = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300 && data.fileKey) resolve({ fileKey: data.fileKey });
-        else reject(new Error(data.error ?? "خطا در آپلود فایل"));
+        if (xhr.status >= 200 && xhr.status < 300 && data.fileKey) {
+          resolve({ fileKey: data.fileKey, originalName: data.originalName ?? file.name });
+        } else reject(new Error(data.error ?? "خطا در آپلود فایل"));
       } catch {
         reject(new Error("خطا در آپلود فایل"));
       }
@@ -37,7 +38,7 @@ export function ToolFileUploadField({
   onChange,
 }: {
   value: string;
-  onChange: (fileKey: string) => void;
+  onChange: (fileKey: string, originalName?: string) => void;
 }) {
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,8 +65,8 @@ export function ToolFileUploadField({
     setFileName(file.name);
     setProgress(0);
     try {
-      const { fileKey } = await uploadWithProgress(file, setProgress);
-      onChange(fileKey);
+      const { fileKey, originalName } = await uploadWithProgress(file, setProgress);
+      onChange(fileKey, originalName);
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در آپلود فایل");
       setFileName(null);

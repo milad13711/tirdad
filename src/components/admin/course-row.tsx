@@ -7,6 +7,7 @@ import { ListVideo, Pencil, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -16,7 +17,9 @@ interface CourseRowProps {
   course: {
     id: string;
     title: string;
+    description: string | null;
     price: number;
+    salePrice: number | null;
     level: string | null;
     coverImage: string | null;
     durationLabel: string | null;
@@ -67,7 +70,9 @@ export function CourseRow({ course }: CourseRowProps) {
         body: JSON.stringify({
           id: course.id,
           title: formData.get("title"),
+          description: formData.get("description"),
           price: formData.get("price"),
+          salePrice: formData.get("salePrice"),
           level: formData.get("level"),
           durationLabel: formData.get("durationLabel"),
           accessDurationDays: formData.get("accessDurationDays"),
@@ -100,6 +105,14 @@ export function CourseRow({ course }: CourseRowProps) {
                 className="w-32"
                 required
               />
+              <Input
+                name="salePrice"
+                type="number"
+                min={0}
+                defaultValue={course.salePrice ?? ""}
+                placeholder="قیمت با تخفیف"
+                className="w-32"
+              />
               <Input name="level" defaultValue={course.level ?? ""} placeholder="سطح" className="w-32" />
               <Input
                 name="durationLabel"
@@ -116,6 +129,12 @@ export function CourseRow({ course }: CourseRowProps) {
                 className="w-40"
               />
             </div>
+            <Textarea
+              name="description"
+              defaultValue={course.description ?? ""}
+              placeholder="توضیحات پکیج..."
+              rows={3}
+            />
             <div className="flex items-center gap-3">
               <Input type="file" accept="image/*" onChange={handleImageChange} className="max-w-56" />
               {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
@@ -150,7 +169,16 @@ export function CourseRow({ course }: CourseRowProps) {
           {course.title}
         </div>
       </TableCell>
-      <TableCell>{formatToman(course.price)}</TableCell>
+      <TableCell>
+        {course.salePrice != null ? (
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground line-through">{formatToman(course.price)}</span>
+            <span className="font-medium text-primary">{formatToman(course.salePrice)}</span>
+          </div>
+        ) : (
+          formatToman(course.price)
+        )}
+      </TableCell>
       <TableCell className="text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>{course._count.enrollments}</span>

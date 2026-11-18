@@ -7,6 +7,8 @@ const createSchema = z.object({
   courseId: z.string().min(1),
   title: z.string().min(2),
   videoUrl: z.string().optional(),
+  attachmentUrl: z.string().optional(),
+  attachmentName: z.string().optional(),
   isFreeDemo: z.coerce.boolean().optional(),
 });
 
@@ -14,6 +16,8 @@ const patchSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(2).optional(),
   videoUrl: z.string().optional(),
+  attachmentUrl: z.string().optional(),
+  attachmentName: z.string().optional(),
   isFreeDemo: z.boolean().optional(),
   order: z.coerce.number().int().optional(),
 });
@@ -47,6 +51,8 @@ export async function POST(request: Request) {
       courseId: parsed.data.courseId,
       title: parsed.data.title,
       videoUrl: parsed.data.videoUrl || null,
+      attachmentUrl: parsed.data.attachmentUrl || null,
+      attachmentName: parsed.data.attachmentName || null,
       isFreeDemo: parsed.data.isFreeDemo ?? false,
       order: course._count.lessons + 1,
     },
