@@ -4,6 +4,7 @@ import {
   Contact,
   LayoutDashboard,
   Library,
+  Link2,
   Megaphone,
   MessageSquareText,
   ScrollText,
@@ -41,6 +42,7 @@ const CONTENT_SALES_ITEMS: NavItem[] = [
   { label: "محتوا", href: "/admin/content", icon: <Library size={17} />, group: "محتوا و فروش" },
   { label: "CRM اینستاگرام", href: "/admin/engagement", icon: <Contact size={17} />, group: "محتوا و فروش" },
   { label: "کاربران و تخفیف‌ها", href: "/admin/sales", icon: <Users size={17} />, group: "محتوا و فروش" },
+  { label: "لینک‌های کمپین", href: "/admin/campaigns", icon: <Link2 size={17} />, group: "محتوا و فروش" },
 ];
 
 const MANAGEMENT_ITEMS: NavItem[] = [

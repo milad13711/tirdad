@@ -15,6 +15,12 @@ import { getSiteContent } from "@/lib/site-content";
 import { getSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { PriceTag } from "@/components/site/price-tag";
+import { SaleCountdown } from "@/components/site/sale-countdown";
+import { getClientIp } from "@/lib/client-ip";
+import { getEffectivePrice } from "@/lib/pricing";
+import { productKey } from "@/lib/product-key";
+import { CampaignTracker } from "@/components/site/campaign-tracker";
+import { ProductQuestionWidget } from "@/components/site/product-question-widget";
 
 export async function generateMetadata({
   params,
@@ -32,10 +38,13 @@ export async function generateMetadata({
 
 export default async function ToolDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ ref?: string }>;
 }) {
   const { slug } = await params;
+  const { ref } = await searchParams;
   const [toolPackage, settings, content, session] = await Promise.all([
     getToolBySlug(slug),
     getSiteSettings(),
@@ -46,6 +55,19 @@ export default async function ToolDetailPage({
 
   const isFree = toolPackage.price === 0;
   const isAdmin = session?.role === "ADMIN";
+  const ip = await getClientIp();
+  const { effectivePrice, saleEndsAt } = isFree
+    ? { effectivePrice: 0, saleEndsAt: null }
+    : await getEffectivePrice(
+        {
+          type: "TOOL_PACKAGE",
+          id: toolPackage.id,
+          price: toolPackage.price,
+          salePrice: toolPackage.salePrice,
+          saleCountdownHours: toolPackage.saleCountdownHours,
+        },
+        ip,
+      );
   const purchase = !isFree && session
     ? await prisma.toolPackagePurchase.findUnique({
         where: { userId_toolPackageId: { userId: session.sub, toolPackageId: toolPackage.id } },
@@ -58,9 +80,12 @@ export default async function ToolDetailPage({
   if (!toolPackage.published && !purchase && !isAdmin) notFound();
 
   const canDownload = isFree || Boolean(purchase) || isAdmin;
+  const pKey = productKey("TOOL_PACKAGE", toolPackage.id);
 
   return (
     <>
+      <CampaignTracker productKey={pKey} campaignSlug={ref} />
+      <ProductQuestionWidget productKey={pKey} campaignSlug={ref} />
       <Navbar
         showPricing={settings.subscriptionPlansEnabled}
         siteTitle={content.siteTitle}
@@ -69,7 +94,10 @@ export default async function ToolDetailPage({
       <main className="flex-1 py-16 md:py-24">
         <Container className="grid gap-10 lg:grid-cols-[1fr_360px]">
           <div>
-            <div className="relative mx-auto mb-6 aspect-[9/16] w-full max-w-xs overflow-hidden rounded-2xl border border-border bg-secondary lg:mx-0">
+            <div
+              data-campaign-section="cover"
+              className="relative mx-auto mb-6 aspect-[9/16] w-full max-w-xs overflow-hidden rounded-2xl border border-border bg-secondary lg:mx-0"
+            >
               {toolPackage.coverImage ? (
                 <Image
                   src={toolPackage.coverImage}
@@ -94,7 +122,7 @@ export default async function ToolDetailPage({
             )}
 
             {toolPackage.demoVideoUrl && (
-              <div className="mb-8">
+              <div data-campaign-section="demo_video" className="mb-8">
                 <h2 className="mb-3 font-bold">پیش‌نمایش ویدیویی</h2>
                 <div className="aspect-video w-full overflow-hidden rounded-xl border border-border bg-black">
                   {isYouTubeUrl(toolPackage.demoVideoUrl) ? (
@@ -113,16 +141,26 @@ export default async function ToolDetailPage({
             )}
 
             {toolPackage.description && (
-              <div>
+              <div data-campaign-section="description">
                 <h2 className="mb-3 font-bold">درباره این پکیج</h2>
                 <p className="leading-8 text-muted-foreground">{toolPackage.description}</p>
               </div>
             )}
           </div>
 
-          <aside className="h-fit rounded-2xl border border-border bg-card p-6 lg:sticky lg:top-24">
-            <div className="mb-5 text-2xl font-extrabold">
-              {isFree ? "رایگان" : <PriceTag price={toolPackage.price} salePrice={toolPackage.salePrice} />}
+          <aside data-campaign-section="price_buy_box" className="h-fit rounded-2xl border border-border bg-card p-6 lg:sticky lg:top-24">
+            <div className="mb-5">
+              <div className="text-2xl font-extrabold">
+                {isFree ? (
+                  "رایگان"
+                ) : (
+                  <PriceTag
+                    price={toolPackage.price}
+                    salePrice={effectivePrice === toolPackage.price ? null : effectivePrice}
+                  />
+                )}
+              </div>
+              {saleEndsAt && <SaleCountdown endsAt={saleEndsAt.toISOString()} />}
             </div>
 
             {canDownload ? (
@@ -144,6 +182,8 @@ export default async function ToolDetailPage({
               <BuyButton
                 payload={{ itemType: "TOOL_PACKAGE", toolPackageId: toolPackage.id }}
                 loggedIn={Boolean(session)}
+                productKey={pKey}
+                campaignSlug={ref}
                 className="w-full"
               >
                 خرید و دانلود پکیج

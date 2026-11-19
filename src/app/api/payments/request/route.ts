@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { CAMPAIGN_COOKIE } from "@/lib/campaign-cookie";
 import { getSession } from "@/lib/auth/session";
 import { normalizePhone } from "@/lib/auth/otp";
 import { signAccessToken, signRefreshToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE, REFRESH_COOKIE, accessCookieOptions, refreshCookieOptions } from "@/lib/auth/cookies";
 import { requestGatewayPayment } from "@/lib/payment/gateway";
 import { logEvent } from "@/lib/log-event";
+import { getEffectivePrice } from "@/lib/pricing";
+import { clientIpFromRequest } from "@/lib/client-ip";
 
 const common = { couponCode: z.string().trim().min(1).optional(), guestPhone: z.string().trim().optional() };
 
@@ -86,7 +90,12 @@ export async function POST(request: Request) {
     if (alreadyEnrolled) {
       return NextResponse.json({ error: "شما قبلاً این دوره را خریداری کرده‌اید" }, { status: 409 });
     }
-    baseAmount = course.salePrice ?? course.price;
+    baseAmount = (
+      await getEffectivePrice(
+        { type: "COURSE", id: course.id, price: course.price, salePrice: course.salePrice, saleCountdownHours: course.saleCountdownHours },
+        clientIpFromRequest(request),
+      )
+    ).effectivePrice;
     itemLabel = course.title;
     orderData = { courseId: parsed.data.courseId };
   } else if (parsed.data.itemType === "SUBSCRIPTION") {
@@ -122,7 +131,18 @@ export async function POST(request: Request) {
     if (alreadyOwned) {
       return NextResponse.json({ error: "شما قبلاً این پکیج را خریداری کرده‌اید" }, { status: 409 });
     }
-    baseAmount = toolPackage.salePrice ?? toolPackage.price;
+    baseAmount = (
+      await getEffectivePrice(
+        {
+          type: "TOOL_PACKAGE",
+          id: toolPackage.id,
+          price: toolPackage.price,
+          salePrice: toolPackage.salePrice,
+          saleCountdownHours: toolPackage.saleCountdownHours,
+        },
+        clientIpFromRequest(request),
+      )
+    ).effectivePrice;
     itemLabel = toolPackage.title;
     orderData = { toolPackageId: parsed.data.toolPackageId };
   }
@@ -133,6 +153,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "مبلغ قابل پرداخت نیست" }, { status: 400 });
   }
 
+  const campaignRef = (await cookies()).get(CAMPAIGN_COOKIE)?.value ?? null;
+
   const order = await prisma.order.create({
     data: {
       userId: user.id,
@@ -141,6 +163,7 @@ export async function POST(request: Request) {
       amount,
       status: "PENDING",
       couponId: coupon?.id,
+      campaignRef,
       ...orderData,
     },
   });

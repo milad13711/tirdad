@@ -6,6 +6,8 @@ import { notifyAdmins } from "@/lib/telegram";
 import { dispatchSmsTrigger } from "@/lib/sms/dispatch";
 import { formatToman } from "@/lib/format";
 import { logEvent } from "@/lib/log-event";
+import { recordCampaignEvent, resolveCampaignLinkId } from "@/lib/campaign-events";
+import { productKey } from "@/lib/product-key";
 
 function appUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -147,6 +149,23 @@ export async function GET(request: Request) {
     meta: { orderId: order.id, amount: order.amount },
     request,
   });
+
+  const trackedKey =
+    order.itemType === "COURSE" && order.courseId
+      ? productKey("COURSE", order.courseId)
+      : order.itemType === "TOOL_PACKAGE" && order.toolPackageId
+        ? productKey("TOOL_PACKAGE", order.toolPackageId)
+        : null;
+  if (trackedKey) {
+    void resolveCampaignLinkId(order.campaignRef).then((campaignLinkId) =>
+      recordCampaignEvent({
+        productKey: trackedKey,
+        campaignLinkId,
+        sessionId: order.id, // no browser session reaches this server-side callback; the order id is a stable per-purchase identifier instead
+        type: "pay_success",
+      }),
+    );
+  }
 
   return successRedirect(order, "پرداخت با موفقیت انجام شد");
 }

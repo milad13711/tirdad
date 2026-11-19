@@ -20,6 +20,7 @@ interface CourseRowProps {
     description: string | null;
     price: number;
     salePrice: number | null;
+    saleCountdownHours: number | null;
     level: string | null;
     coverImage: string | null;
     durationLabel: string | null;
@@ -73,6 +74,7 @@ export function CourseRow({ course }: CourseRowProps) {
           description: formData.get("description"),
           price: formData.get("price"),
           salePrice: formData.get("salePrice"),
+          saleCountdownHours: formData.get("saleCountdownHours"),
           level: formData.get("level"),
           durationLabel: formData.get("durationLabel"),
           accessDurationDays: formData.get("accessDurationDays"),
@@ -112,6 +114,14 @@ export function CourseRow({ course }: CourseRowProps) {
                 defaultValue={course.salePrice ?? ""}
                 placeholder="قیمت با تخفیف"
                 className="w-32"
+              />
+              <Input
+                name="saleCountdownHours"
+                type="number"
+                min={1}
+                defaultValue={course.saleCountdownHours ?? ""}
+                placeholder="تایمر تخفیف (ساعت)"
+                className="w-36"
               />
               <Input name="level" defaultValue={course.level ?? ""} placeholder="سطح" className="w-32" />
               <Input

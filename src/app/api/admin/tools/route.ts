@@ -8,6 +8,10 @@ const salePriceSchema = z.preprocess(
   (val) => (val === "" || val === undefined ? null : val),
   z.coerce.number().int().min(0).nullable().optional(),
 );
+const saleCountdownHoursSchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? null : val),
+  z.coerce.number().int().min(1).nullable().optional(),
+);
 
 const createSchema = z.object({
   title: z.string().min(2),
@@ -18,6 +22,7 @@ const createSchema = z.object({
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0),
   salePrice: salePriceSchema,
+  saleCountdownHours: saleCountdownHoursSchema,
 });
 
 const patchSchema = z.object({
@@ -30,6 +35,7 @@ const patchSchema = z.object({
   fileUrl: z.string().optional(),
   price: z.coerce.number().int().min(0).optional(),
   salePrice: salePriceSchema,
+  saleCountdownHours: saleCountdownHoursSchema,
   published: z.boolean().optional(),
 });
 

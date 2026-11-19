@@ -55,6 +55,7 @@ export function NewCourseForm() {
           coverImage: coverImage || undefined,
           price: formData.get("price"),
           salePrice: formData.get("salePrice"),
+          saleCountdownHours: formData.get("saleCountdownHours"),
           level: formData.get("level"),
           accessDurationDays: formData.get("accessDurationDays"),
         }),
@@ -87,9 +88,21 @@ export function NewCourseForm() {
           <Input id="course-price" name="price" type="number" min={0} placeholder="۱۹۹۰۰۰۰" required />
         </div>
       </div>
-      <div className="mt-4">
-        <Label htmlFor="course-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
-        <Input id="course-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor="course-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
+          <Input id="course-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
+        </div>
+        <div>
+          <Label htmlFor="course-sale-countdown">مدت تایمر تخفیف برای هر بازدیدکننده (ساعت)</Label>
+          <Input
+            id="course-sale-countdown"
+            name="saleCountdownHours"
+            type="number"
+            min={1}
+            placeholder="خالی = تخفیف همیشگی بدون تایمر"
+          />
+        </div>
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">

@@ -9,6 +9,15 @@ const accessDurationDaysSchema = z.preprocess(
   (val) => (val === "" || val === undefined ? null : val),
   z.coerce.number().int().min(1).nullable().optional(),
 );
+const salePriceSchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? null : val),
+  z.coerce.number().int().min(0).nullable().optional(),
+);
+// Hours the sale price stays active per visitor; empty = permanent sale.
+const saleCountdownHoursSchema = z.preprocess(
+  (val) => (val === "" || val === undefined ? null : val),
+  z.coerce.number().int().min(1).nullable().optional(),
+);
 
 const createSchema = z.object({
   title: z.string().min(2),
@@ -16,10 +25,8 @@ const createSchema = z.object({
   coverImage: z.string().optional(),
   durationLabel: z.string().optional(),
   price: z.coerce.number().int().min(0),
-  salePrice: z.preprocess(
-    (val) => (val === "" || val === undefined ? null : val),
-    z.coerce.number().int().min(0).nullable().optional(),
-  ),
+  salePrice: salePriceSchema,
+  saleCountdownHours: saleCountdownHoursSchema,
   level: z.string().optional(),
   accessDurationDays: accessDurationDaysSchema,
 });
@@ -31,10 +38,8 @@ const patchSchema = z.object({
   coverImage: z.string().optional(),
   durationLabel: z.string().optional(),
   price: z.coerce.number().int().min(0).optional(),
-  salePrice: z.preprocess(
-    (val) => (val === "" || val === undefined ? null : val),
-    z.coerce.number().int().min(0).nullable().optional(),
-  ),
+  salePrice: salePriceSchema,
+  saleCountdownHours: saleCountdownHoursSchema,
   level: z.string().optional(),
   published: z.boolean().optional(),
   accessDurationDays: accessDurationDaysSchema,

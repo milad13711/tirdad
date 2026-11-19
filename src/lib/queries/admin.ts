@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db";
+import { parseProductKey } from "@/lib/product-key";
 
 export async function getAdminStats() {
   const monthStart = new Date();
@@ -147,4 +148,58 @@ export async function getEventLogs(filter: { action?: string; success?: boolean;
 export async function getEventLogActions() {
   const rows = await prisma.eventLog.findMany({ distinct: ["action"], select: { action: true } });
   return rows.map((r) => r.action).sort();
+}
+
+export async function getCampaignLinksWithStats() {
+  const links = await prisma.campaignLink.findMany({ orderBy: { createdAt: "desc" } });
+
+  return Promise.all(
+    links.map(async (link) => {
+      const [pageViews, dwell10s, payClicks, paySuccess, sections, product] = await Promise.all([
+        prisma.campaignEvent.count({ where: { campaignLinkId: link.id, type: "page_view" } }),
+        prisma.campaignEvent.count({ where: { campaignLinkId: link.id, type: "dwell_10s" } }),
+        prisma.campaignEvent.count({ where: { campaignLinkId: link.id, type: "pay_click" } }),
+        prisma.campaignEvent.count({ where: { campaignLinkId: link.id, type: "pay_success" } }),
+        prisma.campaignEvent.groupBy({
+          by: ["section"],
+          where: { campaignLinkId: link.id, type: "section_focus", section: { not: null } },
+          _count: { section: true },
+          orderBy: { _count: { section: "desc" } },
+          take: 1,
+        }),
+        resolveProductTitle(link.productKey),
+      ]);
+      return {
+        ...link,
+        productTitle: product?.title ?? link.productKey,
+        productUrl: product?.url ?? null,
+        pageViews,
+        dwell10s,
+        payClicks,
+        paySuccess,
+        topSection: sections[0]?.section ?? null,
+      };
+    }),
+  );
+}
+
+async function resolveProductTitle(key: string): Promise<{ title: string; url: string } | null> {
+  const parsed = parseProductKey(key);
+  if (!parsed) return null;
+  if (parsed.type === "COURSE") {
+    const course = await prisma.course.findUnique({ where: { id: parsed.id }, select: { title: true, slug: true } });
+    return course ? { title: course.title, url: `/courses/${course.slug}` } : null;
+  }
+  const toolPackage = await prisma.toolPackage.findUnique({
+    where: { id: parsed.id },
+    select: { title: true, slug: true },
+  });
+  return toolPackage ? { title: toolPackage.title, url: `/tools/${toolPackage.slug}` } : null;
+}
+
+export async function getCampaignQuestions() {
+  const questions = await prisma.campaignQuestion.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
+  return Promise.all(
+    questions.map(async (q) => ({ ...q, productTitle: (await resolveProductTitle(q.productKey))?.title ?? q.productKey })),
+  );
 }

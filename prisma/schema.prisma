@@ -145,6 +145,10 @@ model Order {
   amount       Int
   status       OrderStatus   @default(PENDING)
   couponId     String?
+  // Campaign link slug (if any) active when this order was created — lets
+  // the payment callback attribute a successful payment back to the
+  // campaign, see CampaignEvent.
+  campaignRef  String?
   courseId     String?
   planId       String?
   aiToolId     String?
@@ -187,6 +191,11 @@ model Course {
   // enforced in the admin API, not the DB. Effective checkout price is
   // `salePrice ?? price`, and a coupon still applies on top of it.
   salePrice     Int?
+  // Hours the sale price stays active for a given visitor, counted from
+  // their first view of this product (tracked by IP in
+  // PriceCountdownView) — null means salePrice is a permanent blanket
+  // discount with no countdown/expiry. See src/lib/pricing.ts.
+  saleCountdownHours Int?
   level         String?
   published     Boolean      @default(false)
   // Days of playback access granted from the moment of purchase. Null =
@@ -332,6 +341,7 @@ model ToolPackage {
   price         Int                   @default(0)
   // Same blanket-discount mechanism as Course.salePrice.
   salePrice     Int?
+  saleCountdownHours Int?
   published     Boolean               @default(false)
   downloadCount Int                   @default(0)
   createdAt     DateTime              @default(now())
@@ -424,6 +434,70 @@ model Coupon {
   expiresAt      DateTime?
   createdAt      DateTime  @default(now())
   orders         Order[]
+}
+
+// Tracks the first time a given IP viewed a product with an active
+// countdown sale, so the countdown shown to that visitor keeps counting
+// down consistently across page loads/devices-on-that-IP instead of
+// resetting. productKey is "COURSE:<id>" or "TOOL_PACKAGE:<id>" (see
+// src/lib/product-key.ts) — a single string key avoids the two-nullable-FK
+// uniqueness trap in Postgres (NULL != NULL breaks a real unique
+// constraint across (courseId, toolPackageId, ip)).
+model PriceCountdownView {
+  id          String   @id @default(cuid())
+  productKey  String
+  ip          String
+  firstSeenAt DateTime @default(now())
+
+  @@unique([productKey, ip])
+}
+
+// A shareable, trackable link for one product (e.g. for an ad campaign).
+// Visiting /go/<slug> increments clickCount and redirects to the real
+// product page, tagging the visit with this link's id for attribution.
+model CampaignLink {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  productKey String
+  label      String?
+  clickCount Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([productKey])
+}
+
+// Funnel events for a product's landing page, whether or not they arrived
+// via a CampaignLink (campaignLinkId is null for organic/direct traffic,
+// so "page views for this product" still has a complete count).
+// sessionId is a random id the client sets once per browser tab/visit.
+model CampaignEvent {
+  id             String   @id @default(cuid())
+  productKey     String
+  campaignLinkId String?
+  sessionId      String
+  // "page_view" | "dwell_10s" | "section_focus" | "pay_click" | "pay_success"
+  type           String
+  section        String?
+  createdAt      DateTime @default(now())
+
+  @@index([productKey])
+  @@index([campaignLinkId])
+  @@index([sessionId, type])
+}
+
+// A visitor's question asked directly from a product landing page, with
+// their phone number for support follow-up — shown to admins alongside
+// the campaign stats for that product.
+model CampaignQuestion {
+  id             String    @id @default(cuid())
+  productKey     String
+  campaignLinkId String?
+  phone          String
+  message        String
+  answeredAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([productKey])
 }
 
 // System-wide audit trail — failed/successful logins, OTP sends, purchase

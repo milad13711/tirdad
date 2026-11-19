@@ -20,6 +20,7 @@ interface ToolPackageRowProps {
     category: string | null;
     price: number;
     salePrice: number | null;
+    saleCountdownHours: number | null;
     coverImage: string | null;
     demoVideoUrl: string | null;
     fileUrl: string | null;
@@ -74,6 +75,7 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
           category: formData.get("category"),
           price: formData.get("price"),
           salePrice: formData.get("salePrice"),
+          saleCountdownHours: formData.get("saleCountdownHours"),
           coverImage,
           demoVideoUrl,
           fileUrl: fileKey,
@@ -113,6 +115,14 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
                 defaultValue={toolPackage.salePrice ?? ""}
                 placeholder="قیمت با تخفیف"
                 className="w-32"
+              />
+              <Input
+                name="saleCountdownHours"
+                type="number"
+                min={1}
+                defaultValue={toolPackage.saleCountdownHours ?? ""}
+                placeholder="تایمر تخفیف (ساعت)"
+                className="w-36"
               />
             </div>
             <div className="grid gap-3 sm:grid-cols-3">

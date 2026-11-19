@@ -65,6 +65,7 @@ export function NewToolPackageForm() {
           fileUrl: fileKey,
           price: formData.get("price"),
           salePrice: formData.get("salePrice"),
+          saleCountdownHours: formData.get("saleCountdownHours"),
         }),
       });
       const data = await res.json();
@@ -97,9 +98,21 @@ export function NewToolPackageForm() {
           <Input id="tool-price" name="price" type="number" min={0} defaultValue={0} required />
         </div>
       </div>
-      <div className="mt-4">
-        <Label htmlFor="tool-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
-        <Input id="tool-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div>
+          <Label htmlFor="tool-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
+          <Input id="tool-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
+        </div>
+        <div>
+          <Label htmlFor="tool-sale-countdown">مدت تایمر تخفیف برای هر بازدیدکننده (ساعت)</Label>
+          <Input
+            id="tool-sale-countdown"
+            name="saleCountdownHours"
+            type="number"
+            min={1}
+            placeholder="خالی = تخفیف همیشگی بدون تایمر"
+          />
+        </div>
       </div>
       <div className="mt-4 grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">

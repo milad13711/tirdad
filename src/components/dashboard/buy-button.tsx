@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getOrCreateSessionId } from "@/lib/session-id";
 
 type PurchasePayload =
   | { itemType: "COURSE"; courseId: string }
@@ -16,6 +17,8 @@ export function BuyButton({
   children,
   loggedIn = true,
   showCoupon = true,
+  productKey,
+  campaignSlug,
   ...buttonProps
 }: {
   payload: PurchasePayload;
@@ -24,6 +27,11 @@ export function BuyButton({
   // the purchase itself creates/logs the buyer in by phone, no OTP step.
   loggedIn?: boolean;
   showCoupon?: boolean;
+  // When set (course/tool detail pages only), fires a "pay_click" campaign
+  // event right before redirecting to the gateway — see
+  // src/components/site/campaign-tracker.tsx for the rest of the funnel.
+  productKey?: string;
+  campaignSlug?: string;
 } & Omit<React.ComponentProps<typeof Button>, "onClick">) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +45,18 @@ export function BuyButton({
       return;
     }
     setLoading(true);
+    if (productKey) {
+      try {
+        void fetch("/api/campaigns/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productKey, campaignSlug, sessionId: getOrCreateSessionId(), type: "pay_click" }),
+          keepalive: true,
+        });
+      } catch {
+        // Tracking must never block a purchase.
+      }
+    }
     try {
       const res = await fetch("/api/payments/request", {
         method: "POST",
