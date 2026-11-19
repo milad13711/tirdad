@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
 import { VideoUploadField } from "@/components/admin/video-upload-field";
 
 export function NewToolPackageForm() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -74,6 +76,7 @@ export function NewToolPackageForm() {
       setCoverImage("");
       setFileKey("");
       setDemoVideoUrl("");
+      setOpen(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پکیج");
@@ -83,97 +86,120 @@ export function NewToolPackageForm() {
   }
 
   return (
-    <form className="rounded-xl border border-border bg-card p-6" onSubmit={handleSubmit}>
-      <div className="mb-5 flex items-center gap-2">
-        <Plus size={16} className="text-primary" />
-        <h3 className="font-bold">افزودن پکیج ابزار جدید</h3>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <Label htmlFor="tool-title">عنوان پکیج</Label>
-          <Input id="tool-title" name="title" placeholder="مثال: پکیج فونت‌های ترند اینستاگرام" required />
-        </div>
-        <div>
-          <Label htmlFor="tool-price">قیمت (تومان — صفر = رایگان)</Label>
-          <Input id="tool-price" name="price" type="number" min={0} defaultValue={0} required />
-        </div>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div>
-          <Label htmlFor="tool-sale-price">قیمت با تخفیف (اختیاری — برای همه نمایش داده می‌شود)</Label>
-          <Input id="tool-sale-price" name="salePrice" type="number" min={0} placeholder="خالی = بدون تخفیف" />
-        </div>
-        <div>
-          <Label htmlFor="tool-sale-countdown">مدت تایمر تخفیف برای هر بازدیدکننده (ساعت)</Label>
-          <Input
-            id="tool-sale-countdown"
-            name="saleCountdownHours"
-            type="number"
-            min={1}
-            placeholder="خالی = تخفیف همیشگی بدون تایمر"
-          />
-        </div>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <Label htmlFor="tool-description">توضیحات</Label>
-          <Textarea id="tool-description" name="description" placeholder="توضیح کوتاه پکیج..." />
-        </div>
-        <div>
-          <Label htmlFor="tool-category">دسته‌بندی</Label>
-          <Input id="tool-category" name="category" placeholder="مثال: فونت، افکت کپ‌کات" />
-        </div>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        <div>
-          <Label>آپلود فایل روی سرور</Label>
-          <ToolFileUploadField
-            value={fileKey.startsWith("http") ? "" : fileKey}
-            onChange={setFileKey}
-          />
-        </div>
-        <div>
-          <Label htmlFor="tool-file-url">یا لینک دانلود خارجی</Label>
-          <Input
-            id="tool-file-url"
-            dir="ltr"
-            placeholder="https://drive.google.com/..."
-            value={fileKey.startsWith("http") ? fileKey : ""}
-            disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
-            onChange={(event) => setFileKey(event.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="tool-cover">تصویر پکیج (عمودی ۹:۱۶)</Label>
-          <Input id="tool-cover" type="file" accept="image/*" onChange={handleImageChange} />
-          {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
-          {coverImageError && <p className="mt-1 text-xs text-destructive">{coverImageError}</p>}
-          {coverImage && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverImage} alt="" className="mt-2 aspect-[9/16] w-24 rounded-lg object-cover" />
-          )}
-        </div>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div>
-          <Label>آپلود ویدیوی پیش‌نمایش روی سرور</Label>
-          <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
-        </div>
-        <div>
-          <Label htmlFor="tool-demo-video">یا لینک ویدیو (یوتیوب یا خارجی)</Label>
-          <Input
-            id="tool-demo-video"
-            name="demoVideoUrl"
-            dir="ltr"
-            placeholder="https://youtube.com/watch?v=..."
-            disabled={Boolean(demoVideoUrl)}
-          />
-        </div>
-      </div>
-      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <Button className="mt-5" type="submit" disabled={loading || uploading}>
-        {loading ? "در حال ذخیره..." : "ذخیره پکیج"}
-      </Button>
-    </form>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus size={15} />
+          افزودن پکیج ابزار
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>افزودن پکیج ابزار جدید</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="tool-title">عنوان پکیج</Label>
+              <Input id="tool-title" name="title" placeholder="مثال: پکیج فونت‌های ترند اینستاگرام" required />
+            </div>
+            <div>
+              <Label htmlFor="tool-category">دسته‌بندی</Label>
+              <Input id="tool-category" name="category" placeholder="مثال: فونت، افکت کپ‌کات" />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="tool-description">توضیحات</Label>
+              <Textarea id="tool-description" name="description" placeholder="توضیح کوتاه پکیج..." rows={3} />
+            </div>
+          </div>
+
+          <fieldset className="rounded-lg border border-border p-4">
+            <legend className="px-1 text-xs font-semibold text-muted-foreground">قیمت‌گذاری</legend>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="tool-price">قیمت (تومان — صفر = رایگان)</Label>
+                <Input id="tool-price" name="price" type="number" min={0} defaultValue={0} required />
+              </div>
+              <div>
+                <Label htmlFor="tool-sale-price">قیمت با تخفیف</Label>
+                <Input id="tool-sale-price" name="salePrice" type="number" min={0} placeholder="اختیاری" />
+              </div>
+              <div>
+                <Label htmlFor="tool-sale-countdown">تایمر تخفیف (ساعت)</Label>
+                <Input
+                  id="tool-sale-countdown"
+                  name="saleCountdownHours"
+                  type="number"
+                  min={1}
+                  placeholder="خالی = دائمی"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-border p-4">
+            <legend className="px-1 text-xs font-semibold text-muted-foreground">فایل قابل دانلود</legend>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label className="text-xs">آپلود فایل روی سرور</Label>
+                <ToolFileUploadField value={fileKey.startsWith("http") ? "" : fileKey} onChange={setFileKey} />
+              </div>
+              <div>
+                <Label htmlFor="tool-file-url" className="text-xs">
+                  یا لینک دانلود خارجی
+                </Label>
+                <Input
+                  id="tool-file-url"
+                  dir="ltr"
+                  placeholder="https://drive.google.com/..."
+                  value={fileKey.startsWith("http") ? fileKey : ""}
+                  disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
+                  onChange={(event) => setFileKey(event.target.value)}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="rounded-lg border border-border p-4">
+            <legend className="px-1 text-xs font-semibold text-muted-foreground">رسانه</legend>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="tool-cover" className="text-xs">
+                  تصویر پکیج (عمودی ۹:۱۶)
+                </Label>
+                <Input id="tool-cover" type="file" accept="image/*" onChange={handleImageChange} />
+                {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+                {coverImageError && <p className="mt-1 text-xs text-destructive">{coverImageError}</p>}
+                {coverImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={coverImage} alt="" className="mt-2 aspect-[9/16] w-20 rounded-lg object-cover" />
+                )}
+              </div>
+              <div>
+                <Label className="text-xs">ویدیوی پیش‌نمایش</Label>
+                <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
+                <Input
+                  name="demoVideoUrl"
+                  dir="ltr"
+                  placeholder="یا لینک یوتیوب..."
+                  disabled={Boolean(demoVideoUrl)}
+                  className="mt-2"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
+              انصراف
+            </Button>
+            <Button type="submit" size="sm" disabled={loading || uploading}>
+              {loading ? "در حال ذخیره..." : "ذخیره پکیج"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

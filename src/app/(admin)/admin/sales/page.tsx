@@ -72,26 +72,35 @@ export default async function AdminSalesPage() {
             key: "coupons",
             label: "کد تخفیف",
             content: (
-              <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>کد</TableHead>
-                      <TableHead>درصد تخفیف</TableHead>
-                      <TableHead>میزان استفاده</TableHead>
-                      <TableHead>وضعیت</TableHead>
-                      <TableHead>تاریخ انقضا</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {coupons.map((coupon) => (
-                      <CouponRow key={coupon.id} coupon={coupon} />
-                    ))}
-                  </TableBody>
-                </Table>
-                <NewCouponForm />
-              </>
+              <div>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="font-bold">کدهای تخفیف ({coupons.length})</h3>
+                  <NewCouponForm />
+                </div>
+                {coupons.length === 0 ? (
+                  <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+                    هنوز کد تخفیفی ثبت نشده است.
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>کد</TableHead>
+                        <TableHead>درصد تخفیف</TableHead>
+                        <TableHead>میزان استفاده</TableHead>
+                        <TableHead>وضعیت</TableHead>
+                        <TableHead>تاریخ انقضا</TableHead>
+                        <TableHead>عملیات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {coupons.map((coupon) => (
+                        <CouponRow key={coupon.id} coupon={coupon} />
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </div>
             ),
           },
         ]}

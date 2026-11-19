@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { BusinessCategoryPicker } from "@/components/admin/business-category-picker";
@@ -117,15 +118,21 @@ export function PromptRow({ prompt }: PromptRowProps) {
     }
   }
 
-  if (editing) {
-    return (
-      <TableRow>
-        <TableCell colSpan={5}>
-          <form onSubmit={handleSave} className="space-y-3 py-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Input name="name" defaultValue={prompt.name} className="min-w-40 flex-1" required />
+  const editDialog = (
+    <Dialog open={editing} onOpenChange={setEditing}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>ویرایش پرامپت: {prompt.name}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <Label htmlFor={`name-${prompt.id}`}>عنوان</Label>
+              <Input id={`name-${prompt.id}`} name="name" defaultValue={prompt.name} required />
             </div>
-            <Textarea name="promptText" defaultValue={prompt.promptText} required />
+            <div>
+              <Label htmlFor={`text-${prompt.id}`}>متن پرامپت</Label>
+              <Textarea id={`text-${prompt.id}`} name="promptText" defaultValue={prompt.promptText} required />
+            </div>
             <div>
               <Label htmlFor={`usage-${prompt.id}`} className="text-xs">
                 توضیحات آموزشی نحوه استفاده
@@ -194,22 +201,22 @@ export function PromptRow({ prompt }: PromptRowProps) {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" size="sm" disabled={loading || uploading}>
-                {loading ? "..." : "ذخیره"}
-              </Button>
-              <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
-                انصراف
-              </Button>
-            </div>
-            {error && <p className="text-xs text-destructive">{error}</p>}
-          </form>
-        </TableCell>
-      </TableRow>
-    );
-  }
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+            <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
+              انصراف
+            </Button>
+            <Button type="submit" size="sm" disabled={loading || uploading}>
+              {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
+    <>
     <TableRow>
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
@@ -262,5 +269,7 @@ export function PromptRow({ prompt }: PromptRowProps) {
         </div>
       </TableCell>
     </TableRow>
+    {editDialog}
+    </>
   );
 }

@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { VideoUploadField } from "@/components/admin/video-upload-field";
 import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export function NewLessonForm({ courseId }: { courseId: string }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
@@ -43,6 +45,7 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
       setVideoUrl("");
       setAttachmentUrl("");
       setAttachmentName("");
+      setOpen(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره درس");
@@ -52,11 +55,18 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
   }
 
   return (
-    <form className="rounded-xl border border-border bg-card p-6" onSubmit={handleSubmit}>
-      <div className="mb-5 flex items-center gap-2">
-        <Plus size={16} className="text-primary" />
-        <h3 className="font-bold">افزودن درس جدید</h3>
-      </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus size={15} />
+          افزودن درس
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>افزودن درس جدید</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="lesson-title">عنوان درس</Label>
         <Input id="lesson-title" name="title" placeholder="مثال: جلسه اول: آشنایی" required />
@@ -91,10 +101,17 @@ export function NewLessonForm({ courseId }: { courseId: string }) {
         <input type="checkbox" name="isFreeDemo" className="h-4 w-4 accent-primary" />
         نمایش به‌عنوان دموی رایگان
       </label>
-      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <Button className="mt-5" type="submit" disabled={loading}>
-        {loading ? "در حال ذخیره..." : "ذخیره درس"}
-      </Button>
-    </form>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+        <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
+          انصراف
+        </Button>
+        <Button type="submit" size="sm" disabled={loading}>
+          {loading ? "در حال ذخیره..." : "ذخیره درس"}
+        </Button>
+      </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

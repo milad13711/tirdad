@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BusinessCategoryPicker } from "@/components/admin/business-category-picker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const typeOptions = [
   { value: "IMAGE", label: "تصویر" },
@@ -27,6 +28,7 @@ async function uploadImage(file: File): Promise<string> {
 
 export function NewPromptForm() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<"IMAGE" | "VIDEO" | "AUDIO">("IMAGE");
@@ -94,6 +96,7 @@ export function NewPromptForm() {
       setDemoAfterUrl("");
       setCategories([]);
       setIsPremium(false);
+      setOpen(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "خطا در ذخیره پرامپت");
@@ -103,11 +106,18 @@ export function NewPromptForm() {
   }
 
   return (
-    <form className="rounded-xl border border-border bg-card p-6" onSubmit={handleSubmit}>
-      <div className="mb-5 flex items-center gap-2">
-        <Plus size={16} className="text-primary" />
-        <h3 className="font-bold">افزودن پرامپت جدید</h3>
-      </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus size={15} />
+          افزودن پرامپت
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>افزودن پرامپت جدید</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label htmlFor="prompt-name">عنوان</Label>
@@ -223,10 +233,17 @@ export function NewPromptForm() {
         <input type="checkbox" name="featured" className="h-4 w-4 rounded border-border" />
         نمایش در ۳ پرامپت ویژه صفحه اصلی
       </label>
-      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
-      <Button className="mt-5" type="submit" disabled={loading || uploadingBefore || uploadingAfter}>
-        {loading ? "در حال ذخیره..." : "ذخیره پرامپت"}
-      </Button>
-    </form>
+      {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
+            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
+              انصراف
+            </Button>
+            <Button type="submit" size="sm" disabled={loading || uploadingBefore || uploadingAfter}>
+              {loading ? "در حال ذخیره..." : "ذخیره پرامپت"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -6,7 +6,10 @@ import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { formatJalali } from "@/lib/format";
@@ -83,89 +86,104 @@ export function BlogPostRow({ post }: BlogPostRowProps) {
     }
   }
 
-  if (editing) {
-    return (
+  return (
+    <>
       <TableRow>
-        <TableCell colSpan={5}>
-          <form onSubmit={handleSave} className="space-y-2 py-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Input name="title" defaultValue={post.title} className="min-w-40 flex-1" required />
-              <Input name="excerpt" defaultValue={post.excerpt ?? ""} className="min-w-48 flex-1" />
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2.5">
+            {post.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={post.coverImage} alt="" className="h-10 w-14 shrink-0 rounded-md object-cover" />
+            ) : (
+              <div className="h-10 w-14 shrink-0 rounded-md bg-secondary" />
+            )}
+            {post.title}
+          </div>
+        </TableCell>
+        <TableCell className="text-muted-foreground">{post.views.toLocaleString("fa-IR")} بازدید</TableCell>
+        <TableCell>
+          <Badge variant={blogStatusVariant[post.status]}>{blogStatusLabel[post.status]}</Badge>
+        </TableCell>
+        <TableCell className="text-muted-foreground">
+          {post.publishedAt ? formatJalali(post.publishedAt) : "—"}
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-1.5">
+            <ToggleStatusButton
+              endpoint="/api/admin/blog"
+              body={{ id: post.id, published: post.status !== "PUBLISHED" }}
+              activeNow={post.status === "PUBLISHED"}
+              onLabel="انتشار"
+              offLabel="لغو انتشار"
+            />
+            <Button variant="outline" size="icon" aria-label="ویرایش" onClick={() => setEditing(true)}>
+              <Pencil size={14} />
+            </Button>
+            <DeleteButton
+              endpoint="/api/admin/blog"
+              id={post.id}
+              confirmMessage={`مقاله «${post.title}» حذف شود؟`}
+            />
+          </div>
+        </TableCell>
+      </TableRow>
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ویرایش مقاله: {post.title}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <Label htmlFor={`post-edit-title-${post.id}`}>عنوان مقاله</Label>
+              <Input id={`post-edit-title-${post.id}`} name="title" defaultValue={post.title} required />
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Input
-                name="metaTitle"
-                defaultValue={post.metaTitle ?? ""}
-                placeholder="عنوان سئو"
-                className="min-w-40 flex-1"
-              />
-              <Input
-                name="metaDescription"
-                defaultValue={post.metaDescription ?? ""}
-                placeholder="توضیحات سئو"
-                className="min-w-48 flex-1"
-              />
+            <div>
+              <Label htmlFor={`post-edit-excerpt-${post.id}`}>خلاصه</Label>
+              <Input id={`post-edit-excerpt-${post.id}`} name="excerpt" defaultValue={post.excerpt ?? ""} />
             </div>
-            <div className="flex items-center gap-2">
-              <Input type="file" accept="image/*" onChange={handleImageChange} className="max-w-56" />
-              {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
+
+            <fieldset className="rounded-lg border border-border p-4">
+              <legend className="px-1 text-xs font-semibold text-muted-foreground">سئو</legend>
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor={`post-edit-meta-title-${post.id}`}>عنوان سئو (Meta Title)</Label>
+                  <Input id={`post-edit-meta-title-${post.id}`} name="metaTitle" defaultValue={post.metaTitle ?? ""} />
+                </div>
+                <div>
+                  <Label htmlFor={`post-edit-meta-desc-${post.id}`}>توضیحات سئو (Meta Description)</Label>
+                  <Textarea
+                    id={`post-edit-meta-desc-${post.id}`}
+                    name="metaDescription"
+                    defaultValue={post.metaDescription ?? ""}
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <div>
+              <Label htmlFor={`post-edit-cover-${post.id}`}>تصویر شاخص</Label>
+              <Input id={`post-edit-cover-${post.id}`} type="file" accept="image/*" onChange={handleImageChange} />
+              {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
               {coverImage && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={coverImage} alt="" className="h-9 w-14 rounded object-cover" />
+                <img src={coverImage} alt="" className="mt-2 h-24 w-full rounded-lg object-cover" />
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" size="sm" disabled={loading || uploading}>
-                {loading ? "..." : "ذخیره"}
-              </Button>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
                 انصراف
               </Button>
+              <Button type="submit" size="sm" disabled={loading || uploading}>
+                {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
+              </Button>
             </div>
-            {error && <p className="text-xs text-destructive">{error}</p>}
           </form>
-        </TableCell>
-      </TableRow>
-    );
-  }
-
-  return (
-    <TableRow>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          {post.coverImage && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={post.coverImage} alt="" className="h-8 w-12 rounded object-cover" />
-          )}
-          {post.title}
-        </div>
-      </TableCell>
-      <TableCell className="text-muted-foreground">{post.views.toLocaleString("fa-IR")}</TableCell>
-      <TableCell>
-        <Badge variant={blogStatusVariant[post.status]}>{blogStatusLabel[post.status]}</Badge>
-      </TableCell>
-      <TableCell className="text-muted-foreground">
-        {post.publishedAt ? formatJalali(post.publishedAt) : "—"}
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <ToggleStatusButton
-            endpoint="/api/admin/blog"
-            body={{ id: post.id, published: post.status !== "PUBLISHED" }}
-            activeNow={post.status === "PUBLISHED"}
-            onLabel="انتشار"
-            offLabel="لغو انتشار"
-          />
-          <Button variant="outline" size="icon" aria-label="ویرایش" onClick={() => setEditing(true)}>
-            <Pencil size={14} />
-          </Button>
-          <DeleteButton
-            endpoint="/api/admin/blog"
-            id={post.id}
-            confirmMessage={`مقاله «${post.title}» حذف شود؟`}
-          />
-        </div>
-      </TableCell>
-    </TableRow>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

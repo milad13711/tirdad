@@ -6,7 +6,9 @@ import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ToggleStatusButton } from "@/components/admin/toggle-status-button";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { ToolFileUploadField } from "@/components/admin/tool-file-upload-field";
@@ -92,131 +94,174 @@ export function ToolPackageRow({ toolPackage }: ToolPackageRowProps) {
     }
   }
 
-  if (editing) {
-    return (
+  return (
+    <>
       <TableRow>
-        <TableCell colSpan={5}>
-          <form onSubmit={handleSave} className="space-y-2 py-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Input name="title" defaultValue={toolPackage.title} className="min-w-40 flex-1" required />
-              <Input
-                name="price"
-                type="number"
-                min={0}
-                defaultValue={toolPackage.price}
-                className="w-32"
-                required
-              />
-              <Input name="category" defaultValue={toolPackage.category ?? ""} placeholder="دسته‌بندی" className="w-40" />
-              <Input
-                name="salePrice"
-                type="number"
-                min={0}
-                defaultValue={toolPackage.salePrice ?? ""}
-                placeholder="قیمت با تخفیف"
-                className="w-32"
-              />
-              <Input
-                name="saleCountdownHours"
-                type="number"
-                min={1}
-                defaultValue={toolPackage.saleCountdownHours ?? ""}
-                placeholder="تایمر تخفیف (ساعت)"
-                className="w-36"
-              />
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2.5">
+            {toolPackage.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={toolPackage.coverImage} alt="" className="aspect-[9/16] h-10 shrink-0 rounded-md object-cover" />
+            ) : (
+              <div className="aspect-[9/16] h-10 shrink-0 rounded-md bg-secondary" />
+            )}
+            <div>
+              <div>{toolPackage.title}</div>
+              {toolPackage.category && <div className="text-xs text-muted-foreground">{toolPackage.category}</div>}
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <ToolFileUploadField
-                value={fileKey.startsWith("http") ? "" : fileKey}
-                onChange={setFileKey}
-              />
-              <Input
-                dir="ltr"
-                placeholder="یا لینک دانلود خارجی"
-                value={fileKey.startsWith("http") ? fileKey : ""}
-                disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
-                onChange={(event) => setFileKey(event.target.value)}
-              />
-              <div className="flex items-center gap-3">
-                <Input type="file" accept="image/*" onChange={handleImageChange} className="max-w-56" />
-                {uploading && <span className="text-xs text-muted-foreground">در حال آپلود...</span>}
-                {coverImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverImage} alt="" className="aspect-[9/16] w-10 rounded object-cover" />
-                )}
+          </div>
+        </TableCell>
+        <TableCell>
+          {toolPackage.price === 0 ? (
+            "رایگان"
+          ) : toolPackage.salePrice != null ? (
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground line-through">{formatToman(toolPackage.price)}</span>
+              <span className="font-medium text-primary">{formatToman(toolPackage.salePrice)} تومان</span>
+            </div>
+          ) : (
+            `${formatToman(toolPackage.price)} تومان`
+          )}
+        </TableCell>
+        <TableCell className="text-muted-foreground">{toolPackage.downloadCount} دانلود</TableCell>
+        <TableCell>
+          <Badge variant={toolPackage.published ? "success" : "outline"}>
+            {toolPackage.published ? "منتشرشده" : "پیش‌نویس"}
+          </Badge>
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-1.5">
+            <ToggleStatusButton
+              endpoint="/api/admin/tools"
+              body={{ id: toolPackage.id, published: !toolPackage.published }}
+              activeNow={toolPackage.published}
+              onLabel="انتشار"
+              offLabel="لغو انتشار"
+            />
+            <Button variant="outline" size="icon" aria-label="ویرایش" onClick={() => setEditing(true)}>
+              <Pencil size={14} />
+            </Button>
+            <DeleteButton
+              endpoint="/api/admin/tools"
+              id={toolPackage.id}
+              confirmMessage={`پکیج «${toolPackage.title}» حذف شود؟`}
+            />
+          </div>
+        </TableCell>
+      </TableRow>
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ویرایش پکیج: {toolPackage.title}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSave} className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label htmlFor={`tool-edit-title-${toolPackage.id}`}>عنوان پکیج</Label>
+                <Input id={`tool-edit-title-${toolPackage.id}`} name="title" defaultValue={toolPackage.title} required />
+              </div>
+              <div>
+                <Label htmlFor={`tool-edit-category-${toolPackage.id}`}>دسته‌بندی</Label>
+                <Input id={`tool-edit-category-${toolPackage.id}`} name="category" defaultValue={toolPackage.category ?? ""} />
               </div>
             </div>
-            <div>
-              <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" size="sm" disabled={loading || uploading}>
-                {loading ? "..." : "ذخیره"}
-              </Button>
+
+            <fieldset className="rounded-lg border border-border p-4">
+              <legend className="px-1 text-xs font-semibold text-muted-foreground">قیمت‌گذاری</legend>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <Label htmlFor={`tool-edit-price-${toolPackage.id}`}>قیمت (تومان — صفر = رایگان)</Label>
+                  <Input
+                    id={`tool-edit-price-${toolPackage.id}`}
+                    name="price"
+                    type="number"
+                    min={0}
+                    defaultValue={toolPackage.price}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`tool-edit-sale-price-${toolPackage.id}`}>قیمت با تخفیف</Label>
+                  <Input
+                    id={`tool-edit-sale-price-${toolPackage.id}`}
+                    name="salePrice"
+                    type="number"
+                    min={0}
+                    defaultValue={toolPackage.salePrice ?? ""}
+                    placeholder="اختیاری"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`tool-edit-sale-countdown-${toolPackage.id}`}>تایمر تخفیف (ساعت)</Label>
+                  <Input
+                    id={`tool-edit-sale-countdown-${toolPackage.id}`}
+                    name="saleCountdownHours"
+                    type="number"
+                    min={1}
+                    defaultValue={toolPackage.saleCountdownHours ?? ""}
+                    placeholder="خالی = دائمی"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset className="rounded-lg border border-border p-4">
+              <legend className="px-1 text-xs font-semibold text-muted-foreground">فایل قابل دانلود</legend>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">آپلود فایل روی سرور</Label>
+                  <ToolFileUploadField value={fileKey.startsWith("http") ? "" : fileKey} onChange={setFileKey} />
+                </div>
+                <div>
+                  <Label htmlFor={`tool-edit-file-url-${toolPackage.id}`} className="text-xs">
+                    یا لینک دانلود خارجی
+                  </Label>
+                  <Input
+                    id={`tool-edit-file-url-${toolPackage.id}`}
+                    dir="ltr"
+                    placeholder="https://drive.google.com/..."
+                    value={fileKey.startsWith("http") ? fileKey : ""}
+                    disabled={Boolean(fileKey) && !fileKey.startsWith("http")}
+                    onChange={(event) => setFileKey(event.target.value)}
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset className="rounded-lg border border-border p-4">
+              <legend className="px-1 text-xs font-semibold text-muted-foreground">رسانه</legend>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor={`tool-edit-cover-${toolPackage.id}`} className="text-xs">
+                    تصویر پکیج (عمودی ۹:۱۶)
+                  </Label>
+                  <Input id={`tool-edit-cover-${toolPackage.id}`} type="file" accept="image/*" onChange={handleImageChange} />
+                  {uploading && <p className="mt-1 text-xs text-muted-foreground">در حال آپلود...</p>}
+                  {coverImage && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={coverImage} alt="" className="mt-2 aspect-[9/16] w-20 rounded-lg object-cover" />
+                  )}
+                </div>
+                <div>
+                  <Label className="text-xs">ویدیوی پیش‌نمایش</Label>
+                  <VideoUploadField value={demoVideoUrl} onChange={setDemoVideoUrl} />
+                </div>
+              </div>
+            </fieldset>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
               <Button type="button" variant="outline" size="sm" onClick={() => setEditing(false)}>
                 انصراف
               </Button>
+              <Button type="submit" size="sm" disabled={loading || uploading}>
+                {loading ? "در حال ذخیره..." : "ذخیره تغییرات"}
+              </Button>
             </div>
-            {error && <p className="text-xs text-destructive">{error}</p>}
           </form>
-        </TableCell>
-      </TableRow>
-    );
-  }
-
-  return (
-    <TableRow>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          {toolPackage.coverImage && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={toolPackage.coverImage} alt="" className="aspect-[9/16] w-8 rounded object-cover" />
-          )}
-          <div>
-            {toolPackage.title}
-            {toolPackage.category && (
-              <div className="text-xs text-muted-foreground">{toolPackage.category}</div>
-            )}
-          </div>
-        </div>
-      </TableCell>
-      <TableCell>
-        {toolPackage.price === 0 ? (
-          "رایگان"
-        ) : toolPackage.salePrice != null ? (
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground line-through">{formatToman(toolPackage.price)}</span>
-            <span className="font-medium text-primary">{formatToman(toolPackage.salePrice)}</span>
-          </div>
-        ) : (
-          `${formatToman(toolPackage.price)} تومان`
-        )}
-      </TableCell>
-      <TableCell className="text-muted-foreground">{toolPackage.downloadCount}</TableCell>
-      <TableCell>
-        <Badge variant={toolPackage.published ? "success" : "outline"}>
-          {toolPackage.published ? "منتشرشده" : "پیش‌نویس"}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
-          <ToggleStatusButton
-            endpoint="/api/admin/tools"
-            body={{ id: toolPackage.id, published: !toolPackage.published }}
-            activeNow={toolPackage.published}
-            onLabel="انتشار"
-            offLabel="لغو انتشار"
-          />
-          <Button variant="outline" size="icon" aria-label="ویرایش" onClick={() => setEditing(true)}>
-            <Pencil size={14} />
-          </Button>
-          <DeleteButton
-            endpoint="/api/admin/tools"
-            id={toolPackage.id}
-            confirmMessage={`پکیج «${toolPackage.title}» حذف شود؟`}
-          />
-        </div>
-      </TableCell>
-    </TableRow>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

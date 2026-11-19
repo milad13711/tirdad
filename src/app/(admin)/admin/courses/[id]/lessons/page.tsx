@@ -28,31 +28,33 @@ export default async function AdminCourseLessonsPage({
     <div>
       <PageHeader title={`دروس پکیج: ${course.title}`} description="مدیریت جلسات و ویدیوهای پکیج" />
 
-      <div className="mb-8">
-        {course.lessons.length === 0 ? (
-          <div className="mb-8 rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            هنوز درسی برای این پکیج ثبت نشده است.
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ترتیب</TableHead>
-                <TableHead>عنوان درس</TableHead>
-                <TableHead>وضعیت</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {course.lessons.map((lesson) => (
-                <LessonRow key={lesson.id} lesson={lesson} />
-              ))}
-            </TableBody>
-          </Table>
-        )}
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-bold">دروس ({course.lessons.length})</h3>
+        <NewLessonForm courseId={course.id} />
       </div>
 
-      <NewLessonForm courseId={course.id} />
+      {course.lessons.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+          هنوز درسی برای این پکیج ثبت نشده است.
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ترتیب</TableHead>
+              <TableHead>عنوان درس</TableHead>
+              <TableHead>وضعیت</TableHead>
+              <TableHead>فایل ضمیمه</TableHead>
+              <TableHead>عملیات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {course.lessons.map((lesson) => (
+              <LessonRow key={lesson.id} lesson={lesson} />
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }
