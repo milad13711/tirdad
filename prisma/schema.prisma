@@ -202,6 +202,11 @@ model Course {
   // lifetime access (no expiry). Applied to Enrollment.expiresAt when the
   // order is paid — see payments callback.
   accessDurationDays Int?
+  // Added to the real enrollment count wherever it's shown publicly — for
+  // students who bought the course off-site before/outside this platform,
+  // so the page doesn't show "0 دانشجو" for an otherwise-established
+  // course. Purely cosmetic; never affects actual access/enrollment rows.
+  displayEnrollmentOffset Int @default(0)
   createdAt     DateTime     @default(now())
   lessons       Lesson[]
   enrollments   Enrollment[]

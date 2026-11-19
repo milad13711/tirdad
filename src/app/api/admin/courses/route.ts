@@ -29,6 +29,7 @@ const createSchema = z.object({
   saleCountdownHours: saleCountdownHoursSchema,
   level: z.string().optional(),
   accessDurationDays: accessDurationDaysSchema,
+  displayEnrollmentOffset: z.coerce.number().int().min(0).optional(),
 });
 
 const patchSchema = z.object({
@@ -43,6 +44,7 @@ const patchSchema = z.object({
   level: z.string().optional(),
   published: z.boolean().optional(),
   accessDurationDays: accessDurationDaysSchema,
+  displayEnrollmentOffset: z.coerce.number().int().min(0).optional(),
 });
 
 async function requireAdmin() {

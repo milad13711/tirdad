@@ -122,7 +122,7 @@ export default async function CourseDetailPage({
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <Users size={15} /> {course._count.enrollments} دانشجو
+                <Users size={15} /> {course._count.enrollments + course.displayEnrollmentOffset} دانشجو
               </span>
             </div>
 

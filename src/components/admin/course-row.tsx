@@ -25,6 +25,7 @@ interface CourseRowProps {
     coverImage: string | null;
     durationLabel: string | null;
     accessDurationDays: number | null;
+    displayEnrollmentOffset: number;
     published: boolean;
     _count: { enrollments: number; lessons: number };
   };
@@ -78,6 +79,7 @@ export function CourseRow({ course }: CourseRowProps) {
           level: formData.get("level"),
           durationLabel: formData.get("durationLabel"),
           accessDurationDays: formData.get("accessDurationDays"),
+          displayEnrollmentOffset: formData.get("displayEnrollmentOffset") || 0,
           coverImage,
         }),
       });
@@ -137,6 +139,14 @@ export function CourseRow({ course }: CourseRowProps) {
                 defaultValue={course.accessDurationDays ?? ""}
                 placeholder="اعتبار دسترسی (روز)"
                 className="w-40"
+              />
+              <Input
+                name="displayEnrollmentOffset"
+                type="number"
+                min={0}
+                defaultValue={course.displayEnrollmentOffset}
+                placeholder="دانشجوی اولیه (خارج از سایت)"
+                className="w-48"
               />
             </div>
             <Textarea

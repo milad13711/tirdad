@@ -58,6 +58,7 @@ export function NewCourseForm() {
           saleCountdownHours: formData.get("saleCountdownHours"),
           level: formData.get("level"),
           accessDurationDays: formData.get("accessDurationDays"),
+          displayEnrollmentOffset: formData.get("displayEnrollmentOffset") || undefined,
         }),
       });
       const data = await res.json();
@@ -127,6 +128,16 @@ export function NewCourseForm() {
             type="number"
             min={1}
             placeholder="خالی = دسترسی نامحدود"
+          />
+        </div>
+        <div>
+          <Label htmlFor="course-enrollment-offset">تعداد دانشجوی اولیه (خارج از سایت)</Label>
+          <Input
+            id="course-enrollment-offset"
+            name="displayEnrollmentOffset"
+            type="number"
+            min={0}
+            placeholder="مثال: ۵۰"
           />
         </div>
         <div className="md:col-span-2">
